@@ -12,3 +12,11 @@
 *.out
 
 **/.idea
+
+*.swp
+*.swo
+*.swn
+*~
+*.swk
+*.swm
+*.swl
