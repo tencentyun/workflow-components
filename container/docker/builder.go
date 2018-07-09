@@ -48,6 +48,14 @@ func NewBuilder(envs map[string]string) (*Builder, error) {
 	if envs["IMAGE"] == "" {
 		return nil, fmt.Errorf("envionment variable IMAGE is required")
 	}
+
+	if envs["HUB"] == "" || envs["HUB_USER"] == "" || envs["HUB_TOKEN"] == "" {
+		return nil, fmt.Errorf("envionment variable HUB, HUB_USER, HUB_TOKEN are required")
+	}
+	b.Hub = envs["HUB"]
+	b.HubUser = envs["HUB_USER"]
+	b.HubToken = envs["HUB_TOKEN"]
+
 	if strings.Index(envs["IMAGE"], ":") > -1 {
 		imageAndTag := strings.Split(envs["IMAGE"], ":")
 		b.Image, b.ImageTag = imageAndTag[0], imageAndTag[1]
@@ -82,10 +90,6 @@ func NewBuilder(envs map[string]string) (*Builder, error) {
 	b.BuildWorkdir = envs["BUILD_WORKDIR"]
 	b.DockerFilePath = envs["DOCKERFILE_PATH"]
 	b.BuildArgs = envs["BUILD_ARGS"]
-
-	b.Hub = envs["HUB"]
-	b.HubUser = envs["HUB_USER"]
-	b.HubToken = envs["HUB_TOKEN"]
 
 	return b, nil
 }

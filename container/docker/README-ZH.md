@@ -6,6 +6,9 @@
 
 ### 组件参数
 #### 入参
+- `HUB` 必填，镜像仓库地址
+- `HUB_USER` 必填，镜像仓库用户名
+- `HUB_TOKEN` 必填，镜像仓库用户token
 - `GIT_CLONE_URL` 必填，源代码地址，如为私有仓库需要授权
 - `GIT_REF` 非必填，源代码git目标引用，可以是一个git branch, git tag 或者git commit ID, 默认值master
 - `GIT_TPYE` 非必填, 标识`GIT_REF`的类型: `branch`, `tag` 或者 `commit`
