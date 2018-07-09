@@ -1,0 +1,95 @@
+#!/usr/bin/env node
+
+// builder
+function Builder(envs) {
+  if (!envs["GIT_CLONE_URL"]) {
+    console.error("envionment variables GIT_CLONE_URL are required");
+    process.exit(1);
+  }
+
+  this.gitCloneURL = envs["GIT_CLONE_URL"].replace(/\/$/, "");
+  this.gitRef = envs["GIT_REF"] ||  "master";
+
+  this.testPath = envs["TEST_PATH"] || 'test/*';
+  this.testParams = envs["TEST_PARAMS"] || '';
+
+  let paths = this.gitCloneURL.replace(/\.git$/, "").split('/');
+  this.projectName = paths[paths.length - 1];
+}
+
+Builder.prototype.gitPull = async function() {
+  let cmd = new CMD(`git clone --recurse-submodules ${this.gitCloneURL} ${this.projectName}`);
+  await cmd.run();
+};
+
+Builder.prototype.gitReset = async function() {
+  let cwd = require("path").join(process.cwd(), this.projectName);
+  let cmd = new CMD(`git reset --hard ${this.gitRef}`, cwd);
+  await cmd.run();
+};
+
+Builder.prototype.test = async function() {
+  let cwd = require("path").join(process.cwd(), this.projectName);
+  let cmd = new CMD(`mocha ${this.testParams} ${this.testPath}`, cwd);
+  await cmd.run();
+};
+
+Builder.prototype.npmInstall = async function() {
+  let cwd = require("path").join(process.cwd(), this.projectName);
+  let cmd = new CMD(`npm install`, cwd);
+  await cmd.run();
+};
+
+Builder.prototype.run = async function() {
+  try {
+    await this.gitPull();
+    await this.gitReset();
+    await this.npmInstall();
+    await this.test();
+  } catch (e) {
+    console.error("BUILD FAILED: ", e.message);
+    process.exit(1);
+  }
+};
+
+function CMD(command, cwd) {
+  this.command = command;
+  this.cwd = cwd;
+}
+
+CMD.prototype.run = function() {
+  let cmd = this;
+  let promise = new Promise(function(resolve, reject) {
+    console.log(`Run CMD ${cmd.cwd ? 'in ' + cmd.cwd : ''}: ${cmd.command}`);
+
+    let exec = require('child_process').exec;
+    let e = exec(cmd.command, {cwd: cmd.cwd});
+    let stdout, stderr;
+
+    e.stdout.on('data', data =>{
+      stdout = stdout + data;
+      process.stdout.write(data);
+    });
+    e.stderr.on('data', data =>{
+      stderr = stderr + data;
+      process.stderr.write(data);
+    });
+
+    e.on('exit', (code) => {
+      if (code == 0 || code == null) {
+        resolve(stdout);
+      } else {
+        reject(new Error(`CMD (${cmd.command}) error with code ${code}`));
+      }
+    });
+  });
+  return promise;
+};
+
+// main
+const envList = ["GIT_CLONE_URL", "GIT_REF", "TEST_PATH", "TEST_PARAMS"];
+let envs = {};
+for (let envName of envList) {
+  envs[envName] = process.env[envName];
+}
+(new Builder(envs)).run();
