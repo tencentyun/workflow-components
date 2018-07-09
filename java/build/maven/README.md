@@ -1,4 +1,4 @@
-## 组件名称：java maven build
+## 组件名称：Java Maven Build
 
 ### mavan：
 [maven]java maven的编译构建工具。
@@ -13,3 +13,6 @@
 #### 出参
 - `ARTIFACTS` 构建产物结果列表
 
+### 源码地址
+
+[Java Maven Build](https://github.com/tencentyun/workflow-components/tree/master/java/build/maven)

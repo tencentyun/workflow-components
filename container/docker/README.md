@@ -3,9 +3,10 @@
 ### Docker：
 [Docker]根据Dockerfile生成Docker Image的组件。
 
-
 ### 组件参数
+
 #### 入参
+
 - `HUB` 必填，镜像仓库地址
 - `HUB_USER` 必填，镜像仓库用户名
 - `HUB_TOKEN` 必填，镜像仓库用户token
@@ -22,7 +23,12 @@
 
 
 #### 出参
+
 - `IMAGE` 构建的镜像地址, 不包含tag名称, 例如: `hub.cloud.tencent.com/fox/my_awesome_image`
 - `IMAGE_TAG` 构建镜像生成的Tag, 例如: `latest`
 - `IMAGE_ID` 构建镜像生成的Image ID, 如`sha256:9aa1f5d00769e83ed75c0f7347990246eb71aa56403fb1769bc87988d9b1cb8f`
 - `IMAGE_TAG_DIGEST` 构建镜像生成的Digest, 如`sha256:cc6521a0a1423161def9ac34437c45cbfb180581b8d0a006dba2c4be939f2f76`
+
+### 源码地址
+
+[Docker Builder](https://github.com/tencentyun/workflow-components/tree/master/container/docker)

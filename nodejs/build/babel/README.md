@@ -1,4 +1,4 @@
-## 组件名称：Nodejs Babel build
+## 组件名称：Nodejs Babel Build
 
 ### Babel：
 [Babel]用于编写下一代 JavaScript 的编译器。
@@ -13,7 +13,6 @@
 #### 出参
 无
 
+### 源码地址
 
-
-
-
+[Nodejs Babel Build](https://github.com/tencentyun/workflow-components/tree/master/nodejs/build/babel)

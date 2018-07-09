@@ -1,4 +1,4 @@
-## 组件名称：Nodejs Eslint code analysis
+## 组件名称：Nodejs Eslint Analysis
 
 ### Eslint：
 [Eslint]语法规则和代码风格的检查工具。
@@ -13,3 +13,7 @@
 
 #### 出参
 无
+
+### 源码地址
+
+[Nodejs Eslint Analysis](https://github.com/tencentyun/workflow-components/tree/master/nodejs/analysis/eslint)
