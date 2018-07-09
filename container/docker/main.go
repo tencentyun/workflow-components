@@ -20,9 +20,9 @@ var envList = []string{
 	"DOCKERFILE_PATH",
 	"BUILD_ARGS",
 
-	"REGISTRY",
-	"REGISTRY_USER",
-	"REGISTRY_TOKEN",
+	"HUB",
+	"HUB_USER",
+	"HUB_TOKEN",
 
 	// "GIT_URL",
 }

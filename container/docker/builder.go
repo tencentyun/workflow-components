@@ -26,9 +26,9 @@ type Builder struct {
 	DockerFilePath string
 	BuildArgs      string
 
-	Registry      string
-	RegistryUser  string
-	RegistryToken string
+	Hub      string
+	HubUser  string
+	HubToken string
 
 	gitCommit     string
 	gitTag        string
@@ -83,9 +83,9 @@ func NewBuilder(envs map[string]string) (*Builder, error) {
 	b.DockerFilePath = envs["DOCKERFILE_PATH"]
 	b.BuildArgs = envs["BUILD_ARGS"]
 
-	b.Registry = envs["REGISTRY"]
-	b.RegistryUser = envs["REGISTRY_USER"]
-	b.RegistryToken = envs["REGISTRY_TOKEN"]
+	b.Hub = envs["HUB"]
+	b.HubUser = envs["HUB_USER"]
+	b.HubToken = envs["HUB_TOKEN"]
 
 	return b, nil
 }
@@ -209,7 +209,7 @@ func (b *Builder) GenImageTag() error {
 }
 
 func (b *Builder) loginRegistry() error {
-	var command = []string{"docker", "login", b.Registry, "-u", b.RegistryUser, "-p", b.RegistryToken}
+	var command = []string{"docker", "login", b.Hub, "-u", b.HubUser, "-p", b.HubToken}
 	if _, err := (CMD{Command: command}).Run(); err != nil {
 		fmt.Println("docker login failed:", err)
 		return err
