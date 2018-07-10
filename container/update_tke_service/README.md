@@ -2,12 +2,12 @@
 
 ### Update TKE Service:
 
-通过TKE API, 更新TKE服务的镜像, 可以用于镜像更新的触发服务更新
+通过调用TKE API [修改服务镜像](https://cloud.tencent.com/document/api/457/9630), 更新TKE服务的镜像, 可以用于镜像更新后触发服务更新
 
 ### 组件参数
 #### 入参
 
-- `TENCENTCLOUD_SECRET_ID` 必填，在云API密钥上申请的标识身份的[SecretId]，一个SecretId对应唯一的SecretKey
+- `TENCENTCLOUD_SECRET_ID` 必填，在[云API密钥管理](https://console.cloud.tencent.com/cam/capi)上申请的标识身份的SecretId，一个SecretId对应唯一的SecretKey
 - `TENCENTCLOUD_SECRET_KEY` 必填，SecretId 对应的唯一SecretKey
 - `REGION` 必填, 区域参数，用来标识希望操作哪个区域的实例
 - `CLUSTER_ID` 必填, 服务所在的TKE 集群ID
