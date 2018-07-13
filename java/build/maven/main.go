@@ -5,7 +5,10 @@ import (
 	"os"
 )
 
-var envList = []string{"GIT_CLONE_URL", "GIT_REF", "GOALS", "POM_PATH"}
+var envList = []string{
+	"GIT_CLONE_URL", "GIT_REF", "GOALS", "POM_PATH",
+	"HUB_BIN_REPO", "HUB_USER", "HUB_TOKEN", "BIN_TAG", "BIN_PATH",
+}
 
 func main() {
 	envs := make(map[string]string)

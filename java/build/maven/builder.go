@@ -18,6 +18,12 @@ type Builder struct {
 	Goals       string
 	PomPath     string
 
+	HubBinRepo string
+	HubUser    string
+	HubToken   string
+	BinTag     string
+	BinPath    string
+
 	projectName string
 }
 
@@ -43,6 +49,15 @@ func NewBuilder(envs map[string]string) (*Builder, error) {
 		b.PomPath = "./pom.xml"
 	}
 
+	b.HubBinRepo = envs["HUB_BIN_REPO"]
+	b.HubUser = envs["HUB_USER"]
+	b.HubToken = envs["HUB_TOKEN"]
+	b.BinPath = envs["BIN_PATH"]
+	b.BinTag = envs["BIN_TAG"]
+	if b.BinTag == "" {
+		b.BinTag = "latest"
+	}
+
 	return b, nil
 }
 
@@ -63,7 +78,7 @@ func (b *Builder) run() error {
 		return err
 	}
 
-	if err := b.handleArtifact(); err != nil {
+	if err := b.handleArtifacts(); err != nil {
 		return err
 	}
 	// err = b.doPush(b.Image)
@@ -95,26 +110,51 @@ func (b *Builder) build() error {
 	return nil
 }
 
-func (b *Builder) handleArtifact() error {
-	command := []string{"find", "./target", "-name", "*.jar", "-o", "-name", "*.war"}
-
+func (b *Builder) handleArtifacts() error {
 	cwd, _ := os.Getwd()
+	targetPath := filepath.Join(cwd, b.projectName, "target")
 
-	output, err := (CMD{command, filepath.Join(cwd, b.projectName)}).Run()
+	command := []string{"find", "./", "-name", "*.jar", "-o", "-name", "*.war"}
+	output, err := (CMD{command, targetPath}).Run()
 	if err != nil {
-		fmt.Println("Run find artifact failed:", err)
+		fmt.Println("Run find artifacts failed:", err)
 		return err
 	}
-
 	output = strings.TrimSpace(output)
-	if len(output) > 0 {
-		artifact := strings.Join(strings.Split(output, "\n"), ";")
-		fmt.Printf("[JOB_OUT] ARTIFACT = %s\n", artifact)
-	} else {
+	if len(output) == 0 {
 		return errors.New("no artifact")
 	}
 
-	fmt.Println("Run handle artifact succeded.")
+	artifactsSlice := strings.Split(output, "\n")
+	fmt.Printf("[JOB_OUT] ARTIFACTS = %s\n", strings.Join(artifactsSlice, ";"))
+
+	if b.HubBinRepo == "" {
+		fmt.Println("HUB_BIN_REPO is empty, no need upload artifacts")
+		return nil
+	}
+
+	artifactsTar := fmt.Sprintf("%s.tar", b.projectName)
+	command = []string{"tar", "-cf", artifactsTar}
+	command = append(command, artifactsSlice...)
+	if _, err := (CMD{command, targetPath}).Run(); err != nil {
+		fmt.Println("Run tar artifacts failed:", err)
+		return err
+	}
+
+	command = []string{
+		"/.workflow/bin/thub", "push",
+		fmt.Sprintf("--username=%s", b.HubUser), fmt.Sprintf("--username=%s", b.HubToken),
+		fmt.Sprintf("--repo=%s", b.HubBinRepo),
+		fmt.Sprintf("--localpath=%s", artifactsTar),
+		fmt.Sprintf("--path=%s", filepath.Join(b.BinPath, artifactsTar)),
+		fmt.Sprintf("--tag=%s", b.BinTag),
+	}
+	if _, err := (CMD{command, targetPath}).Run(); err != nil {
+		fmt.Println("Run upload artifacts failed:", err)
+		return err
+	}
+
+	fmt.Println("Run upload artifacts succeded.")
 	return nil
 }
 
