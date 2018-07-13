@@ -24,8 +24,8 @@ LABEL TencentHubComponent='{\
     {"name": "GIT_CLONE_URL", "desc": "required, git clone url"},\
     {"name": "GIT_REF", "desc": "optional, target git commit id, git tag or branch name, default is master"},\
     {"name": "GOALS", "desc": "optional, mvn options and goals, default is package"},\
-    {"name": "POM_PATH", "desc": "optional, the relative path of pom file"}\
-    {"name": "HUB_BIN_REPO", "desc": "optional, "}\
+    {"name": "POM_PATH", "desc": "optional, the relative path of pom file"},\
+    {"name": "HUB_BIN_REPO", "desc": "optional,the artifacts repo"},\
     {"name": "HUB_USER", "desc": "required, the docker registry user name"},\
     {"name": "HUB_TOKEN", "desc": "required, the docker registry user token"},\
     {"name": "BIN_TAG", "desc": "optional, the tag of artifacts in repo"},\
