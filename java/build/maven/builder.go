@@ -143,7 +143,7 @@ func (b *Builder) handleArtifacts() error {
 
 	command = []string{
 		"/.workflow/bin/thub", "push",
-		fmt.Sprintf("--username=%s", b.HubUser), fmt.Sprintf("--username=%s", b.HubToken),
+		fmt.Sprintf("--username=%s", b.HubUser), fmt.Sprintf("--password=%s", b.HubToken),
 		fmt.Sprintf("--repo=%s", b.HubBinRepo),
 		fmt.Sprintf("--localpath=%s", artifactsTar),
 		fmt.Sprintf("--path=%s", filepath.Join(b.BinPath, artifactsTar)),
