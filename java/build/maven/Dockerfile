@@ -32,6 +32,7 @@ LABEL TencentHubComponent='{\
     {"name": "BIN_PATH", "desc": "optional, the path of artifacts in repo"}\
   ],\
   "output": [ \
-    {"name": "ARTIFACTS", "desc": "the output artifact after build"}\
+    {"name": "ARTIFACTS", "desc": "the output artifact after build"},\
+    {"name": "BIN_URL", "desc": "the uploaded artifact url"}\
   ]\
 }'

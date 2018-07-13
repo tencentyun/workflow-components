@@ -154,6 +154,8 @@ func (b *Builder) handleArtifacts() error {
 		return err
 	}
 
+	// TODO
+	fmt.Printf("[JOB_OUT] BIN_URL = %s\n", filepath.Join(b.HubBinRepo, b.BinPath, artifactsTar))
 	fmt.Println("Run upload artifacts succeded.")
 	return nil
 }
