@@ -10,6 +10,9 @@ var envList = []string{
 	"GIT_CLONE_URL",
 	"GIT_REF",
 	"GIT_TYPE",
+	"_WORKFLOW_GIT_CLONE_URL",
+	"_WORKFLOW_GIT_REF",
+	"_WORKFLOW_GIT_TYPE",
 
 	"IMAGE",
 	"IMAGE_TAG_FORMAT",
@@ -20,11 +23,10 @@ var envList = []string{
 	"DOCKERFILE_PATH",
 	"BUILD_ARGS",
 
-	"HUB",
 	"HUB_USER",
 	"HUB_TOKEN",
-
-	// "GIT_URL",
+	"_WORKFLOW_HUB_USER",
+	"_WORKFLOW_HUB_TOKEN",
 }
 
 func main() {
