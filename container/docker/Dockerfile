@@ -20,7 +20,6 @@ CMD ["component-docker"]
 LABEL TencentHubComponent='{\
   "description": "TencentHub container component, build docker image",\
   "input": [\
-    {"name": "HUB", "desc": "required, the docker registry"},\
     {"name": "HUB_USER", "desc": "required, the docker registry user name"},\
     {"name": "HUB_TOKEN", "desc": "required, the docker registry user token"},\
     {"name": "GIT_CLONE_URL", "desc": "required, git clone url"},\

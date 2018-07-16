@@ -26,10 +26,10 @@ type Builder struct {
 	DockerFilePath string
 	BuildArgs      string
 
-	Hub      string
 	HubUser  string
 	HubToken string
 
+	hub           string
 	gitCommit     string
 	gitTag        string
 	gitCommitTime string
@@ -49,10 +49,10 @@ func NewBuilder(envs map[string]string) (*Builder, error) {
 		return nil, fmt.Errorf("envionment variable IMAGE is required")
 	}
 
-	if envs["HUB"] == "" || envs["HUB_USER"] == "" || envs["HUB_TOKEN"] == "" {
-		return nil, fmt.Errorf("envionment variable HUB, HUB_USER, HUB_TOKEN are required")
+	if envs["HUB_USER"] == "" || envs["HUB_TOKEN"] == "" {
+		return nil, fmt.Errorf("envionment variable HUB_USER, HUB_TOKEN are required")
 	}
-	b.Hub = envs["HUB"]
+
 	b.HubUser = envs["HUB_USER"]
 	b.HubToken = envs["HUB_TOKEN"]
 
@@ -61,6 +61,12 @@ func NewBuilder(envs map[string]string) (*Builder, error) {
 		b.Image, b.ImageTag = imageAndTag[0], imageAndTag[1]
 	} else {
 		b.Image = envs["IMAGE"]
+	}
+
+	if strings.Index(b.Image, ".") > -1 {
+		b.hub = b.Image
+	} else {
+		b.hub = "index.docker.io" // default server
 	}
 
 	if envs["IMAGE_TAG"] != "" { // 高优先级
@@ -213,7 +219,7 @@ func (b *Builder) GenImageTag() error {
 }
 
 func (b *Builder) loginRegistry() error {
-	var command = []string{"docker", "login", b.Hub, "-u", b.HubUser, "-p", b.HubToken}
+	var command = []string{"docker", "login", b.hub, "-u", b.HubUser, "-p", b.HubToken}
 	if _, err := (CMD{Command: command}).Run(); err != nil {
 		fmt.Println("docker login failed:", err)
 		return err
