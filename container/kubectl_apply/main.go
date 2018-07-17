@@ -11,6 +11,8 @@ var envList = []string{
 	"CERTIFICATE",
 	"SERVER",
 	"RESOURCE",
+
+	"CMD",
 }
 
 func main() {
@@ -18,6 +20,14 @@ func main() {
 	for _, envName := range envList {
 		envs[envName] = os.Getenv(envName)
 	}
+
+	//for _, e := range os.Environ() {
+	//	pair := strings.Split(e, "=")
+	//	k, v := pair[0], pair[1]
+	//	if strings.HasPrefix(k, "ARG_") {
+	//
+	//	}
+	//}
 
 	builder, err := NewBuilder(envs)
 	if err != nil {

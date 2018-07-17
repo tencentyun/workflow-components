@@ -2,18 +2,22 @@ package main
 
 import (
 	"fmt"
+	"io/ioutil"
 	"os/exec"
 	"strings"
-	"io/ioutil"
+	"errors"
 )
 
 // Builder is
 type Builder struct {
 	Username    string
-	Password         string
-	Certificate        string
-	Server          string
-	Resource string
+	Password    string
+	Certificate string
+	Server      string
+	Cmd         string
+	// Resource    string
+
+	output string
 }
 
 // NewBuilder is
@@ -23,7 +27,7 @@ func NewBuilder(envs map[string]string) (*Builder, error) {
 	if envs["USERNAME"] == "" {
 		return nil, fmt.Errorf("envionment variable USERNAME is required")
 	}
-	b.Username =  envs["USERNAME"]
+	b.Username = envs["USERNAME"]
 
 	if envs["PASSWORD"] == "" {
 		return nil, fmt.Errorf("envionment variable PASSWORD is required")
@@ -40,11 +44,15 @@ func NewBuilder(envs map[string]string) (*Builder, error) {
 	}
 	b.Server = envs["SERVER"]
 
-	if envs["RESOURCE"] == "" {
-		return nil, fmt.Errorf("envionment variable RESOURCE is required")
+	if envs["CMD"] == "" {
+		return nil, fmt.Errorf("envionment variable CMD is required")
 	}
-	b.Resource = envs["RESOURCE"]
+	//if envs["RESOURCE"] == "" {
+	//	return nil, fmt.Errorf("envionment variable RESOURCE is required")
+	//}
+	// b.Resource = envs["RESOURCE"]
 
+	b.Cmd = envs["CMD"]
 	return b, nil
 }
 
@@ -52,7 +60,10 @@ func (b *Builder) run() error {
 	if err := b.initConfig(); err != nil {
 		return err
 	}
-	if err := b.runCommand(); err != nil {
+	if err := b.execCmd(); err != nil {
+		return err
+	}
+	if err := b.apply(); err != nil {
 		return err
 	}
 
@@ -86,8 +97,27 @@ func (b *Builder) initConfig() error {
 	return nil
 }
 
-func (b *Builder) runCommand() error {
-	if err := ioutil.WriteFile("/root/resource.yaml", []byte(b.Resource), 0644); err != nil {
+func (b *Builder) execCmd() error {
+	command := []string{"/bin/sh", "-c", b.Cmd}
+
+	output, err := (CMD{Command: command}).Run()
+	if err != nil {
+		fmt.Println("exec CMD failed:", err)
+		return err
+	}
+
+	output = strings.TrimSpace(output)
+	if len(output) > 0 {
+		b.output = output
+	} else {
+		return errors.New("output of CMD is empty")
+	}
+
+	return nil
+}
+
+func (b *Builder) apply() error {
+	if err := ioutil.WriteFile("/root/resource.yaml", []byte(b.output), 0644); err != nil {
 		fmt.Println("write resource yaml failed:", err)
 		return err
 	}
@@ -102,7 +132,6 @@ func (b *Builder) runCommand() error {
 
 	return nil
 }
-
 
 type CMD struct {
 	Command []string // cmd with args

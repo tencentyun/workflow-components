@@ -24,7 +24,7 @@ LABEL TencentHubComponent='{\
     {"name": "PASSWORD", "desc": "required, kubernetes password"},\
     {"name": "CERTIFICATE", "desc": "required, kubernetes certificate"},\
     {"name": "SERVER", "desc": "required, kubernetes server address"},\
-    {"name": "RESOURCE", "desc": "required, the definition resource yaml"}\
+    {"name": "CMD", "desc": "required, the command run in /bin/sh, the stdout will be used by `kubectl apply -f`"}\
   ],\
   "output": [\
   ]\
