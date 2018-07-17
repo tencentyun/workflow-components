@@ -1,14 +1,12 @@
 ## 组件名称：Docker Builder
 
 ### Docker：
-[Docker]根据Dockerfile生成Docker Image的组件, 并推送到image相关的镜像仓库中.
+[Docker]根据Dockerfile生成Docker Image的组件, 并推送到tencent hub 指定的镜像仓库中.
 
 ### 组件参数
 
 #### 入参
 
-- `HUB_USER` 必填，镜像仓库用户名, `docker login` 镜像仓库的用户名
-- `HUB_TOKEN` 必填，镜像仓库用户token, `docker login` 镜像仓库的用户密码
 - `GIT_CLONE_URL` 必填，源代码地址，如为私有仓库需要授权; 如需使用系统关联的git仓库, 可以从系统提供的全局环境变量中获取: `${_WORKFLOW_GIT_CLONE_URL}`
 - `GIT_REF` 非必填，源代码git目标引用，可以是一个git branch, git tag 或者git commit ID, 默认值master
 - `GIT_TPYE` 非必填, 标识`GIT_REF`的类型: `branch`, `tag` 或者 `commit`
@@ -30,4 +28,4 @@
 
 ### 源码地址
 
-[Docker Builder](https://github.com/tencentyun/workflow-components/tree/master/container/docker_builder)
+[Docker Builder](https://github.com/tencentyun/workflow-components/tree/master/container/thub_docker_builder)
