@@ -14,7 +14,7 @@ type Builder struct {
 	Certificate string
 	Server      string
 	Cmd         string
-	Resource    string
+	// Resource    string
 
 	// output string
 }
@@ -43,10 +43,10 @@ func NewBuilder(envs map[string]string) (*Builder, error) {
 	}
 	b.Server = envs["SERVER"]
 
-	if envs["RESOURCE"] == "" {
-		return nil, fmt.Errorf("envionment variable RESOURCE is required")
-	}
-	b.Resource = envs["RESOURCE"]
+	//if envs["RESOURCE"] == "" {
+	//	return nil, fmt.Errorf("envionment variable RESOURCE is required")
+	//}
+	//b.Resource = envs["RESOURCE"]
 
 	b.Cmd = envs["CMD"]
 	return b, nil
@@ -59,7 +59,7 @@ func (b *Builder) run() error {
 	if err := b.execCmd(); err != nil {
 		return err
 	}
-	// if err := b.apply(); err != nil {
+	// if err := b.RESOURCEapply(); err != nil {
 	// 	return err
 	// }
 
