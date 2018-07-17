@@ -2,17 +2,23 @@
 
 // builder
 function Builder(envs) {
-  if (!envs["GIT_CLONE_URL"]) {
-    console.error("envionment variables GIT_CLONE_URL is required");
+  if (envs["GIT_CLONE_URL"]) {
+    this.gitCloneURL = envs["GIT_CLONE_URL"].replace(/\/$/, "");
+    this.gitRef = envs["GIT_REF"] ||  "master";
+  } else if (envs["_WORKFLOW_GIT_CLONE_URL"]) {
+    this.gitCloneURL = envs["_WORKFLOW_GIT_CLONE_URL"].replace(/\/$/, "");
+    this.gitRef = envs["_WORKFLOW_GIT_REF"] ||  "master";
+  }
+  if (!this.gitCloneURL) {
+    console.error("envionment variables GIT_CLONE_URL are required");
     process.exit(1);
   }
+
   if (!envs["BUILD_PATH"]) {
     console.error("envionment variables BUILD_PATH is required");
     process.exit(1);
   }
 
-  this.gitCloneURL = envs["GIT_CLONE_URL"].replace(/\/$/, "");
-  this.gitRef = envs["GIT_REF"] ||  "master";
   this.buildPath = envs["BUILD_PATH"];
   this.buildParams = envs["BUILD_PARAMS"] || '';
 
@@ -90,7 +96,11 @@ CMD.prototype.run = function() {
 };
 
 // main
-const envList = ["GIT_CLONE_URL", "GIT_REF", "BUILD_PATH", "BUILD_PARAMS"];
+const envList = [
+  "GIT_CLONE_URL", "GIT_REF",
+  "_WORKFLOW_GIT_CLONE_URL", "_WORKFLOW_GIT_REF",
+  "BUILD_PATH", "BUILD_PARAMS"
+];
 let envs = {};
 for (let envName of envList) {
   envs[envName] = process.env[envName];
