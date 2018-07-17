@@ -6,8 +6,18 @@ import (
 )
 
 var envList = []string{
-	"GIT_CLONE_URL", "GIT_REF", "GOALS", "POM_PATH",
-	"HUB_BIN_REPO", "HUB_USER", "HUB_TOKEN", "BIN_TAG", "BIN_PATH",
+	"GIT_CLONE_URL",
+	"GIT_REF",
+	"_WORKFLOW_GIT_CLONE_URL",
+	"_WORKFLOW_GIT_REF",
+
+	"GOALS", "POM_PATH",
+	"HUB_BIN_REPO", "BIN_TAG", "BIN_PATH",
+
+	"HUB_USER",
+	"HUB_TOKEN",
+	"_WORKFLOW_HUB_USER",
+	"_WORKFLOW_HUB_TOKEN",
 }
 
 func main() {

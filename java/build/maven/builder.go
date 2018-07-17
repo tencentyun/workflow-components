@@ -31,11 +31,20 @@ type Builder struct {
 func NewBuilder(envs map[string]string) (*Builder, error) {
 	b := &Builder{}
 
-	if envs["GIT_CLONE_URL"] == "" {
-		return nil, fmt.Errorf("envionment variables GIT_CLONE_URL is required")
+	if envs["GIT_CLONE_URL"] != "" {
+		b.GitCloneURL = envs["GIT_CLONE_URL"]
+		b.GitRef = envs["GIT_REF"]
+	} else if envs["_WORKFLOW_GIT_CLONE_URL"] != "" {
+		b.GitCloneURL = envs["_WORKFLOW_GIT_CLONE_URL"]
+		b.GitRef = envs["_WORKFLOW_GIT_REF"]
+	} else {
+		return nil, fmt.Errorf("envionment variable GIT_CLONE_URL is required")
 	}
 
-	b.GitCloneURL = envs["GIT_CLONE_URL"]
+	if b.GitRef == "" {
+		b.GitRef = "master"
+	}
+
 	s := strings.TrimSuffix(strings.TrimSuffix(b.GitCloneURL, "/"), ".git")
 	b.projectName = s[strings.LastIndex(s, "/")+1:]
 
@@ -49,9 +58,18 @@ func NewBuilder(envs map[string]string) (*Builder, error) {
 		b.PomPath = "./pom.xml"
 	}
 
-	b.HubBinRepo = envs["HUB_BIN_REPO"]
 	b.HubUser = envs["HUB_USER"]
 	b.HubToken = envs["HUB_TOKEN"]
+
+	if b.HubUser == "" && b.HubToken == "" {
+		b.HubUser = envs["_WORKFLOW_HUB_USER"]
+		b.HubToken = envs["_WORKFLOW_HUB_TOKEN"]
+	}
+	if b.HubUser == "" || b.HubToken == "" {
+		return nil, fmt.Errorf("envionment variable HUB_USER, HUB_TOKEN are required")
+	}
+
+	b.HubBinRepo = envs["HUB_BIN_REPO"]
 	b.BinPath = envs["BIN_PATH"]
 	b.BinTag = envs["BIN_TAG"]
 	if b.BinTag == "" {
