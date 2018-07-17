@@ -1,4 +1,4 @@
-## 组件名称：Docker Builder
+## 组件名称：Thub Docker Builder
 
 ### Docker：
 [Docker]根据Dockerfile生成Docker Image的组件, 并推送到tencent hub 指定的镜像仓库中.
