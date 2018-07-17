@@ -24,6 +24,7 @@ LABEL TencentHubComponent='{\
     {"name": "HUB_TOKEN", "desc": "required, the docker registry user token"},\
     {"name": "GIT_CLONE_URL", "desc": "required, git clone url, you can get the authorized git repo url with assignment `${_WORKFLOW_GIT_CLONE_URL}`, which is a global environment variable"},\
     {"name": "GIT_REF", "desc": "optional, git target reference, it can be a git commit, git tag or git branch"},\
+    {"name": "GIT_TYPE", "desc": "optional, type of `GIT_REF`, it can be branch, tag or commit"},\
     {"name": "IMAGE", "desc": "optional, the result docker image tag, like `hub.cloud.tencent.com/fox/nodejs`, it can with or without tag"},\
     {"name": "IMAGE_TAG_FORMAT", "desc": "optional, image tag format"},\
     {"name": "IMAGE_TAG", "desc": "optional, the result docker image tag, default is `latest`"},\
