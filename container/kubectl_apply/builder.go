@@ -5,7 +5,6 @@ import (
 	"io/ioutil"
 	"os/exec"
 	"strings"
-	"errors"
 )
 
 // Builder is
@@ -15,9 +14,9 @@ type Builder struct {
 	Certificate string
 	Server      string
 	Cmd         string
-	// Resource    string
+	Resource    string
 
-	output string
+	// output string
 }
 
 // NewBuilder is
@@ -44,13 +43,10 @@ func NewBuilder(envs map[string]string) (*Builder, error) {
 	}
 	b.Server = envs["SERVER"]
 
-	if envs["CMD"] == "" {
-		return nil, fmt.Errorf("envionment variable CMD is required")
+	if envs["RESOURCE"] == "" {
+		return nil, fmt.Errorf("envionment variable RESOURCE is required")
 	}
-	//if envs["RESOURCE"] == "" {
-	//	return nil, fmt.Errorf("envionment variable RESOURCE is required")
-	//}
-	// b.Resource = envs["RESOURCE"]
+	b.Resource = envs["RESOURCE"]
 
 	b.Cmd = envs["CMD"]
 	return b, nil
@@ -63,9 +59,9 @@ func (b *Builder) run() error {
 	if err := b.execCmd(); err != nil {
 		return err
 	}
-	if err := b.apply(); err != nil {
-		return err
-	}
+	// if err := b.apply(); err != nil {
+	// 	return err
+	// }
 
 	return nil
 }
@@ -98,40 +94,44 @@ func (b *Builder) initConfig() error {
 }
 
 func (b *Builder) execCmd() error {
+	//if b.Cmd == "" {
+	//	b.output = b.Resource
+	//}
+
 	command := []string{"/bin/sh", "-c", b.Cmd}
 
-	output, err := (CMD{Command: command}).Run()
+	_, err := (CMD{Command: command}).Run()
 	if err != nil {
 		fmt.Println("exec CMD failed:", err)
 		return err
 	}
 
-	output = strings.TrimSpace(output)
-	if len(output) > 0 {
-		b.output = output
-	} else {
-		return errors.New("output of CMD is empty")
-	}
+	// output = strings.TrimSpace(output)
+	// if len(output) > 0 {
+	// 	b.resourceYAML = output
+	// } else {
+	// 	return errors.New("output of CMD is empty")
+	// }
 
 	return nil
 }
 
-func (b *Builder) apply() error {
-	if err := ioutil.WriteFile("/root/resource.yaml", []byte(b.output), 0644); err != nil {
-		fmt.Println("write resource yaml failed:", err)
-		return err
-	}
-
-	command := []string{"kubectl", "apply", "-f", "/root/resource.yaml"}
-
-	_, err := (CMD{Command: command}).Run()
-	if err != nil {
-		fmt.Println("run command failed:", err)
-		return err
-	}
-
-	return nil
-}
+//func (b *Builder) apply() error {
+//	if err := ioutil.WriteFile("/root/resource.yaml", []byte(b.output), 0644); err != nil {
+//		fmt.Println("write resource yaml failed:", err)
+//		return err
+//	}
+//
+//	command := []string{"kubectl", "apply", "-f", "/root/resource.yaml"}
+//
+//	_, err := (CMD{Command: command}).Run()
+//	if err != nil {
+//		fmt.Println("run command failed:", err)
+//		return err
+//	}
+//
+//	return nil
+//}
 
 type CMD struct {
 	Command []string // cmd with args
