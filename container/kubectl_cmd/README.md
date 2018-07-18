@@ -1,8 +1,8 @@
-## 组件名称：Kubectl Apply
+## 组件名称：Kubectl CMD
 
-### Kubectl Apply:
+### Kubectl CMD:
 
-执行 `kubectl apply` 命令
+在预装 `kubectl` 的环境里执行用户自定义的shell命令. 该组件还自定义多个环境变量, 这些环境变量在`CMD`中可以直接使用.
 
 ### 组件参数
 #### 入参
@@ -11,7 +11,11 @@
 - `PASSWORD` 必填，kubernetes 用户密码
 - `CERTIFICATE` 必填, kubernetes 证书内容
 - `SERVER` 必填, kubernetes 服务器地址
-- `RESOURCE` 必填, kubernetes 资源定义yaml内容
+- `CMD` 必填, 用户自定义shell命令, 支持多行, 使用`/bin/sh -c`执行
+- 其他自定义入参: 可以在`CMD`中通过环境变量读取
+  
+
+ 
 
 腾讯云 kubernetes 容器集群用户, 可通过以下方式获取集群账号密码以及证书信息:
 
@@ -26,4 +30,4 @@
 
 ### 源码地址
 
-[Kubectl Apply](https://github.com/tencentyun/workflow-components/tree/master/container/kubectl_apply)
+[Kubectl CMD](https://github.com/tencentyun/workflow-components/tree/master/container/kubectl_cmd)
