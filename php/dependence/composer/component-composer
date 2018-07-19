@@ -1,0 +1,34 @@
+#!/usr/local/bin/php
+<?php
+define("WORK_DIR", "./workspace");
+
+require_once("./builder.php");
+
+
+$envList=array(
+  "GIT_CLONE_URL", "GIT_REF",
+  "_WORKFLOW_GIT_CLONE_URL", "_WORKFLOW_GIT_REF",
+
+  "HUB_REPO", "ARTIFACT_TAG", "ARTIFACT_PATH",
+
+  "HUB_USER",
+  "HUB_TOKEN",
+  "_WORKFLOW_HUB_USER",
+  "_WORKFLOW_HUB_TOKEN"
+);
+
+$envs = array();
+$len=count($envList);
+for($i=0;$i<$len;$i++) {
+  $envs[$envList[$i]] = getenv($envList[$i]);
+}
+
+$builder = new Builder($envs);
+
+if ($builder->run()) {
+  fwrite(STDOUT, "BUILD SUCCEED\n");
+} else {
+  fwrite(STDERR, "BUILD FAILED\n");
+  exit(1);
+}
+?>
