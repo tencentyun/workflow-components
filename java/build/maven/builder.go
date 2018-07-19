@@ -18,11 +18,11 @@ type Builder struct {
 	Goals       string
 	PomPath     string
 
-	HubBinRepo string
-	HubUser    string
-	HubToken   string
-	BinTag     string
-	BinPath    string
+	HubRepo      string
+	HubUser      string
+	HubToken     string
+	ArtifactTag  string
+	ArtifactPath string
 
 	projectName string
 }
@@ -69,11 +69,11 @@ func NewBuilder(envs map[string]string) (*Builder, error) {
 		return nil, fmt.Errorf("envionment variable HUB_USER, HUB_TOKEN are required")
 	}
 
-	b.HubBinRepo = envs["HUB_BIN_REPO"]
-	b.BinPath = envs["BIN_PATH"]
-	b.BinTag = envs["BIN_TAG"]
-	if b.BinTag == "" {
-		b.BinTag = "latest"
+	b.HubRepo = envs["HUB_REPO"]
+	b.ArtifactPath = envs["ARTIFACT_PATH"]
+	b.ArtifactTag = envs["ARTIFACT_TAG"]
+	if b.ArtifactTag == "" {
+		b.ArtifactTag = "latest"
 	}
 
 	return b, nil
@@ -144,10 +144,10 @@ func (b *Builder) handleArtifacts() error {
 	}
 
 	artifactsSlice := strings.Split(output, "\n")
-	fmt.Printf("[JOB_OUT] ARTIFACTS = %s\n", strings.Join(artifactsSlice, ";"))
+	fmt.Printf("[JOB_OUT] ARTIFACT = %s\n", strings.Join(artifactsSlice, ";"))
 
-	if b.HubBinRepo == "" {
-		fmt.Println("HUB_BIN_REPO is empty, no need upload artifacts")
+	if b.HubRepo == "" {
+		fmt.Println("HUB_REPO is empty, no need upload artifacts")
 		return nil
 	}
 
@@ -162,10 +162,10 @@ func (b *Builder) handleArtifacts() error {
 	command = []string{
 		"/.workflow/bin/thub", "push",
 		fmt.Sprintf("--username=%s", b.HubUser), fmt.Sprintf("--password=%s", b.HubToken),
-		fmt.Sprintf("--repo=%s", b.HubBinRepo),
+		fmt.Sprintf("--repo=%s", b.HubRepo),
 		fmt.Sprintf("--localpath=%s", artifactsTar),
-		fmt.Sprintf("--path=%s", filepath.Join(b.BinPath, artifactsTar)),
-		fmt.Sprintf("--tag=%s", b.BinTag),
+		fmt.Sprintf("--path=%s", filepath.Join(b.ArtifactPath, artifactsTar)),
+		fmt.Sprintf("--tag=%s", b.ArtifactTag),
 	}
 	if _, err := (CMD{command, targetPath}).Run(); err != nil {
 		fmt.Println("Run upload artifacts failed:", err)
@@ -173,7 +173,7 @@ func (b *Builder) handleArtifacts() error {
 	}
 
 	// TODO
-	fmt.Printf("[JOB_OUT] BIN_URL = %s\n", filepath.Join(b.HubBinRepo, b.BinPath, artifactsTar))
+	fmt.Printf("[JOB_OUT] ARTIFACT_URL = %s\n", filepath.Join(b.HubRepo, b.ArtifactPath, artifactsTar))
 	fmt.Println("Run upload artifacts succeded.")
 	return nil
 }

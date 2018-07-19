@@ -12,7 +12,7 @@ var envList = []string{
 	"_WORKFLOW_GIT_REF",
 
 	"GOALS", "POM_PATH",
-	"HUB_BIN_REPO", "BIN_TAG", "BIN_PATH",
+	"HUB_REPO", "ARTIFACT_TAG", "ARTIFACT_PATH",
 
 	"HUB_USER",
 	"HUB_TOKEN",
