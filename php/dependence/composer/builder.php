@@ -33,7 +33,7 @@ class Builder {
     $this->hubUser = $envs["HUB_USER"];
     $this->hhbToken = $envs["HUB_TOKEN"];
 
-    if (!$this->hubUser && $this->hubToken) {
+    if (!$this->hubUser && !$this->hubToken) {
       $this->hubUser = $envs["_WORKFLOW_HUB_USER"];
       $this->hubToken = $envs["_WORKFLOW_HUB_TOKEN"];
     }
@@ -118,7 +118,7 @@ class Builder {
       return false;
     }
 
-    $artifactURL = $this->hubRepo . '/' . $path;
+    $artifactURL = $this->hubRepo . '/' . ltrim($path, '/');
     fwrite(STDOUT, "[JOB_OUT] ARTIFACT_URL = $artifactURL\n");
     return true;
   }
