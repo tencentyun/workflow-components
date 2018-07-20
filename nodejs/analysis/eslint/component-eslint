@@ -11,7 +11,7 @@ function Builder(envs) {
   }
 
   if (!this.gitCloneURL) {
-    console.error("envionment variables GIT_CLONE_URL are required");
+    console.error("envionment variables GIT_CLONE_URL is required");
     process.exit(1);
   }
 
