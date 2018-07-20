@@ -20,6 +20,16 @@ class Builder {
       exit(1);
     }
 
+    $this->projectName = basename($this->gitCloneURL, '.git');
+    $this->projectPath = self::workdir . '/' . $this->projectName;
+
+    $this->hubRepo = rtrim($envs["HUB_REPO"], '/');
+
+    if ($this->hubRepo) {
+      return; // no need upload
+    }
+
+
     $this->hubUser = $envs["HUB_USER"];
     $this->hhbToken = $envs["HUB_TOKEN"];
 
@@ -33,15 +43,12 @@ class Builder {
       exit(1);
     }
 
-    $this->hubRepo = rtrim($envs["HUB_REPO"], '/');
     $this->artifactPath = rtrim($envs["ARTIFACT_PATH"], '/');
     $this->artifactTag = $envs["ARTIFACT_TAG"];
     if (!$this->artifactTag) {
       $this->artifactTag = "latest";
     }
 
-    $this->projectName = basename($this->gitCloneURL, '.git');
-    $this->projectPath = self::workdir . '/' . $this->projectName;
   }
 
   function run() {
@@ -60,7 +67,7 @@ class Builder {
       return false;
     }
 
-    if (!$this->uploadDependence()) {
+    if ($this->hubRepo && !$this->uploadDependence()) {
       fwrite(STDERR, "uploadDependence failed\n");
       return false;
     }
@@ -69,7 +76,7 @@ class Builder {
     return true;
   }
 
-  static function runCMD($cmd, $exitCode, $workdir=self::workdir) {
+  static function runCMD($cmd, &$exitCode, $workdir=self::workdir) {
     fwrite(STDOUT, "Run CMD: $cmd in $workdir\n");
     chdir($workdir);
     exec($cmd, $output, $exitCode);
