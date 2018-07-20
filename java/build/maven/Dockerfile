@@ -25,9 +25,10 @@ LABEL TencentHubComponent='{\
     {"name": "GIT_REF", "desc": "optional, target git commit id, git tag or branch name, default is master"},\
     {"name": "GOALS", "desc": "optional, mvn options and goals, default is package"},\
     {"name": "POM_PATH", "desc": "optional, the relative path of pom file"},\
-    {"name": "HUB_REPO", "desc": "optional,the artifacts repo"},\
-    {"name": "HUB_USER", "desc": "required, the docker registry user name"},\
-    {"name": "HUB_TOKEN", "desc": "required, the docker registry user token"},\
+
+    {"name": "HUB_REPO", "desc": "optional,the artifact repo, the result artifact will be uploaded to the repo if HUB_REPO has value"},\
+    {"name": "HUB_USER", "desc": "optional, the tencenthub repo user name. if you want use current user name and token, you can just set `_WORKFLOW_FLAG_HUB_TOKEN: true`, then the workflow engine will inject user name and token"},\
+    {"name": "HUB_TOKEN", "desc": "optional, the tencenthub repo user token"},\
     {"name": "ARTIFACT_TAG", "desc": "optional, the tag of artifacts in repo"},\
     {"name": "ARTIFACT_PATH", "desc": "optional, the path of artifacts in repo"}\
   ],\
