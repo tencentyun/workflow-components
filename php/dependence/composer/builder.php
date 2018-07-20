@@ -42,6 +42,9 @@ class Builder {
     }
 
     $this->artifactPath = rtrim($envs["ARTIFACT_PATH"], '/');
+    if ($this->artifactPath) {
+      $this->artifactPath = $this->artifactPath . '/';
+    }
     $this->artifactTag = $envs["ARTIFACT_TAG"];
     if (!$this->artifactTag) {
       $this->artifactTag = "latest";
@@ -110,7 +113,7 @@ class Builder {
       return false;
     }
 
-    $path = $this->artifactPath . '/vendor.tar.bz';
+    $path = $this->artifactPath . 'vendor.tar.bz';
     $cmd = "/.workflow/bin/thub push --username=$this->hubUser --password=$this->hubToken --repo=$this->hubRepo --localpath=vendor.tar.bz --path=$path --tag=$this->artifactTag";
     self::runCMD($cmd, $exitCode, $this->projectPath);
 
