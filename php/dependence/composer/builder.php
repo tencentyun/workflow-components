@@ -25,10 +25,9 @@ class Builder {
 
     $this->hubRepo = rtrim($envs["HUB_REPO"], '/');
 
-    if ($this->hubRepo) {
+    if (!$this->hubRepo) {
       return; // no need upload
     }
-
 
     $this->hubUser = $envs["HUB_USER"];
     $this->hhbToken = $envs["HUB_TOKEN"];
