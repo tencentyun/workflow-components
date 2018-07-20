@@ -24,20 +24,19 @@ class Builder {
     $this->projectPath = self::workdir . '/' . $this->projectName;
 
     $this->hubRepo = rtrim($envs["HUB_REPO"], '/');
-
     if (!$this->hubRepo) {
       return; // no need upload
     }
 
     $this->hubUser = $envs["HUB_USER"];
-    $this->hhbToken = $envs["HUB_TOKEN"];
+    $this->hubToken = $envs["HUB_TOKEN"];
 
-    if (!$this->hubUser && !$this->hubToken) {
+    if (!$this->hubUser || !$this->hubToken) {
       $this->hubUser = $envs["_WORKFLOW_HUB_USER"];
       $this->hubToken = $envs["_WORKFLOW_HUB_TOKEN"];
     }
 
-    if (!$this->hubUser && $this->hubToken) {
+    if (!$this->hubUser || !$this->hubToken) {
       fwrite(STDERR, "envionment variable HUB_USER, HUB_TOKEN are required\n");
       exit(1);
     }
@@ -47,7 +46,6 @@ class Builder {
     if (!$this->artifactTag) {
       $this->artifactTag = "latest";
     }
-
   }
 
   function run() {
@@ -71,7 +69,6 @@ class Builder {
       return false;
     }
 
-
     return true;
   }
 
@@ -80,6 +77,10 @@ class Builder {
     chdir($workdir);
     exec($cmd, $output, $exitCode);
 
+    $len=count($output);
+    for($i=0;$i<$len;$i++) {
+      fwrite(STDOUT, $output[$i]);
+    }
     return $output;
   }
 

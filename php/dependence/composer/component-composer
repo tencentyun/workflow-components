@@ -4,7 +4,6 @@ define("WORK_DIR", "./workspace");
 
 require_once("./builder.php");
 
-
 $envList=array(
   "GIT_CLONE_URL", "GIT_REF",
   "_WORKFLOW_GIT_CLONE_URL", "_WORKFLOW_GIT_REF",

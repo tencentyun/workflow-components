@@ -1,2 +1,0 @@
-time="2018-07-20T11:28:03+08:00" level=info msg="start push"
-time="2018-07-20T11:28:03+08:00" level=error msg="push failed:Token server return 401,please check password."
