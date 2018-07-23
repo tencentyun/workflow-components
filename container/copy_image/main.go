@@ -14,6 +14,7 @@ var envList = []string{
 	"_WORKFLOW_HUB_USER",
 	"_WORKFLOW_HUB_TOKEN",
 
+	"TO_IMAGE",
 	"TO_HUB_USER",
 	"TO_HUB_TOKEN",
 }
