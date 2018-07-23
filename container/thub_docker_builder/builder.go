@@ -40,6 +40,15 @@ type Builder struct {
 func NewBuilder(envs map[string]string) (*Builder, error) {
 	b := &Builder{}
 
+	if envs["_WORKFLOW_FLOW_URL"] == "" {
+		return nil, fmt.Errorf("envionment variable _WORKFLOW_FLOW_URL is required")
+	}
+	paths := strings.Split(envs["_WORKFLOW_FLOW_URL"], "/")
+	b.Image = strings.Join(paths[:len(paths) - 1], "/")
+	if b.Image == "" {
+		return nil, fmt.Errorf("envionment variable _WORKFLOW_FLOW_URL is invalid")
+	}
+
 	if envs["GIT_CLONE_URL"] != "" {
 		b.GitCloneURL = envs["GIT_CLONE_URL"]
 		b.GitRef = envs["GIT_REF"]
@@ -71,13 +80,6 @@ func NewBuilder(envs map[string]string) (*Builder, error) {
 
 	if b.HubUser == "" || b.HubToken == "" {
 		return nil, fmt.Errorf("envionment variable HUB_USER, HUB_TOKEN are required")
-	}
-
-	if strings.Index(envs["IMAGE"], ":") > -1 {
-		imageAndTag := strings.Split(envs["IMAGE"], ":")
-		b.Image, b.ImageTag = imageAndTag[0], imageAndTag[1]
-	} else {
-		b.Image = envs["IMAGE"]
 	}
 
 	if strings.Index(b.Image, ".") > -1 {

@@ -14,7 +14,7 @@ var envList = []string{
 	"_WORKFLOW_GIT_REF",
 	"_WORKFLOW_GIT_TYPE",
 
-	"IMAGE",
+	"_WORKFLOW_FLOW_URL",
 	"IMAGE_TAG_FORMAT",
 	"IMAGE_TAG",
 	"EXTRA_IMAGE_TAG",
