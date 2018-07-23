@@ -30,10 +30,10 @@ type Builder struct {
 func NewBuilder(envs map[string]string) (*Builder, error) {
 	b := &Builder{}
 
-	if envs["IMAGE"] == "" {
-		return nil, fmt.Errorf("envionment variable IMAGE is required")
+	if envs["IMAGE_TAG"] == "" {
+		return nil, fmt.Errorf("envionment variable IMAGE_TAG is required")
 	}
-	b.Image = envs["IMAGE"]
+	b.Image = envs["IMAGE_TAG"]
 
 	if imageAndTag := strings.Split(b.Image, ":"); len(imageAndTag) > 1 {
 		b.imageTag = imageAndTag[len(imageAndTag)-1]

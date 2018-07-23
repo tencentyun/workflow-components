@@ -22,7 +22,7 @@ LABEL TencentHubComponent='{\
   "input": [\
     {"name": "HUB_USER", "desc": "required, the docker registry user name"},\
     {"name": "HUB_TOKEN", "desc": "required, the docker registry user token"},\
-    {"name": "IMAGE", "desc": "optional, the result docker image tag, like `hub.cloud.tencent.com/fox/nodejs`, it can with or without tag"},\
+    {"name": "IMAGE_TAG", "desc": "optional, the result docker image tag, like `hub.cloud.tencent.com/fox/nodejs`, it can with or without tag"},\
     {"name": "TO_HUB_USER", "desc": "required"},\
     {"name": "TO_HUB_TOKEN", "desc": "required"},\
     {"name": "TO_IMAGE", "desc": "required"}\

@@ -8,7 +8,7 @@ import (
 )
 
 var envList = []string{
-	"IMAGE",
+	"IMAGE_TAG",
 
 	"HUB_USER",
 	"HUB_TOKEN",
