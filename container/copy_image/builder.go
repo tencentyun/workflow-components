@@ -32,15 +32,14 @@ func NewBuilder(envs map[string]string) (*Builder, error) {
 	if envs["IMAGE"] == "" {
 		return nil, fmt.Errorf("envionment variable IMAGE is required")
 	}
+	b.Image = envs["IMAGE"]
 
 	b.HubUser = envs["HUB_USER"]
 	b.HubToken = envs["HUB_TOKEN"]
-
 	if b.HubUser == "" && b.HubToken == "" {
 		b.HubUser = envs["_WORKFLOW_HUB_USER"]
 		b.HubToken = envs["_WORKFLOW_HUB_TOKEN"]
 	}
-
 	if b.HubUser == "" || b.HubToken == "" {
 		return nil, fmt.Errorf("envionment variable HUB_USER, HUB_TOKEN are required")
 	}
@@ -48,6 +47,7 @@ func NewBuilder(envs map[string]string) (*Builder, error) {
 	if envs["TO_IMAGE"] == "" {
 		return nil, fmt.Errorf("envionment variable TO_IMAGE is required")
 	}
+	b.ToImage = envs["TO_IMAGE"]
 
 	b.ToHubUser = envs["TO_HUB_USER"]
 	b.ToHubToken = envs["TO_HUB_TOKEN"]
