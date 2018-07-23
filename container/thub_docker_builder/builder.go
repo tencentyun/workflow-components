@@ -66,10 +66,6 @@ func NewBuilder(envs map[string]string) (*Builder, error) {
 		b.GitType = "branch"
 	}
 
-	if envs["IMAGE"] == "" {
-		return nil, fmt.Errorf("envionment variable IMAGE is required")
-	}
-
 	b.HubUser = envs["HUB_USER"]
 	b.HubToken = envs["HUB_TOKEN"]
 
