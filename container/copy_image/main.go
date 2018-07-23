@@ -4,6 +4,7 @@ import (
 	"fmt"
 	// "time"
 	"os"
+	"strings"
 )
 
 var envList = []string{
@@ -22,7 +23,7 @@ var envList = []string{
 func main() {
 	envs := make(map[string]string)
 	for _, envName := range envList {
-		envs[envName] = os.Getenv(envName)
+		envs[envName] = strings.TrimSpace(os.Getenv(envName))
 	}
 
 	builder, err := NewBuilder(envs)
