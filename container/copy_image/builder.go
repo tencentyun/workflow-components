@@ -21,6 +21,7 @@ type Builder struct {
 	ToHubUser  string
 	ToHubToken string
 
+	imageTag string
 	hub           string
 	toHub           string
 }
@@ -33,6 +34,12 @@ func NewBuilder(envs map[string]string) (*Builder, error) {
 		return nil, fmt.Errorf("envionment variable IMAGE is required")
 	}
 	b.Image = envs["IMAGE"]
+
+	if imageAndTag := strings.Split(b.Image, ":"); len(imageAndTag) > 1 {
+		b.imageTag = imageAndTag[len(imageAndTag)-1]
+	} else {
+		b.imageTag = "latest"
+	}
 
 	b.HubUser = envs["HUB_USER"]
 	b.HubToken = envs["HUB_TOKEN"]
@@ -48,6 +55,11 @@ func NewBuilder(envs map[string]string) (*Builder, error) {
 		return nil, fmt.Errorf("envionment variable TO_IMAGE is required")
 	}
 	b.ToImage = envs["TO_IMAGE"]
+
+	if imageAndTag := strings.Split(b.ToImage, ":"); len(imageAndTag) <= 1 {
+		b.ToImage = fmt.Sprintf("%s:%s", b.ToImage, b.imageTag)
+	}
+
 
 	b.ToHubUser = envs["TO_HUB_USER"]
 	b.ToHubToken = envs["TO_HUB_TOKEN"]
