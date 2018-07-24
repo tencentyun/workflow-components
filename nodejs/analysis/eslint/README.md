@@ -17,3 +17,7 @@
 ### 源码地址
 
 [Nodejs Eslint Analysis](https://github.com/tencentyun/workflow-components/tree/master/nodejs/analysis/eslint)
+
+### 构建:
+
+`docker build -t hub.tencentyun.com/tencenthub/nodejs_analysis_eslint:latest .`

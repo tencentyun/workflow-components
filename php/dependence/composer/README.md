@@ -19,3 +19,7 @@
 ### 源码地址
 
 [PHP Composer](https://github.com/tencentyun/workflow-components/tree/master/php/dependence/composer)
+
+### 构建:
+
+`docker build -t hub.cloud.tencent.com/tencenthub/php_composer:latest .`

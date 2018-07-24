@@ -31,3 +31,7 @@
 ### 源码地址
 
 [Kubectl CMD](https://github.com/tencentyun/workflow-components/tree/master/container/kubectl_cmd)
+
+### 构建:
+
+`docker build -t hub.tencentyun.com/tencenthub/kubectl_cmd .`

@@ -16,3 +16,7 @@
 ### 源码地址
 
 [Nodejs Babel Build](https://github.com/tencentyun/workflow-components/tree/master/nodejs/build/babel)
+
+### 构建:
+
+`docker build -t hub.tencentyun.com/tencenthub/nodejs_build_babel:latest .`

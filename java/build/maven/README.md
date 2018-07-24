@@ -22,3 +22,7 @@
 ### 源码地址
 
 [Java Maven Build](https://github.com/tencentyun/workflow-components/tree/master/java/build/maven)
+
+### 构建:
+
+`docker build -t hub.tencentyun.com/tencenthub/java_build_maven:latest .`

@@ -22,3 +22,7 @@
 ### 源码地址
 
 [Update TKE Service](https://github.com/tencentyun/workflow-components/tree/master/container/update_tke_service)
+
+### 构建:
+
+`docker build -t hub.tencentyun.com/tencenthub/update_tke_service .`

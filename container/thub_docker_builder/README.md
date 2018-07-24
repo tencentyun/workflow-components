@@ -28,3 +28,7 @@
 ### 源码地址
 
 [Docker Builder](https://github.com/tencentyun/workflow-components/tree/master/container/thub_docker_builder)
+
+### 构建:
+
+`docker build -t hub.tencentyun.com/tencenthub/thub_docker_builder .`

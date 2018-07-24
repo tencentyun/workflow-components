@@ -17,3 +17,7 @@
 ### 源码地址
 
 [Nodejs Mocha Test](https://github.com/tencentyun/workflow-components/tree/master/nodejs/test/mocha)
+
+### 构建:
+
+`docker build -t hub.tencentyun.com/tencenthub/nodejs_test_mocha .`
