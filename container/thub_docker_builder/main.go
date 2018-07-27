@@ -22,6 +22,7 @@ var envList = []string{
 	"BUILD_WORKDIR",
 	"DOCKERFILE_PATH",
 	"BUILD_ARGS",
+	"NO_CACHE",
 
 	"HUB_USER",
 	"HUB_TOKEN",

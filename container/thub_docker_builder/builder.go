@@ -26,6 +26,7 @@ type Builder struct {
 	BuildWorkdir   string
 	DockerFilePath string
 	BuildArgs      string
+	NoCache        bool
 
 	HubUser  string
 	HubToken string
@@ -103,6 +104,10 @@ func NewBuilder(envs map[string]string) (*Builder, error) {
 	b.BuildWorkdir = envs["BUILD_WORKDIR"]
 	b.DockerFilePath = envs["DOCKERFILE_PATH"]
 	b.BuildArgs = envs["BUILD_ARGS"]
+
+	if strings.ToLower(envs["NO_CACHE"]) == "true" {
+		b.NoCache = true
+	}
 
 	return b, nil
 }
@@ -248,6 +253,11 @@ func (b *Builder) build(imageURL string) error {
 	if dockerfilePath != "" {
 		command = append(command, "--file", dockerfilePath)
 	}
+
+	if b.NoCache {
+		command = append(command, "--no-cache")
+	}
+
 	command = append(command, "--tag", imageURL)
 
 	if b.BuildArgs != "" {

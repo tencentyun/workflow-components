@@ -8,6 +8,7 @@ import (
 	"os/exec"
 	"path/filepath"
 	"strings"
+	"time"
 )
 
 const baseSpace = "/root/src"
@@ -25,6 +26,7 @@ type Builder struct {
 	BuildWorkdir   string
 	DockerFilePath string
 	BuildArgs      string
+	NoCache        bool
 
 	HubUser  string
 	HubToken string
@@ -104,6 +106,11 @@ func NewBuilder(envs map[string]string) (*Builder, error) {
 	b.BuildWorkdir = envs["BUILD_WORKDIR"]
 	b.DockerFilePath = envs["DOCKERFILE_PATH"]
 	b.BuildArgs = envs["BUILD_ARGS"]
+
+	if strings.ToLower(envs["NO_CACHE"]) == "true" {
+		b.NoCache = true
+	}
+
 
 	return b, nil
 }
@@ -249,6 +256,11 @@ func (b *Builder) build(imageURL string) error {
 	if dockerfilePath != "" {
 		command = append(command, "--file", dockerfilePath)
 	}
+
+	if b.NoCache {
+		command = append(command, "--no-cache")
+	}
+
 	command = append(command, "--tag", imageURL)
 
 	if b.BuildArgs != "" {
@@ -367,7 +379,8 @@ type CMD struct {
 }
 
 func (c CMD) Run() (string, error) {
-	fmt.Println("Run CMD: ", strings.Join(c.Command, " "))
+	cmdStr := strings.Join(c.Command, " ")
+	fmt.Printf("[%s] Run CMD: %s\n", time.Now().Format("2006-01-02 15:04:05"), cmdStr)
 
 	cmd := exec.Command(c.Command[0], c.Command[1:]...)
 	if c.WorkDir != "" {

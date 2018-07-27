@@ -27,7 +27,8 @@ LABEL TencentHubComponent='{\
     {"name": "IMAGE_TAG", "desc": "optional, the result docker image tag, default is `latest`"},\
     {"name": "EXTRA_IMAGE_TAG", "desc": "optional, extra docker image tag"},\
     {"name": "BUILD_WORKDIR", "default": ".", "desc": "optional, the work dir to run docker build"},\
-    {"name": "DOCKERFILE_PATH", "default": "Dockerfile", "desc": "optional, Dockerfile path`"},\
+    {"name": "DOCKERFILE_PATH", "default": "Dockerfile", "desc": "optional, Dockerfile path"},\
+    {"name": "NO_CACHE", "default": "false", "desc": "optional, disable docker build cache, set flag `--no-cache` if the value is true"},\
     {"name": "BUILD_ARGS", "desc": "optional, arguments pass to docker build as build-arg, it must be valid json string, like `{\"HTTP_PROXY\":\"http://10.20.30.2:1234\",\"TIMEOUT\":\"10\"}`"}\
   ],\
   "output": [\
