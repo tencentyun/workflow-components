@@ -151,8 +151,9 @@ func (b *Builder) handleArtifacts() error {
 		return nil
 	}
 
-	artifactsTar := fmt.Sprintf("%s.tar", b.projectName)
-	command = []string{"tar", "-cf", artifactsTar}
+	artifactsTar := fmt.Sprintf("%s.tar.bz", b.projectName)
+
+	command = []string{"tar", "-cjf", artifactsTar}
 	command = append(command, artifactsSlice...)
 	if _, err := (CMD{command, targetPath}).Run(); err != nil {
 		fmt.Println("Run tar artifacts failed:", err)
