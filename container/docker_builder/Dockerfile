@@ -20,7 +20,7 @@ CMD ["component-docker"]
 LABEL TencentHubComponent='{\
   "description": "TencentHub container component, build docker image",\
   "input": [\
-    {"name": "HUB_USER", "desc": "required, the docker registry user name"},\
+    {"name": "HUB_USER", "desc": "required, the tencenthub docker registry user name. if you want use current user name and token, you can just set `_WORKFLOW_FLAG_HUB_TOKEN: true`, then the workflow engine will inject user name and token"},\
     {"name": "HUB_TOKEN", "desc": "required, the docker registry user token"},\
     {"name": "GIT_CLONE_URL", "desc": "required, git clone url, you can get the authorized git repo url with assignment `${_WORKFLOW_GIT_CLONE_URL}`, which is a global environment variable"},\
     {"name": "GIT_REF", "desc": "optional, git target reference, it can be a git commit, git tag or git branch"},\
