@@ -26,9 +26,9 @@ LABEL TencentHubComponent='{\
     {"name": "GOALS", "desc": "optional, mvn options and goals, default is package"},\
     {"name": "POM_PATH", "desc": "optional, the relative path of pom file, default is `./pom.xml`"},\
     {"name": "HUB_REPO", "desc": "optional,the artifact repo, the result artifact will be uploaded to the repo if HUB_REPO has value"},\
-    {"name": "HUB_USER", "desc": "optional, the tencenthub repo user name. if you want use current user name and token, you can just set `_WORKFLOW_FLAG_HUB_TOKEN: true`, then the workflow engine will inject user name and token"},\
-    {"name": "HUB_TOKEN", "desc": "optional, the tencenthub repo user token"},\
-    {"name": "_WORKFLOW_FLAG_HUB_TOKEN", "default": "true", "desc": "optional, if it is true, workflow engine will inject user name and token to `HUB_USER` and `HUB_TOKEN`"},\
+    {"name": "HUB_USER", "desc": "optional, the tencenthub repo user name. if you want use current user name and password, you can just set `_WORKFLOW_FLAG_HUB_TOKEN: true`, then the workflow engine will inject user name and token"},\
+    {"name": "HUB_TOKEN", "desc": "optional, the tencenthub repo user password"},\
+    {"name": "_WORKFLOW_FLAG_HUB_TOKEN", "default": "true", "desc": "optional, if it is true, workflow engine will inject user name and password to `HUB_USER` and `HUB_TOKEN`"},\
     {"name": "ARTIFACT_TAG", "desc": "optional, the tag of artifacts in repo, default is `latest`"},\
     {"name": "ARTIFACT_PATH", "desc": "optional, the path of artifacts in repo"}\
   ],\
