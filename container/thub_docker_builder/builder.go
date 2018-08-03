@@ -46,7 +46,7 @@ func NewBuilder(envs map[string]string) (*Builder, error) {
 		return nil, fmt.Errorf("envionment variable _WORKFLOW_FLOW_URL is required")
 	}
 	paths := strings.Split(envs["_WORKFLOW_FLOW_URL"], "/")
-	b.Image = strings.Join(paths[:len(paths) - 1], "/")
+	b.Image = strings.Join(paths[:len(paths)-1], "/")
 	if b.Image == "" {
 		return nil, fmt.Errorf("envionment variable _WORKFLOW_FLOW_URL is invalid")
 	}
@@ -100,7 +100,9 @@ func NewBuilder(envs map[string]string) (*Builder, error) {
 	s := strings.TrimSuffix(strings.TrimSuffix(b.GitCloneURL, "/"), ".git")
 	b.projectName = s[strings.LastIndex(s, "/")+1:]
 
-	b.ExtraImageTag = envs["EXTRA_IMAGE_TAG"]
+	if envs["_WORKFLOW_BUILD_TYPE"] != "manually" { // 手动构建不看这个参数
+		b.ExtraImageTag = envs["EXTRA_IMAGE_TAG"]
+	}
 	b.BuildWorkdir = envs["BUILD_WORKDIR"]
 	b.DockerFilePath = envs["DOCKERFILE_PATH"]
 	b.BuildArgs = envs["BUILD_ARGS"]
