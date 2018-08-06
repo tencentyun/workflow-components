@@ -28,6 +28,8 @@ var envList = []string{
 	"HUB_TOKEN",
 	"_WORKFLOW_HUB_USER",
 	"_WORKFLOW_HUB_TOKEN",
+
+	"_WORKFLOW_BUILD_TYPE",
 }
 
 func main() {

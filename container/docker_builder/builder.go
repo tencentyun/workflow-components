@@ -102,7 +102,10 @@ func NewBuilder(envs map[string]string) (*Builder, error) {
 	s := strings.TrimSuffix(strings.TrimSuffix(b.GitCloneURL, "/"), ".git")
 	b.projectName = s[strings.LastIndex(s, "/")+1:]
 
-	b.ExtraImageTag = envs["EXTRA_IMAGE_TAG"]
+	if envs["_WORKFLOW_BUILD_TYPE"] != "manually" { // 手动构建不看这个参数
+		b.ExtraImageTag = envs["EXTRA_IMAGE_TAG"]
+	}
+
 	b.BuildWorkdir = envs["BUILD_WORKDIR"]
 	b.DockerFilePath = envs["DOCKERFILE_PATH"]
 	b.BuildArgs = envs["BUILD_ARGS"]
@@ -110,7 +113,6 @@ func NewBuilder(envs map[string]string) (*Builder, error) {
 	if strings.ToLower(envs["NO_CACHE"]) == "true" {
 		b.NoCache = true
 	}
-
 
 	return b, nil
 }
