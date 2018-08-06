@@ -11,6 +11,7 @@ go build -v -o /go/bin/component-ubuntu-cmd \
 ./*.go
 
 FROM ubuntu:16.04
+RUN apt-get update && apt-get install git
 RUN mkdir -p /root/src
 WORKDIR /root/src
 COPY --from=builder /go/bin/component-ubuntu-cmd /usr/bin/
