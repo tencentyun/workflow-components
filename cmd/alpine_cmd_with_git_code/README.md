@@ -18,7 +18,7 @@
 
 ### 源码地址
 
-[Alpine CMD with Git Code](https://github.com/tencentyun/workflow-components/tree/master/container/alpine_cmd_with_git_code)
+[Alpine CMD with Git Code](https://github.com/tencentyun/workflow-components/tree/master/cmd/alpine_cmd_with_git_code)
 
 ### 构建:
 
