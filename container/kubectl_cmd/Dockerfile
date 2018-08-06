@@ -18,7 +18,7 @@ COPY --from=builder /go/bin/component-kubectl-cmd /usr/bin/
 CMD ["component-kubectl-cmd"]
 
 LABEL TencentHubComponent='{\
-  "description": "TencentHub container component, build docker image",\
+  "description": "TencentHub kubectl component, run CMD with kubectl",\
   "input": [\
     {"name": "USERNAME", "desc": "required, kubernetes username"},\
     {"name": "PASSWORD", "desc": "required, kubernetes password"},\

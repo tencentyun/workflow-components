@@ -18,7 +18,7 @@ COPY --from=builder /go/bin/component-kubectl-cmd /usr/bin/
 CMD ["component-kubectl-cmd"]
 
 LABEL TencentHubComponent='{\
-  "description": "TencentHub container component, build docker image",\
+  "description": "TencentHub kubectl component, run CMD with kubectl",\
   "input": [\
     {"name": "GIT_CLONE_URL", "desc": "required, git clone url, you can get the authorized git repo url with assignment `${_WORKFLOW_GIT_CLONE_URL}`, which is a global environment variable"},\
     {"name": "GIT_REF", "desc": "optional, git target reference, it can be a git commit, git tag or git branch"},\
