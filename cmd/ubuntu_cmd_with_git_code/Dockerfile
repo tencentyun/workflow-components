@@ -11,7 +11,6 @@ go build -v -o /go/bin/component-alpine-cmd \
 ./*.go
 
 FROM ubuntu:16.04
-RUN apk add --update git
 RUN mkdir -p /root/src
 WORKDIR /root/src
 COPY --from=builder /go/bin/component-alpine-cmd /usr/bin/
