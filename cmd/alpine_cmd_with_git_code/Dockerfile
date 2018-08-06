@@ -10,8 +10,8 @@ go build -v -o /go/bin/component-alpine-cmd \
 -gcflags '-N -l' \
 ./*.go
 
-FROM FROM alpine:3.7
-#RUN apk add --update git
+FROM alpine:3.7
+RUN apk add --update git
 RUN mkdir -p /root/src
 WORKDIR /root/src
 COPY --from=builder /go/bin/component-alpine-cmd /usr/bin/
