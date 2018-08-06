@@ -32,7 +32,7 @@
 
 ### 源码地址
 
-[Kubectl CMD](https://github.com/tencentyun/workflow-components/tree/master/container/kubectl_cmd_with_git_code)
+[Kubectl CMD with Git Code](https://github.com/tencentyun/workflow-components/tree/master/container/kubectl_cmd_with_git_code)
 
 ### 构建:
 
