@@ -1,8 +1,8 @@
-## 组件名称：Kubectl CMD
+## 组件名称：Kubectl CMD with Git
 
-### Kubectl CMD:
+### Kubectl CMD with Git:
 
-在预装 `kubectl` 的环境里执行用户自定义的shell命令. 该组件还支持自定义多个环境变量, 这些环境变量在`CMD`中可以直接使用.
+该组件首先会按照用户输出进行代码clone, 代码将位于`/root/src/{项目目录}`, 然后在预装 `kubectl` 的环境里执行用户自定义的shell命令. 该组件还支持自定义多个环境变量, 这些环境变量在`CMD`中可以直接使用.
 
 ### 组件参数
 #### 入参

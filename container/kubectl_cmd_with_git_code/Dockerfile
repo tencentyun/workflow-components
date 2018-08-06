@@ -11,7 +11,7 @@ go build -v -o /go/bin/component-kubectl-cmd \
 ./*.go
 
 FROM roffe/kubectl
-#RUN apk add --update  git
+RUN apk add --update git
 RUN mkdir -p /root/src
 WORKDIR /root/src
 COPY --from=builder /go/bin/component-kubectl-cmd /usr/bin/
