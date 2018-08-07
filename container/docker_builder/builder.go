@@ -190,7 +190,7 @@ func (b *Builder) gitPull() error {
 
 func (b *Builder) gitReset() error {
 	cwd, _ := os.Getwd()
-	var command = []string{"git", "checkout", b.GitRef}
+	var command = []string{"git", "checkout", b.GitRef, "--"}
 	if _, err := (CMD{command, filepath.Join(cwd, b.projectName)}).Run(); err != nil {
 		fmt.Println("Switch to git ref ", b.GitRef, "failed:", err)
 		return err
@@ -205,7 +205,7 @@ func (b *Builder) GenImageTag() error {
 
 	// Get commit ID
 	if b.GitType != "commit" {
-		command := []string{"git", "show", "-s", "--format=%H", b.GitRef}
+		command := []string{"git", "show", "-s", "--format=%H", b.GitRef, "--"}
 		output, err := (CMD{command, filepath.Join(cwd, b.projectName)}).Run()
 		if err != nil {
 			fmt.Println("get git commit id failed:", err)
