@@ -191,7 +191,7 @@ func (b *Builder) gitPull() error {
 
 func (b *Builder) gitReset() error {
 	cwd, _ := os.Getwd()
-	var command = []string{"git", "reset", "--hard", b.GitRef}
+	var command = []string{"git", "checkout", b.GitRef, "--"}
 	if _, err := (CMD{command, filepath.Join(cwd, b.projectName)}).Run(); err != nil {
 		fmt.Println("Switch to commit", b.GitRef, "failed:", err)
 		return err

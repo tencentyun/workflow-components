@@ -28,7 +28,7 @@ Builder.prototype.gitPull = async function() {
 
 Builder.prototype.gitReset = async function() {
   let cwd = require("path").join(process.cwd(), this.projectName);
-  let cmd = new CMD(`git reset --hard ${this.gitRef}`, cwd);
+  let cmd = new CMD(`git checkout ${this.gitRef} --`, cwd);
   await cmd.run();
 };
 
