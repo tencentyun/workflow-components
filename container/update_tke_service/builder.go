@@ -70,6 +70,9 @@ func NewBuilder(envs map[string]string) (*Builder, error) {
 		b.Containers = containers
 	} else {
 		b.Image = envs["IMAGE"]
+		if strings.Index(b.Image, ":") == -1 { // add default tag
+			b.Image = fmt.Sprintf("%s:latest", b.Image)
+		}
 	}
 
 	if envs["NAMESPACE"] == "" {
