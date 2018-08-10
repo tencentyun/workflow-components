@@ -16,6 +16,9 @@ type Builder struct {
 	Webhook string
 	AtMobiles []string
 	IsAtAll bool
+	Message string
+
+	payload interface{}
 }
 
 // NewBuilder is
@@ -26,12 +29,60 @@ func NewBuilder(envs map[string]string) (*Builder, error) {
 		return nil, fmt.Errorf("envionment variable WEBHOOK is required")
 	}
 
-	b.AtMobiles = strings.Split(envs["AT_MOBILES"], ",")
-
-	if strings.ToLower(envs["IS_AT_ALL"]) == "true" {
-		b.IsAtAll = true
+	if envs["MESSAGE"] == ""  && envs["_WORKFLOW_TASK_DETAIL"] == ""{
+		return nil, fmt.Errorf("envionment variable MESSAGE is required")
 	}
+
+	if envs["MESSAGE"] != "" {
+		b.Message = envs["MESSAGE"]
+		b.AtMobiles = strings.Split(envs["AT_MOBILES"], ",")
+
+		if strings.ToLower(envs["IS_AT_ALL"]) == "true" {
+			b.IsAtAll = true
+		}
+
+		text := Text {
+			Content: b.Message,
+		}
+		at := At{
+			AtMobiles: b.AtMobiles,
+			IsAtAll: b.IsAtAll,
+		}
+		info := TextWebhook{
+			Msgtype:  "text",
+			Text:   text,
+			At: at,
+		}
+
+		b.payload = info
+		return b, nil
+	}
+
+	task := &FlowTask{}
+	err := json.Unmarshal([]byte(envs["_WORKFLOW_TASK_DETAIL"]), task)
+	if err != nil {
+		return nil, err
+	}
+	var totalTime string
+	if task.End != nil && task.Start != nil {
+		totalTime = fmt.Sprintf(" 总耗时: %d 秒", (int64)(task.End.Sub(*task.Start).Seconds()))
+	}
+
+	title := fmt.Sprintf("工作流%s通知: 状态: %s%s", task.Name,  task.Status, totalTime)
+
+	link := Link{
+		Title: title,
+		PicURL: "",
+		MessageURL: task.DetailURL,
+	}
+
+	b.payload = LinkWebhook{
+		Msgtype:  "link",
+		Link: link,
+	}
+
 	return b, nil
+
 }
 
 func (b *Builder) run() error {
@@ -42,38 +93,10 @@ func (b *Builder) run() error {
 	return nil
 }
 
-type TextWebhook struct {
-	Msgtype string `json:"msgtype"`
-	Text Text `json:"text"`
-	At At `json:"at"`
-}
-
-type Text struct {
-	Content string `json:"content"`
-}
-
-type At struct {
-	AtMobiles []string `json:"atMobiles"`
-	IsAtAll bool `json:"isAtAll"`
-}
-
 func (b *Builder) callWebhook() error {
-	text := Text {
-		Content: "工作流执行结束",
-	}
-	at := At{
-		AtMobiles: b.AtMobiles,
-		IsAtAll: b.IsAtAll,
-	}
-	hookInfo := TextWebhook{
-		Msgtype:  "text",
-		Text:   text,
-		At: at,
-	}
-
-	js, _ := json.Marshal(hookInfo)
-	fmt.Printf("sending webhook info: %s\n", string(js))
-	body := bytes.NewBuffer([]byte(js))
+	payload, _ := json.Marshal(b.payload)
+	fmt.Printf("sending webhook info: %s\n", string(payload))
+	body := bytes.NewBuffer(payload)
 	res, err := http.Post(b.Webhook, "application/json;charset=utf-8", body)
 	if err != nil {
 		return err
@@ -90,13 +113,9 @@ func (b *Builder) callWebhook() error {
 	}
 
 	fmt.Println(resultJSON)
-	// log.WithFields(log.Fields{"action": "service#UpdateGitHook", "event": "receiveGitToken"}).Debug(string(result))
-
-
 	fmt.Println("Send webhook succeded.")
 	return nil
 }
-
 
 type CMD struct {
 	Command []string // cmd with args

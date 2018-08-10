@@ -9,6 +9,8 @@ var envList = []string{
 	"WEBHOOK",
 	"AT_MOBILES",
 	"IS_AT_ALL",
+	"MESSAGE",
+	"_WORKFLOW_TASK_DETAIL",
 }
 
 func main() {
