@@ -19,6 +19,7 @@ type Link struct {
 	ID string `json:"id"`
 	Title string `json:"title"`
 	PicURL string `json:"picUrl"`
+	Text string `json:"text"`
 	MessageURL string `json:"messageUrl"`
 }
 

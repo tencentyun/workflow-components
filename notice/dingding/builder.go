@@ -68,12 +68,11 @@ func NewBuilder(envs map[string]string) (*Builder, error) {
 		totalTime = fmt.Sprintf(" 总耗时: %d 秒", (int64)(task.End.Sub(*task.Start).Seconds()))
 	}
 
-	title := fmt.Sprintf("工作流%s通知: 状态: %s%s", task.Name,  task.Status, totalTime)
-
 	link := Link{
-		Title: title,
+		Title: "Tencenthub 工作流通知",
 		PicURL: "",
 		MessageURL: task.DetailURL,
+		Text: fmt.Sprintf("工作流%s通知: 状态: %s%s", task.Name,  task.Status, totalTime),
 	}
 
 	b.payload = LinkWebhook{
