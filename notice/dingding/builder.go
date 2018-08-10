@@ -69,10 +69,10 @@ func NewBuilder(envs map[string]string) (*Builder, error) {
 	}
 
 	link := Link{
-		Title: "Tencenthub 工作流通知",
+		Title: fmt.Sprintf("工作流%s通知", task.Name),
 		PicURL: "",
 		MessageURL: task.DetailURL,
-		Text: fmt.Sprintf("工作流%s\n 状态: %s\n%s", task.Name,  task.Status, totalTime),
+		Text: fmt.Sprintf("状态: %s\n%s", task.Status, totalTime),
 	}
 
 	b.payload = LinkWebhook{
