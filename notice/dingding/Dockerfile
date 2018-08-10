@@ -23,7 +23,6 @@ LABEL TencentHubComponent='{\
     {"name": "AT_MOBILES", "desc": "optional, TODO"},\
     {"name": "IS_AT_ALL", "desc": "optional, TODO"},\
     {"name": "MESSAGE", "desc": "optional, TODO"},\
-    {"name": "_WORKFLOW_TASK_DETAIL", "desc": "optional,TODO"},\
     {"name": "_WORKFLOW_FLAG_TASK_DETAIL", "default": "true", "desc": "optional, TODO"}\
   ],\
   "output": [ \
