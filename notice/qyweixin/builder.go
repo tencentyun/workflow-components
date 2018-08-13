@@ -18,6 +18,7 @@ type Builder struct {
 	Partys    string
 	Tags      string
 	AgentId   string
+	Message   string
 }
 
 type TokenInfo struct {
@@ -56,20 +57,20 @@ type SendMsgReponce struct {
 func NewBuilder(envs map[string]string) (*Builder, error) {
 	b := &Builder{}
 
-	if envs["CORPID"] != "" {
-		b.CorpId = envs["CORPID"]
+	if envs["CORP_ID"] != "" {
+		b.CorpId = envs["CORP_ID"]
 	} else {
-		return nil, fmt.Errorf("environment variable CORPID is reuquired")
+		return nil, fmt.Errorf("environment variable CORP_ID is reuquired")
 	}
-	if envs["APPSECRET"] != "" {
-		b.AppSecret = envs["APPSECRET"]
+	if envs["APP_SECRET"] != "" {
+		b.AppSecret = envs["APP_SECRET"]
 	} else {
-		return nil, fmt.Errorf("environment variable APPSECRET is reuquired")
+		return nil, fmt.Errorf("environment variable APP_SECRET is reuquired")
 	}
-	if envs["AGENTID"] != "" {
-		b.AgentId = envs["AGENTID"]
+	if envs["AGENT_ID"] != "" {
+		b.AgentId = envs["AGENT_ID"]
 	} else {
-		return nil, fmt.Errorf("environment variable AGENTID is reuquired")
+		return nil, fmt.Errorf("environment variable AGENT_ID is reuquired")
 	}
 
 	if envs["PARTYS"] != "" {
@@ -83,9 +84,10 @@ func NewBuilder(envs map[string]string) (*Builder, error) {
 	}
 
 	if envs["USERS"] == "" && envs["PARTYS"] == "" && envs["TAGS"] == "" {
-		return nil, fmt.Errorf("environment variable CORPID is reuquired")
+		return nil, fmt.Errorf("USERS OR PARTYS OR TAGS you must give one")
 	}
 
+	b.Message = envs["MESSAGE"]
 	return b, nil
 }
 
@@ -106,7 +108,6 @@ func (b *Builder) GetToken() (string, error) {
 		CorpId:     b.CorpId,
 		CorpSecret: b.AppSecret,
 	}
-	//url = "https://qyapi.weixin.qq.com/cgi-bin/gettoken"
 	url := fmt.Sprintf("https://qyapi.weixin.qq.com/cgi-bin/gettoken?corpid=%s&corpsecret=%s", tokenInfo.CorpId, tokenInfo.CorpSecret)
 
 	req, err := http.Get(url)
@@ -128,7 +129,7 @@ func (b *Builder) GetToken() (string, error) {
 
 func (b *Builder) SendMsg(token string) error {
 	text := Text{
-		Content: "workflow haved finished",
+		Content: b.Message,
 	}
 
 	agent, err := strconv.ParseInt(b.AgentId, 10, 64)

@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"os/exec"
+	"strconv"
 	"strings"
 
 	gomail "gopkg.in/gomail.v2"
@@ -14,6 +15,8 @@ type Builder struct {
 	ToUsers  string
 	Subject  string
 	Text     string
+	Server   string
+	Port     string
 }
 
 func NewBuilder(envs map[string]string) (*Builder, error) {
@@ -38,6 +41,16 @@ func NewBuilder(envs map[string]string) (*Builder, error) {
 	} else {
 		return nil, fmt.Errorf("environment variable SUBJECT is requried")
 	}
+	if envs["SMTP_SERVER"] != "" {
+		b.Server = envs["SMTP_SERVER"]
+	} else {
+		return nil, fmt.Errorf("environment variable SMTP_SERVER is requried")
+	}
+	if envs["SMTP_PORT"] != "" {
+		b.Port = envs["SMTP_PORT"]
+	} else {
+		return nil, fmt.Errorf("environment variable SMTP_PORT is requried")
+	}
 	if envs["TEXT"] != "" {
 		b.Text = envs["TEXT"]
 	} else {
@@ -57,7 +70,7 @@ func (b *Builder) SendEmail() error {
 	var toUsers = strings.Split(b.ToUsers, "|")
 	m := gomail.NewMessage()
 	//设置发件人
-	m.SetAddressHeader("From", b.FromUser, "石头")
+	m.SetAddressHeader("From", b.FromUser, "")
 	//设置收件人
 	m.SetHeader("To", toUsers...)
 	//设置主题
@@ -66,7 +79,11 @@ func (b *Builder) SendEmail() error {
 	//m.SetBody("text", "hello world!")
 	m.SetBody("text/html", b.Text)
 	//设置发送邮件服务器、端口、发件人账号、发件人密码
-	d := gomail.NewPlainDialer("smtp.qq.com", 465, b.FromUser, b.Secret)
+	port, err := strconv.Atoi(b.Port)
+	if err != nil {
+		return err
+	}
+	d := gomail.NewPlainDialer(b.Server, port, b.FromUser, b.Secret)
 
 	if err := d.DialAndSend(m); err != nil {
 		fmt.Println(err)

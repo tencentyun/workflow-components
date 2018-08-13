@@ -6,15 +6,17 @@ import (
 )
 
 var envList = []string{
-	"CORPID",
-	"APPSECRET",
+	"CORP_ID",
+	"APP_SECRET",
+	"AGENT_ID",
+	"MESSAGE",
 	"USERS",
 	"PARTYS",
 	"TAGS",
-	"AGENTID",
 }
 
 func main() {
+
 	envs := make(map[string]string)
 
 	for _, name := range envList {

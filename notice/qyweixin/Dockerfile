@@ -19,12 +19,13 @@ CMD ["component-qyweixin"]
 LABEL TencentHubComponent='{\
   "description": "TencentHub Java component, using maven to run code build.",\
   "input": [\
-    {"name": "CORPID", "desc": "required, company ID"},\
-    {"name": "APPSECRET", "desc": "optional, application secrect, after admin create an app"},\
-    {"name": "AGENTID", "desc": "required, APP ID"},\
+    {"name": "CORP_ID", "desc": "required, company ID"},\
+    {"name": "APP_SECRET", "desc": "required, application secrect, after admin create an app"},\
+    {"name": "AGENT_ID", "desc": "required, APP ID"},\
     {"name": "USERS", "desc": "optional, the users that admin want to send msg to, note: USERS OR PARTYS OR TAGS you must give one"},\
     {"name": "PARTYS", "desc": "optional, the partys that admin want to send msg to"},\
     {"name": "TAGS", "desc": "optional, the tags that admin want to send msg to"},\
+    {"name": "MESSAGE", "desc": "optional, the content of message"}\
   ],\
   "output": []\
 }'
