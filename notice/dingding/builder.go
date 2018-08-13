@@ -69,10 +69,11 @@ func NewBuilder(envs map[string]string) (*Builder, error) {
 	}
 
 	link := Link{
-		Title: fmt.Sprintf("工作流%s通知", task.Name),
+		Title: fmt.Sprintf("%s/%s/%s 通知", task.Namespace, task.Repo, task.Name),
 		PicURL: "https://main.qcloudimg.com/raw/d8ff94e74414bdfb4474fe091608d53f.svg",
 		MessageURL: task.DetailURL,
-		Text: fmt.Sprintf("状态: %s\n%s", task.Status, totalTime),
+		Text: fmt.Sprintf("Namesapce: %s,Repo: %s\n状态: %s\n%s",task.Namespace, task.Repo, task.Status, totalTime),
+		// Text: fmt.Sprintf("状态: %s\n%s", task.Status, totalTime),
 	}
 
 	b.payload = LinkWebhook{
