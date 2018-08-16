@@ -1,0 +1,32 @@
+<html>
+  <head>
+    <title>hello world</title>
+  </head>
+  <body bgcolor="#009587">
+      <tr class="header">
+        <td style="padding: 40px;">
+          <p>
+            <b>{{ .t_title}}</b>
+          </p>
+        </td>
+      </tr>
+      <tr class="content">
+        <td style="padding:40px;">
+          <p>
+            <b>{{ .t_content}}</b>
+          </p>
+        </td>
+      </tr>
+      <tr class="detail">
+        <td style="padding: 35px 0 0 0;">
+          <table border="0" cellspacing="0" cellpadding="0" class="buttonwrapper">
+            <tr>
+              <td class="button" height="30">
+                <a href={{ .t_url}} target="_blank">详情</a>
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+  </body>
+</html>

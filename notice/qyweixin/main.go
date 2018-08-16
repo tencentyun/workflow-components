@@ -13,6 +13,7 @@ var envList = []string{
 	"USERS",
 	"PARTYS",
 	"TAGS",
+	"_WORKFLOW_TASK_DETAIL",
 }
 
 func main() {
@@ -30,6 +31,7 @@ func main() {
 	}
 	if err := builder.run(); err != nil {
 		fmt.Println("build failed: ", err)
+		os.Exit(1)
 	}
-	fmt.Println("build success")
+	fmt.Println("build success!")
 }
