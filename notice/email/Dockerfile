@@ -14,6 +14,7 @@ FROM alpine
 RUN apk update && apk add ca-certificates
 
 COPY --from=builder /go/bin/component-email /usr/bin/
+COPY --from=builder /go/src/component-email/template.html /usr/bin/
 CMD ["component-email"]
 
 LABEL TencentHubComponent='{\
@@ -22,10 +23,10 @@ LABEL TencentHubComponent='{\
     {"name": "FROM_USER", "desc": "requied, the user who post email"},\
     {"name": "TO_USERS", "desc": "requied, the users who accept email, for example, user_xx@qq.com | user_yy@163.com | user_zz@126.com"},\
     {"name": "SECRET", "desc": "requied, the authorization code of SMTP server or login password of mailbox"},\
-    {"name": "SMTP_SERVER", "desc": "required, the SMTP server, such as, smtp.qq.com, smtp.163.com, smtp.126.com"},\
-    {"name": "SMTP_PORT", "desc": "required, the port of SMTP server"},\ 
+    {"name": "SMTP_SERVER_PORT", "desc": "required, the SMTP server, such as, smtp.qq.com, smtp.163.com, smtp.126.com"},\
     {"name": "SUBJECT", "desc": "optional, the subject of email"},\
-    {"name": "TEXT", "desc": "optional, the content of email"}\
+    {"name": "TEXT", "desc": "optional, the content of email"},\
+    {"name": "_WORKFLOW_FLAG_TASK_DETAIL", "default": "true", "desc": "optional, TODO"}\
   ],\
   "output": []\
 }'

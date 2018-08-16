@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"net/url"
 	"os/exec"
 	"strconv"
 	"strings"
@@ -18,61 +19,33 @@ type Builder struct {
 	Partys    string
 	Tags      string
 	AgentId   string
+	MsgType   string
 	Message   string
-}
-
-type TokenInfo struct {
-	CorpId     string `json:"corp_id"`
-	CorpSecret string `json:"corp_secret"`
-}
-
-type WebhookInfo struct {
-	ToUser  string `json:"touser"`
-	ToParty string `json:"toparty"`
-	ToTag   string `json:"totag"`
-	MsgType string `json:"msgtype"`
-	AgentId int64  `json:"agentid"`
-	Text    Text   `json:"text"`
-	Safe    int64  `json:"safe"`
-}
-
-type Text struct {
-	Content string `json:"content"`
-}
-
-type BackResponce struct {
-	Errcode     int64  `json:"errcode"`
-	Errmsg      string `json:"errmsg"`
-	AccessToken string `json:"access_token"`
-	ExpiresIn   int64  `json:"expires_in"`
-}
-type SendMsgReponce struct {
-	Errcode      int64  `json:"errcode"`
-	Errmsg       string `json:"errmsg"`
-	InvalidUser  string `json:"invaliduser"`
-	InvalidParty string `json:"invalidparty"`
-	InvalidTag   string `json:"invalidtag"`
+	Payload   TextCard
 }
 
 func NewBuilder(envs map[string]string) (*Builder, error) {
 	b := &Builder{}
 
-	if envs["CORP_ID"] != "" {
-		b.CorpId = envs["CORP_ID"]
-	} else {
+	if envs["CORP_ID"] == "" {
 		return nil, fmt.Errorf("environment variable CORP_ID is reuquired")
-	}
-	if envs["APP_SECRET"] != "" {
-		b.AppSecret = envs["APP_SECRET"]
 	} else {
+		b.CorpId = envs["CORP_ID"]
+	}
+	if envs["APP_SECRET"] == "" {
 		return nil, fmt.Errorf("environment variable APP_SECRET is reuquired")
-	}
-	if envs["AGENT_ID"] != "" {
-		b.AgentId = envs["AGENT_ID"]
 	} else {
+		b.AppSecret = envs["APP_SECRET"]
+	}
+	if envs["AGENT_ID"] == "" {
 		return nil, fmt.Errorf("environment variable AGENT_ID is reuquired")
+	} else {
+		b.AgentId = envs["AGENT_ID"]
 	}
 
+	if envs["USERS"] == "" && envs["PARTYS"] == "" && envs["TAGS"] == "" {
+		return nil, fmt.Errorf("USERS OR PARTYS OR TAGS you must give one")
+	}
 	if envs["PARTYS"] != "" {
 		b.Partys = envs["PARTYS"]
 	}
@@ -83,11 +56,32 @@ func NewBuilder(envs map[string]string) (*Builder, error) {
 		b.Tags = envs["TAGS"]
 	}
 
-	if envs["USERS"] == "" && envs["PARTYS"] == "" && envs["TAGS"] == "" {
-		return nil, fmt.Errorf("USERS OR PARTYS OR TAGS you must give one")
+	if envs["MESSAGE"] != "" {
+		b.MsgType = "text"
+		b.Message = envs["MESSAGE"]
+		return b, nil
 	}
 
-	b.Message = envs["MESSAGE"]
+	task := &FlowTask{}
+	err := json.Unmarshal([]byte(envs["_WORKFLOW_TASK_DETAIL"]), task)
+	if err != nil {
+		return nil, err
+	}
+	fmt.Println(task)
+	var totalTime string
+	if task.End != nil && task.Start != nil {
+		totalTime = fmt.Sprintf("总耗时: %d 秒", (int64)(task.End.Sub(*task.Start).Seconds()))
+	}
+
+	textCard := TextCard{
+		Title:       fmt.Sprintf("%s/%s/%s", task.Namespace, task.Repo, task.Name),
+		MessageURL:  task.DetailURL,
+		Description: fmt.Sprintf("状态: %s\n%s", task.Status, totalTime),
+		BtnTxt:      "详情",
+	}
+	b.MsgType = "textcard"
+	b.Payload = textCard
+
 	return b, nil
 }
 
@@ -108,7 +102,14 @@ func (b *Builder) GetToken() (string, error) {
 		CorpId:     b.CorpId,
 		CorpSecret: b.AppSecret,
 	}
-	url := fmt.Sprintf("https://qyapi.weixin.qq.com/cgi-bin/gettoken?corpid=%s&corpsecret=%s", tokenInfo.CorpId, tokenInfo.CorpSecret)
+
+	var param = make(url.Values)
+	param.Add("corpid", tokenInfo.CorpId)
+	param.Add("corpsecret", tokenInfo.CorpSecret)
+
+	var paramStr = param.Encode()
+
+	url := "https://qyapi.weixin.qq.com/cgi-bin/gettoken?" + paramStr
 
 	req, err := http.Get(url)
 	if err != nil {
@@ -122,33 +123,50 @@ func (b *Builder) GetToken() (string, error) {
 		return "", err
 	}
 
-	fmt.Println(resultJSON.AccessToken)
+	//fmt.Println(resultJSON.AccessToken)
 
 	return resultJSON.AccessToken, nil
 }
 
 func (b *Builder) SendMsg(token string) error {
-	text := Text{
-		Content: b.Message,
-	}
-
 	agent, err := strconv.ParseInt(b.AgentId, 10, 64)
 	if err != nil {
 		return err
 	}
-	webhookInfo := WebhookInfo{
-		ToUser:  b.Users,
-		ToParty: b.Partys,
-		ToTag:   b.Tags,
-		MsgType: "text",
-		AgentId: agent,
-		Text:    text,
-		Safe:    0,
+	var webhookInfo interface{}
+	if b.MsgType == "text" {
+		text := Text{
+			Content: b.Message,
+		}
+		webhookInfo = TextWebhook{
+			ToUser:  b.Users,
+			ToParty: b.Partys,
+			ToTag:   b.Tags,
+			MsgType: "text",
+			AgentId: agent,
+			Text:    text,
+			Safe:    0,
+		}
+	} else if b.MsgType == "textcard" {
+		webhookInfo = LinkWebhook{
+			ToUser:   b.Users,
+			ToParty:  b.Partys,
+			ToTag:    b.Tags,
+			MsgType:  "textcard",
+			AgentId:  agent,
+			TextCard: b.Payload,
+		}
 	}
 
 	js, _ := json.Marshal(webhookInfo)
 	body := bytes.NewBuffer([]byte(js))
-	url := fmt.Sprintf("https://qyapi.weixin.qq.com/cgi-bin/message/send?access_token=%s", token)
+
+	var param = make(url.Values)
+	param.Add("access_token", token)
+	var paramStr = param.Encode()
+
+	var url = "https://qyapi.weixin.qq.com/cgi-bin/message/send?" + paramStr
+	//fmt.Println(url)
 
 	req, err := http.Post(url, "application/json;charset=utf-8", body)
 	if err != nil {
@@ -165,7 +183,12 @@ func (b *Builder) SendMsg(token string) error {
 	if err := json.Unmarshal(result, resultJSON); err != nil {
 		return err
 	}
-	fmt.Println("send message success")
+	if resultJSON.Errcode != 0 {
+		return fmt.Errorf("bad result: %s", result)
+	}
+	fmt.Printf("qyweixin return msg:\nerrcode: %d\nerrmsg: %s\ninvaliduser: %s\ninvalidparty: %s\ninvalidtag: %s\n", resultJSON.Errcode, resultJSON.Errmsg, resultJSON.InvalidUser, resultJSON.InvalidParty, resultJSON.InvalidTag)
+	fmt.Println("send msg success!")
+
 	return nil
 }
 
