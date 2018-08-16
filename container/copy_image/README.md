@@ -24,7 +24,7 @@
 
 ### 源码地址
 
-[Copy Image](https://github.com/tencentyun/workflow-components/tree/master/container/copy_image)
+Copy Image: <https://github.com/tencentyun/workflow-components/tree/master/container/copy_image>
 
 ### 构建:
 

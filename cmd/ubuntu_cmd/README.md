@@ -16,7 +16,7 @@
 
 ### 源码地址
 
-[Ubuntu CMD](https://github.com/tencentyun/workflow-components/tree/master/cmd/ubuntu_cmd)
+Ubuntu CMD: <https://github.com/tencentyun/workflow-components/tree/master/cmd/ubuntu_cmd>
 
 ### 构建:
 

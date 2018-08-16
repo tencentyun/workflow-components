@@ -18,7 +18,7 @@
 
 ### 源码地址
 
-[Ubuntu CMD with Git Code](https://github.com/tencentyun/workflow-components/tree/master/cmd/ubuntu_cmd_with_git_code)
+Ubuntu CMD with Git Code: <https://github.com/tencentyun/workflow-components/tree/master/cmd/ubuntu_cmd_with_git_code>
 
 ### 构建:
 

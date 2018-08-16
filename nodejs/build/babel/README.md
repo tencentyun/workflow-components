@@ -15,7 +15,7 @@
 
 ### 源码地址
 
-[Nodejs Babel Build](https://github.com/tencentyun/workflow-components/tree/master/nodejs/build/babel)
+Nodejs Babel Build: <https://github.com/tencentyun/workflow-components/tree/master/nodejs/build/babel>
 
 ### 构建:
 

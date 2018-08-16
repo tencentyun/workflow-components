@@ -26,7 +26,7 @@ LABEL TencentHubComponent='{\
     {"name": "PARTYS", "desc": "optional, the partys that admin want to send msg to"},\
     {"name": "TAGS", "desc": "optional, the tags that admin want to send msg to"},\
     {"name": "MESSAGE", "desc": "optional, the content of message"},\
-    {"name": "_WORKFLOW_FLAG_TASK_DETAIL", "default": "true", "desc": "optional, TODO"}\
+    {"name": "_WORKFLOW_FLAG_TASK_DETAIL", "default": "true", "desc": "optional, auto send flow task detail"}\
   ],\
   "output": []\
 }'

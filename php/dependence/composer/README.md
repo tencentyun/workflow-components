@@ -18,7 +18,7 @@
 
 ### 源码地址
 
-[PHP Composer](https://github.com/tencentyun/workflow-components/tree/master/php/dependence/composer)
+PHP Composer: <https://github.com/tencentyun/workflow-components/tree/master/php/dependence/composer>
 
 ### 构建:
 

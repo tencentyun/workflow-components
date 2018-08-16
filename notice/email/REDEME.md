@@ -22,7 +22,7 @@
 
 ## 源码地址
 
-[Notice Email](https://github.com/tencentyun/workflow-components/tree/master/notice/email)
+Notice Email: <https://github.com/tencentyun/workflow-components/tree/master/notice/email>
 
 ## 构建
 

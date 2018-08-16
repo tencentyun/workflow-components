@@ -21,12 +21,12 @@ LABEL TencentHubComponent='{\
   "description": "TencentHub Java component, using maven to run code build.",\
   "input": [\
     {"name": "FROM_USER", "desc": "required, the user who post email"},\
-    {"name": "TO_USERS", "desc": "required, the users who accept email, for example:user_xx@qq.com|user_yy@163.com|user_zz@126.com"},\
+    {"name": "TO_USERS", "desc": "required, the users who accept email, for example, user_xx@qq.com|user_yy@163.com|user_zz@126.com"},\
     {"name": "SECRET", "desc": "required, the authorization code of SMTP server or login password of mailbox"},\
     {"name": "SMTP_SERVER_PORT", "desc": "required, the SMTP server, such as, smtp.qq.com, smtp.163.com, smtp.126.com"},\
     {"name": "SUBJECT", "desc": "optional, the subject of email"},\
     {"name": "TEXT", "desc": "optional, the content of email"},\
-    {"name": "_WORKFLOW_FLAG_TASK_DETAIL", "default": "true", "desc": "optional, TODO"}\
+    {"name": "_WORKFLOW_FLAG_TASK_DETAIL", "default": "true", "desc": "optional, auto send flow task detail"}\
   ],\
   "output": []\
 }'
