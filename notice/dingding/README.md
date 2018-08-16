@@ -19,7 +19,7 @@
 
 ### 源码地址
 
-[Notice DingDing](https://github.com/tencentyun/workflow-components/tree/master/notice/dingding)
+Notice DingDing: <https://github.com/tencentyun/workflow-components/tree/master/notice/dingding>
 
 ### 构建:
 

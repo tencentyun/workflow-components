@@ -1,6 +1,7 @@
 ## 组件名称：Java Maven Build
 
 ### mavan：
+
 [maven]java maven的编译构建工具。
 
 ### 组件参数
@@ -21,7 +22,7 @@
 
 ### 源码地址
 
-[Java Maven Build](https://github.com/tencentyun/workflow-components/tree/master/java/build/maven)
+Java Maven Build: <https://github.com/tencentyun/workflow-components/tree/master/java/build/maven>
 
 ### 构建:
 

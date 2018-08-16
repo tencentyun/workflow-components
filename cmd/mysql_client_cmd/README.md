@@ -16,7 +16,7 @@
 
 ### 源码地址
 
-[Mysql Client CMD](https://github.com/tencentyun/workflow-components/tree/master/cmd/mysql_client_cmd)
+Mysql Client CMD: <https://github.com/tencentyun/workflow-components/tree/master/cmd/mysql_client_cmd>
 
 ### 构建:
 

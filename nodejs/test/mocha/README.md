@@ -1,8 +1,8 @@
 ## 组件名称：Nodejs Mocha Test
 
 ### mocha：
-[mocha]NodeJS的测试框架。
 
+使用 mocha 进行NodeJS的单元测试
 
 ### 组件参数
 #### 入参
@@ -16,7 +16,7 @@
 
 ### 源码地址
 
-[Nodejs Mocha Test](https://github.com/tencentyun/workflow-components/tree/master/nodejs/test/mocha)
+Nodejs Mocha Test: <https://github.com/tencentyun/workflow-components/tree/master/nodejs/test/mocha>
 
 ### 构建:
 

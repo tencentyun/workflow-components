@@ -20,10 +20,10 @@ LABEL TencentHubComponent='{\
   "description": "TencentHub notice component, using dingding to send message.",\
   "input": [\
     {"name": "WEBHOOK", "desc": "required, dingding webhook url"},\
-    {"name": "AT_MOBILES", "desc": "optional, TODO"},\
-    {"name": "IS_AT_ALL", "desc": "optional, TODO"},\
-    {"name": "MESSAGE", "desc": "optional, TODO"},\
-    {"name": "_WORKFLOW_FLAG_TASK_DETAIL", "default": "true", "desc": "optional, TODO"}\
+    {"name": "AT_MOBILES", "desc": "optional, @ user phone in custom notice message"},\
+    {"name": "IS_AT_ALL", "desc": "optional, @all in custom notice message"},\
+    {"name": "MESSAGE", "desc": "optional, custom notice message"},\
+    {"name": "_WORKFLOW_FLAG_TASK_DETAIL", "default": "true", "desc": "optional, auto send flow task detail"}\
   ],\
   "output": [ \
   ]\

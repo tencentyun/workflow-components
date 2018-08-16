@@ -1,7 +1,7 @@
 ## 组件名称：Thub Docker Builder
 
 ### Docker：
-[Docker]根据Dockerfile生成Docker Image的组件, 并推送到当前工作流所在的镜像仓库中.
+根据Dockerfile生成Docker Image的组件, 并推送到当前工作流所在的镜像仓库中.
 
 ### 组件参数
 
@@ -28,7 +28,7 @@
 
 ### 源码地址
 
-[Docker Builder](https://github.com/tencentyun/workflow-components/tree/master/container/thub_docker_builder)
+Docker Builder: <https://github.com/tencentyun/workflow-components/tree/master/container/thub_docker_builder>
 
 ### 构建:
 

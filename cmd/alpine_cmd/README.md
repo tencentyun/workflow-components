@@ -16,7 +16,7 @@
 
 ### 源码地址
 
-[Alpine CMD](https://github.com/tencentyun/workflow-components/tree/master/cmd/alpine_cmd)
+Alpine CMD: <https://github.com/tencentyun/workflow-components/tree/master/cmd/alpine_cmd>
 
 ### 构建:
 

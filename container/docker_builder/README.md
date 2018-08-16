@@ -1,7 +1,7 @@
 ## 组件名称：Docker Builder
 
 ### Docker：
-[Docker]根据Dockerfile生成Docker Image的组件, 并推送到image相关的镜像仓库中.
+[Docker]根据Dockerfile生成Docker Image的组件, 并推送到image相关的镜像仓库中, 支持推送到其他平台仓库
 
 ### 组件参数
 
@@ -30,7 +30,7 @@
 
 ### 源码地址
 
-[Docker Builder](https://github.com/tencentyun/workflow-components/tree/master/container/docker_builder)
+Docker Builder: <https://github.com/tencentyun/workflow-components/tree/master/container/docker_builder>
 
 ### 构建:
 

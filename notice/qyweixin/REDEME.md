@@ -23,7 +23,7 @@
 
 ### 源码地址
 
-[Notice Qyweixin](https://github.com/tencentyun/workflow-components/tree/master/notice/qyweixin)
+Notice Qyweixin: <https://github.com/tencentyun/workflow-components/tree/master/notice/qyweixin>
 
 ### 构建
 
