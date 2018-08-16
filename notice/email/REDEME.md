@@ -26,4 +26,4 @@ Notice Email: <https://github.com/tencentyun/workflow-components/tree/master/not
 
 ## 构建
 
-docker build -t hub.tencentyun.com/tencenthub/notice_email .
+docker build -t hub.tencentyun.com/tencenthub/notice_email:latest .
