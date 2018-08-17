@@ -21,7 +21,6 @@ type Builder struct {
 	GitCloneURL string
 	GitRef      string
 	LintPackage string
-	LintPath    string
 	LintParams  string
 	ProjectName string
 }
@@ -44,7 +43,6 @@ func NewBuilder(envs map[string]string) (*Builder, error) {
 	b.ProjectName = s[strings.LastIndex(s, "/")+1:]
 
 	//fmt.Println(b.ProjectName)
-	b.LintPath = envs["LINT_PATH"]
 	b.LintPackage = envs["LINT_PACKAGE"]
 
 	return b, nil

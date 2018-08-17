@@ -20,12 +20,12 @@ COPY --from=builder /go/src/component-golint/golint /usr/bin
 CMD ["component-golint"]
 
 LABEL TencentHubComponent='{\
-  "description": "TencentHub Java component, using golint to run code build.",\
+  "description": "TencentHub Golang component, using golint to run code build.",\
   "input": [\
     {"name": "GIT_CLONE_URL", "desc": "required, git clone url, you can get the authorized git repo url with assignment `${_WORKFLOW_GIT_CLONE_URL}`, which is a global environment variable"},\
     {"name": "GIT_REF", "desc": "optional, git target reference, it can be a git commit, git tag or git branch"},\
-    {"name": "LINT_PACKAGE", "desc": "optional, TODU"},\
-    {"name": "LINT_PARAMS", "desc": "optional, TODO"}\
+    {"name": "LINT_PACKAGE", "desc": "optional, golint target package"},\
+    {"name": "LINT_PARAMS", "desc": "optional, params to point output format"}\
   ],\
   "output": []\
 }'

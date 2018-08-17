@@ -11,7 +11,6 @@ var envsList = []string{
 	"WORKFLOW_GIT_CLONE_URL",
 	"WORKFLOW_GIT_REF",
 	"LINT_PACKAGE",
-	"LINT_PATH",
 	"LINT_PARAMS",
 }
 
