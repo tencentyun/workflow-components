@@ -1,6 +1,6 @@
-## Golang Golint Analysis
+## Golang Golint Analysis
 
-Golang 语法规则和代码风格检测工具
+Golang 语法规则和代码风格检测工具
 
 ## 组件参数
 ### 入参
