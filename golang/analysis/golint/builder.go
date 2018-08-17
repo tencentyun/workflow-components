@@ -21,7 +21,6 @@ type Builder struct {
 	GitCloneURL string
 	GitRef      string
 	LintPackage string
-	LintParams  string
 	ProjectName string
 }
 
