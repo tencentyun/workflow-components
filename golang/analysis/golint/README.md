@@ -14,7 +14,7 @@ Golang 语法规则和代码风格检测工具
 
 ##源码地址
 
-[Golang Golang Analysis](https://github.com/tencentyun/workflow-components/tree/master/golang/analysis/golint)
+[Golang Golint Analysis](https://github.com/tencentyun/workflow-components/tree/master/golang/analysis/golint)
 
 ## 构建
 docker build -t hub.tencentyun.com/tencenthub/golang_analysis_golint:latest .
