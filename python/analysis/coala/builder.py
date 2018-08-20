@@ -58,7 +58,7 @@ class Builder:
     def coala(self):
         cmd = ['coala', '--json', '--bears', self.bears, '--files', self.files]
         print("Run CMD %s" % (' '.join(cmd)), file=sys.stdout)
-        r = subprocess.run(cmd, stdout=subprocess.PIPE)
+        r = subprocess.run(cmd, cwd=os.path.join(BASE_SPACE, self.project_name), stdout=subprocess.PIPE)
 
         out = str(r.stdout, 'utf-8').strip()
         print(out, file=sys.stdout)
