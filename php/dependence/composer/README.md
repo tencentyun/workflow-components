@@ -22,4 +22,4 @@ PHP Composer: <https://github.com/tencentyun/workflow-components/tree/master/php
 
 ### 构建:
 
-`docker build -t hub.cloud.tencent.com/tencenthub/php_composer:latest .`
+`docker build -t hub.tencentyun.com/tencenthub/php_composer:latest .`

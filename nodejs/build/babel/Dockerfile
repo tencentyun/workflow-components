@@ -20,7 +20,7 @@ LABEL TencentHubComponent='{\
     {"name": "BUILD_PATH", "desc": "必填参数, 需要构建的目标文件路径"},\
     {"name": "OUT_DIR", "desc": "可选参数, babel产物输出目录, 如果为空, 将使用标准输出且不会生成构建产物"},\
     {"name": "BUILD_PARAMS", "desc": "可选参数, 传递给 babel 命令的其他参数, 如`--ignore [list]`"},\
-    {"name": "HUB_REPO", "desc": "可选参数, 二进制仓库, 如果此参数有值, vendor 结果将上传至此仓库"},\
+    {"name": "HUB_REPO", "desc": "可选参数, 二进制仓库, 如果此参数有值, 构建结果将上传至此仓库"},\
     {"name": "HUB_USER", "desc": "可选参数, Tencenthub 仓库用户名. 如果希望直接使用当前操作者的身份, 可以直接设置`_WORKFLOW_FLAG_HUB_TOKEN:true`, 工作流将会自动注入HUB_USER 和 HUB_TOKEN"},\
     {"name": "HUB_TOKEN", "desc": "可选参数, Tencenthub 仓库用户名token"},\
     {"name": "ARTIFACT_TAG", "desc": "可选参数, 二进制仓库中, 构建产物的tag, 默认是latest"},\
