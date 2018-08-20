@@ -37,6 +37,7 @@ func NewBuilder(envs map[string]string) (*Builder, error) {
 
 	//fmt.Println(b.ProjectName)
 	b.GtestPackageOrFile = envs["GTEST_PACKAGE_FILE"]
+	b.GtestParams = envs["GTEST_PARAMS"]
 
 	return b, nil
 }
@@ -87,9 +88,9 @@ func (b *Builder) build() error {
 	cwd, _ := os.Getwd()
 	var script string
 	if b.GtestPackageOrFile == "" {
-		script = "go test `go list ./...`"
+		script = fmt.Sprintf("go test %s `go list ./...`", b.GtestParams)
 	} else {
-		script = "go test " + b.GtestPackageOrFile
+		script = fmt.Sprintf("gp test %s %s", b.GtestParams, b.GtestPackageOrFile)
 	}
 	var command = []string{"sh", "-c", script}
 	if _, err := (CMD{command, filepath.Join(cwd, b.ProjectName)}).Run(); err != nil {
