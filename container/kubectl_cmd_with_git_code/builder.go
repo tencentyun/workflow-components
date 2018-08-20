@@ -101,7 +101,7 @@ func (b *Builder) gitPull() error {
 		fmt.Println("Clone project failed:", err)
 		return err
 	}
-	fmt.Println("Clone project", b.GitCloneURL, "succeded.")
+	fmt.Println("Clone project", b.GitCloneURL, "succeed.")
 	return nil
 }
 
@@ -112,7 +112,7 @@ func (b *Builder) gitReset() error {
 		fmt.Println("Switch to commit", b.GitRef, "failed:", err)
 		return err
 	}
-	fmt.Println("Switch to", b.GitRef, "succeded.")
+	fmt.Println("Switch to", b.GitRef, "succeed.")
 	return nil
 }
 

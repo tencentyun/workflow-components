@@ -184,7 +184,7 @@ func (b *Builder) gitPull() error {
 		fmt.Println("Clone project failed:", err)
 		return err
 	}
-	fmt.Println("Clone project", b.GitCloneURL, "succeded.")
+	fmt.Println("Clone project", b.GitCloneURL, "succeed.")
 	return nil
 }
 
@@ -195,7 +195,7 @@ func (b *Builder) gitReset() error {
 		fmt.Println("Switch to git ref ", b.GitRef, "failed:", err)
 		return err
 	}
-	fmt.Println("Switch to", b.GitRef, "succeded.")
+	fmt.Println("Switch to", b.GitRef, "succeed.")
 	return nil
 }
 
@@ -231,7 +231,7 @@ func (b *Builder) GenImageTag() error {
 
 	b.ImageTag = tag
 
-	fmt.Println("GenImageTag", b.ImageTag, "succeded.")
+	fmt.Println("GenImageTag", b.ImageTag, "succeed.")
 	return nil
 }
 
@@ -283,7 +283,7 @@ func (b *Builder) build(imageURL string) error {
 		fmt.Println("Run docker build failed:", err)
 		return err
 	}
-	fmt.Println("Run docker build succeded.")
+	fmt.Println("Run docker build succeed.")
 	return nil
 }
 
@@ -293,7 +293,7 @@ func (b *Builder) push(imageURL string) error {
 		fmt.Println("Run docker push failed:", err)
 		return err
 	}
-	fmt.Println("Run docker push succeded.")
+	fmt.Println("Run docker push succeed.")
 	return nil
 }
 
@@ -303,7 +303,7 @@ func (b *Builder) newTag(old, new string) error {
 		fmt.Println("Run docker tag failed:", err)
 		return err
 	}
-	fmt.Println("Run docker tag succeded.")
+	fmt.Println("Run docker tag succeed.")
 	return nil
 }
 
@@ -319,7 +319,7 @@ func (b *Builder) pluckImageID(imageURL string) error {
 		return err
 	}
 	if len(output) > 0 {
-		fmt.Println("pluck image id succeded.")
+		fmt.Println("pluck image id succeed.")
 		fmt.Printf("[JOB_OUT] IMAGE_ID = %s", output)
 	} else {
 		return errors.New("Can not get image id")
@@ -340,7 +340,7 @@ func (b *Builder) pluckImageDigest(imageURL string) error {
 	cut := b.Image + "@"
 	output = strings.TrimPrefix(output, cut)
 	if len(output) > 0 {
-		fmt.Println("pluck image digest succeded.")
+		fmt.Println("pluck image digest succeed.")
 		fmt.Printf("[JOB_OUT] IMAGE_DIGEST = %s\n", output)
 	} else {
 		return errors.New("Can not get image digest")

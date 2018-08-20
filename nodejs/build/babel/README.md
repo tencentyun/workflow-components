@@ -1,8 +1,6 @@
 ## 组件名称：Nodejs Babel Build
 
-### Babel：
-[Babel]用于编写下一代 JavaScript 的编译器。
-
+使用 Babel 来构建JavaScript代码, 可选地将构建结果上传至二进制仓库
 
 ### 组件参数
 #### 入参
