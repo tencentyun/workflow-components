@@ -15,10 +15,12 @@ def main():
 
     try:
         if builder.Builder(envs).run():
-            print("BUILD SUCCEED", file=sys.stdout)
+            print("BUILD SUCCEED.", file=sys.stdout)
         else:
-            print("BUILD FAILED", file=sys.stdout)
+            print("BUILD FAILED.", file=sys.stdout)
+            exit(1)
     except Exception as e:
         print("BUILD FAILED: %s" % str(e), file=sys.stderr)
+        exit(1)
 
 main()

@@ -6,10 +6,10 @@ BASE_SPACE = "/root/src"
 
 class Builder:
     def __init__(self, envs):
-        if (envs.get("GIT_CLONE_URL") != None):
+        if envs.get("GIT_CLONE_URL"):
             self.git_clone_URL = envs.get("GIT_CLONE_URL").rstrip('/')
-            self.git_ref = envs.get("GIT_REF") or  "master"
-        elif (envs.get("_WORKFLOW_GIT_CLONE_URL") != None):
+            self.git_ref = envs.get("GIT_REF") or "master"
+        elif envs.get("_WORKFLOW_GIT_CLONE_URL"):
             self.git_clone_URL = envs.get("_WORKFLOW_GIT_CLONE_URL").rstrip('/')
             self.git_ref = envs.get("_WORKFLOW_GIT_REF") or  "master"
         else:
@@ -20,12 +20,12 @@ class Builder:
         self.project_name = os.path.basename(self.git_clone_URL.rstrip('.git'))
 
         self.bears = envs.get('BEARS')
-        if self.bears == None:
-          self.bears = 'PEP8Bear,PyUnusedCodeBear'
+        if not self.bears:
+            self.bears = 'PEP8Bear,PyUnusedCodeBear'
 
         self.files = envs.get('FILES')
-        if self.files == None:
-          self.files = './**/*.py'
+        if not self.files:
+            self.files = './**/*.py'
 
     def run(self):
         # print(self.__dict__)
