@@ -329,7 +329,7 @@ func (b *Builder) pluckImageID(imageURL string) error {
 	}
 	if len(output) > 0 {
 		fmt.Println("pluck image id succeed.")
-		fmt.Printf("[JOB_OUT] IMAGE_ID = %s", output)
+		fmt.Printf("[JOB_OUT] IMAGE_ID = %s\n", output)
 	} else {
 		return errors.New("Can not get image id")
 	}

@@ -36,6 +36,7 @@ type Builder struct {
 	gitTag        string
 	gitCommitTime string
 	projectName   string
+	envs  map[string]string
 }
 
 // NewBuilder is
@@ -110,6 +111,7 @@ func NewBuilder(envs map[string]string) (*Builder, error) {
 	if strings.ToLower(envs["NO_CACHE"]) == "true" {
 		b.NoCache = true
 	}
+	b.envs = envs
 
 	return b, nil
 }
@@ -269,6 +271,13 @@ func (b *Builder) build(imageURL string) error {
 			fmt.Println("Unmarshal BUILD_ARG error: ", err)
 		} else {
 			for k, v := range args {
+				if strings.HasPrefix(v, "${") && strings.HasSuffix(v, "}") {
+					envKey := v[2:len(v)-1]
+					if envValue, ok := b.envs[envKey]; ok {
+						command = append(command, "--build-arg", fmt.Sprintf("%s=%s", k, envValue))
+						continue
+					}
+				}
 				command = append(command, "--build-arg", fmt.Sprintf("%s=%s", k, v))
 			}
 		}
