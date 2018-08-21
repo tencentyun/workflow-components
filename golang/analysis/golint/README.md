@@ -12,9 +12,9 @@ Golang 语法规则和代码风格检测工具
 ### 出参
 无
 
-##源码地址
+## 源码地址
 
 [Golang Golint Analysis](https://github.com/tencentyun/workflow-components/tree/master/golang/analysis/golint)
 
 ## 构建
-docker build -t hub.tencentyun.com/tencenthub/golang_analysis_golint:latest .
+docker build -t hub.tencentyun.com/tencenthub/golang_analysis_golint:latest . 
