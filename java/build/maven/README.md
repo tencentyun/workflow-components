@@ -18,6 +18,10 @@
 - `ARTIFACT` 构建产物结果列表
 - `ARTIFACT_URL` 成功上传的构建产物url
 
+### Tag列表及其Dockerfile链接
+
+* 3.5-jdk-8, latest: [Dockerfile](https://github.com/tencentyun/workflow-components/blob/c2d0c1ceb447694a092599858203d29dd877e6bb/java/build/maven/Dockerfile)
+
 ### 源码地址
 
 Java Maven Build: <https://github.com/tencentyun/workflow-components/tree/master/java/build/maven>
