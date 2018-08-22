@@ -19,6 +19,10 @@
 
 - `ARTIFACT_URL` 成功上传的构建产物url
 
+### Tag列表及其Dockerfile链接
+
+* 6.26, latest: [Dockerfile](https://github.com/tencentyun/workflow-components/blob/c587a3a7ba3632ab7422d2a08efd8bc60c93f5d2/nodejs/build/babel/Dockerfile)
+
 ### 源码地址
 
 Nodejs Babel Build: <https://github.com/tencentyun/workflow-components/tree/master/nodejs/build/babel>
