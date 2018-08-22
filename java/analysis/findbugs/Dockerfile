@@ -1,6 +1,6 @@
 FROM golang:1.10-alpine as builder
 
-MAINTAINER foxzhong@tencent.com
+MAINTAINER halewang@tencent.com
 WORKDIR /go/src/component-findbugs
 
 COPY ./ /go/src/component-findbugs
@@ -23,6 +23,8 @@ RUN wget https://services.gradle.org/distributions/gradle-3.5-bin.zip \
 ENV gradle3 /opt/gradle/gradle-3.5/bin
 ENV PATH /opt/gradle/gradle-3.5/bin:$PATH
 
+WORKDIR /root
+COPY --from=builder /go/src/component-findbugs/findbugs.conf /root/findbugs.conf
 COPY --from=builder /go/bin/component-findbugs /usr/bin/
 
 CMD ["component-findbugs"]

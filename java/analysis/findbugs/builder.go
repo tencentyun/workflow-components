@@ -94,11 +94,15 @@ func (b *Builder) build() error {
 		return fmt.Errorf("file not exist")
 	}
 
-	var script = fmt.Sprintf("echo -e \"\nallprojects { apply plugin: 'findbugs' }\" >> %s", file)
-	var command = []string{"sh", "-c", script}
-	if _, err := (CMD{Command: command}).Run(); err != nil {
-		fmt.Printf("Exec: build plugin.build failed: %v", err)
-		return err
+	var findbugs = "echo gradle -q tasks --all | grep findbugs"
+	var findbugsIsExistCommand = []string{"sh", "-c", findbugs}
+	if isExist, _ := (CMD{Command: findbugsIsExistCommand}).Run(); isExist == "" {
+		var script = fmt.Sprintf("cat /root/findbugs.conf >> %s", file)
+		var command = []string{"sh", "-c", script}
+		if _, err := (CMD{Command: command}).Run(); err != nil {
+			fmt.Printf("Exec: build plugin.build failed: %v", err)
+			return err
+		}
 	}
 
 	cwd, _ := os.Getwd()
