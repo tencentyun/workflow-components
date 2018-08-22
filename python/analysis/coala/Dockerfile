@@ -1,7 +1,7 @@
 FROM python:3-alpine
 MAINTAINER foxzhong <foxzhong@tencent.com>
 
-RUN apk add --update git && pip install coala-bears
+RUN apk add --update git && pip install coala-bears==0.10.0
 RUN mkdir -p /root/src
 ADD / /root/src
 WORKDIR /root/src

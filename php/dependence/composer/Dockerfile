@@ -1,4 +1,4 @@
-FROM composer:latest
+FROM composer:1.7.2
 MAINTAINER foxzhong <foxzhong@tencent.com>
 
 RUN mkdir -p /root/src

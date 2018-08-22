@@ -1,7 +1,7 @@
-FROM node:latest
+FROM node:10.9
 MAINTAINER foxzhong <foxzhong@tencent.com>
 
-RUN npm install eslint -g
+RUN npm install -g eslint@5.4.0
 
 RUN mkdir -p /root/src
 ADD / /root/src

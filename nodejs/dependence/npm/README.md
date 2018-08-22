@@ -18,7 +18,7 @@
 
 ### Tag列表及其Dockerfile链接
 
-* 10.9, latest: [Dockerfile]()
+* 10.9, latest: [Dockerfile](https://github.com/tencentyun/workflow-components/blob/512530040cec72325b7cb42e862b79fe60898f56/nodejs/dependence/npm/Dockerfile)
 
 ### 源码地址
 

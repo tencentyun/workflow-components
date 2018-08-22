@@ -1,6 +1,6 @@
-## 组件名称：Java Build Maven
+## 组件名称：Java Build Gradle
 
-使用 maven 进行 java 项目构建, 可选地将构建产物上传到指定的二进制仓库.
+使用 gradle 进行 java 项目构建, 可选地将构建产物上传到指定的二进制仓库.
 
 ### 组件参数
 #### 入参
@@ -15,8 +15,13 @@
 - `ARTIFACT_TAG` 非必填，上传构建产物对应的tag, 默认是latest
 
 #### 出参
+
 - `ARTIFACT` 构建产物结果列表
 - `ARTIFACT_URL` 成功上传的构建产物url
+
+### Tag列表及其Dockerfile链接
+
+* 4.9.0-jdk8, latest: [Dockerfile]()
 
 ### 源码地址
 

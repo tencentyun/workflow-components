@@ -106,14 +106,9 @@ Builder.prototype.handleArtifacts = async function() {
     cmd = new CMD(command, cwd);
     await cmd.run();
 
-    // if _, err := (CMD{command, targetPath}).Run(); err != nil {
-    //     fmt.Println("Run upload artifacts failed:", err)
-    //     return err
-    // }
-
     console.log(`[JOB_OUT] ARTIFACT_URL = ${path.join(this.hubRepo, this.artifactPath, artifactsTar)}\n`)
     console.log("Run upload artifacts succeed.")
-}
+};
 
 Builder.prototype.run = async function() {
   try {

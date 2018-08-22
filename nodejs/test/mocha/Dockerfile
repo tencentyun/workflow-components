@@ -1,7 +1,7 @@
-FROM node:latest
+FROM node:10.9
 MAINTAINER foxzhong <foxzhong@tencent.com>
 
-RUN npm install --global mocha
+RUN npm install --global mocha@5.2.0
 
 RUN mkdir -p /root/src
 ADD / /root/src

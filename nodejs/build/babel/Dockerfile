@@ -1,7 +1,7 @@
-FROM node:latest
+FROM node:10.9
 MAINTAINER foxzhong <foxzhong@tencent.com>
 
-RUN npm install -g babel-cli
+RUN npm install -g babel-cli@6.26.0
 RUN mkdir -p /root/src
 # 不允许全局
 RUN cd /root && npm install babel-preset-env
