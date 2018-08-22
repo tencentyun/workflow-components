@@ -112,7 +112,7 @@ func (b *Builder) callWebhook() error {
 	}
 
 	fmt.Println(resultJSON)
-	fmt.Println("Send webhook succeded.")
+	fmt.Println("Send webhook succeed.")
 	return nil
 }
 

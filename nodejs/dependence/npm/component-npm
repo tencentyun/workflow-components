@@ -11,27 +11,22 @@ function Builder(envs) {
     this.gitCloneURL = envs["_WORKFLOW_GIT_CLONE_URL"].replace(/\/$/, "");
     this.gitRef = envs["_WORKFLOW_GIT_REF"] ||  "master";
   }
+
   if (!this.gitCloneURL) {
     console.error("envionment variables GIT_CLONE_URL is required");
     process.exit(1);
   }
 
-  if (!envs["BUILD_PATH"]) {
-    console.error("envionment variables BUILD_PATH is required");
-    process.exit(1);
-  }
-
-  this.buildPath = envs["BUILD_PATH"];
-  this.buildParams = envs["BUILD_PARAMS"] || '';
-  this.outDir = (envs["OUT_DIR"] || "").replace(/\/$/, "");
+  this.npmParams = envs["NPM_PARAMS"] || '';
 
   let paths = this.gitCloneURL.replace(/\.git$/, "").split('/');
   this.projectName = paths[paths.length - 1];
 
   this.hubRepo = (envs["HUB_REPO"] || "").replace(/\/$/, "");
-  if (!this.outDir || !this.hubRepo) {
+  if (!this.hubRepo) {
       return; // no need upload
   }
+  this.outDir = "node_modules";
 
   this.hubUser = envs["HUB_USER"];
   this.hubToken = envs["HUB_TOKEN"];
@@ -68,19 +63,9 @@ Builder.prototype.gitReset = async function() {
   await cmd.run();
 };
 
-Builder.prototype.npmInstall = async function() {
+Builder.prototype.npm = async function() {
   let cwd = path.join(process.cwd(), this.projectName);
-  let cmd = new CMD(`npm install`, cwd);
-  await cmd.run();
-};
-
-Builder.prototype.build = async function() {
-  let cwd = path.join(process.cwd(), this.projectName);
-  let command = `babel ${this.buildParams} ${this.buildPath}`;
-  if (this.outDir) {
-    command = `${command} --out-dir ${this.outDir}`
-  }
-  let cmd = new CMD(command, cwd);
+  let cmd = new CMD(`npm install ${this.npmParams}`, cwd);
   await cmd.run();
 };
 
@@ -101,26 +86,20 @@ Builder.prototype.handleArtifacts = async function() {
         --repo=${this.hubRepo} \
         --localpath=${artifactsTar} \
         --path=${path.join(this.artifactPath, artifactsTar)} \
-        --tag=${this.artifactTag}`
+        --tag=${this.artifactTag}`;
 
     cmd = new CMD(command, cwd);
     await cmd.run();
 
-    // if _, err := (CMD{command, targetPath}).Run(); err != nil {
-    //     fmt.Println("Run upload artifacts failed:", err)
-    //     return err
-    // }
-
-    console.log(`[JOB_OUT] ARTIFACT_URL = ${path.join(this.hubRepo, this.artifactPath, artifactsTar)}\n`)
+    console.log(`[JOB_OUT] ARTIFACT_URL = ${path.join(this.hubRepo, this.artifactPath, artifactsTar)}\n`);
     console.log("Run upload artifacts succeed.")
-}
+};
 
 Builder.prototype.run = async function() {
   try {
     await this.gitPull();
     await this.gitReset();
-    await this.npmInstall();
-    await this.build();
+    await this.npm();
     await this.handleArtifacts();
   } catch (e) {
     console.error("BUILD FAILED: ", e.message);
@@ -163,18 +142,16 @@ CMD.prototype.run = function() {
 };
 
 // main
-const envList = [
+const envList = [ // inputs
   "GIT_CLONE_URL", "GIT_REF",
   "_WORKFLOW_GIT_CLONE_URL", "_WORKFLOW_GIT_REF",
-  "BUILD_PATH", "BUILD_PARAMS", "OUT_DIR",
+  "LINT_PATH", "LINT_PARAMS",
 
   "HUB_REPO", "ARTIFACT_TAG", "ARTIFACT_PATH",
-  "HUB_USER",
-  "HUB_TOKEN",
-  "_WORKFLOW_HUB_USER",
-  "_WORKFLOW_HUB_TOKEN"
-];
 
+  "HUB_USER", "HUB_TOKEN",
+  "_WORKFLOW_HUB_USER", "_WORKFLOW_HUB_TOKEN"
+];
 let envs = {};
 for (let envName of envList) {
   envs[envName] = process.env[envName];

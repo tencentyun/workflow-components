@@ -36,6 +36,7 @@ type Builder struct {
 	gitTag        string
 	gitCommitTime string
 	projectName   string
+	envs  map[string]string
 }
 
 // NewBuilder is
@@ -113,6 +114,7 @@ func NewBuilder(envs map[string]string) (*Builder, error) {
 	if strings.ToLower(envs["NO_CACHE"]) == "true" {
 		b.NoCache = true
 	}
+	b.envs = envs
 
 	return b, nil
 }
@@ -184,7 +186,7 @@ func (b *Builder) gitPull() error {
 		fmt.Println("Clone project failed:", err)
 		return err
 	}
-	fmt.Println("Clone project", b.GitCloneURL, "succeded.")
+	fmt.Println("Clone project", b.GitCloneURL, "succeed.")
 	return nil
 }
 
@@ -195,7 +197,7 @@ func (b *Builder) gitReset() error {
 		fmt.Println("Switch to git ref ", b.GitRef, "failed:", err)
 		return err
 	}
-	fmt.Println("Switch to", b.GitRef, "succeded.")
+	fmt.Println("Switch to", b.GitRef, "succeed.")
 	return nil
 }
 
@@ -231,7 +233,7 @@ func (b *Builder) GenImageTag() error {
 
 	b.ImageTag = tag
 
-	fmt.Println("GenImageTag", b.ImageTag, "succeded.")
+	fmt.Println("GenImageTag", b.ImageTag, "succeed.")
 	return nil
 }
 
@@ -272,6 +274,13 @@ func (b *Builder) build(imageURL string) error {
 			fmt.Println("Unmarshal BUILD_ARG error: ", err)
 		} else {
 			for k, v := range args {
+				if strings.HasPrefix(v, "${") && strings.HasSuffix(v, "}") {
+					envKey := v[2:len(v)-1]
+					if envValue, ok := b.envs[envKey]; ok {
+						command = append(command, "--build-arg", fmt.Sprintf("%s=%s", k, envValue))
+						continue
+					}
+				}
 				command = append(command, "--build-arg", fmt.Sprintf("%s=%s", k, v))
 			}
 		}
@@ -283,7 +292,7 @@ func (b *Builder) build(imageURL string) error {
 		fmt.Println("Run docker build failed:", err)
 		return err
 	}
-	fmt.Println("Run docker build succeded.")
+	fmt.Println("Run docker build succeed.")
 	return nil
 }
 
@@ -293,7 +302,7 @@ func (b *Builder) push(imageURL string) error {
 		fmt.Println("Run docker push failed:", err)
 		return err
 	}
-	fmt.Println("Run docker push succeded.")
+	fmt.Println("Run docker push succeed.")
 	return nil
 }
 
@@ -303,7 +312,7 @@ func (b *Builder) newTag(old, new string) error {
 		fmt.Println("Run docker tag failed:", err)
 		return err
 	}
-	fmt.Println("Run docker tag succeded.")
+	fmt.Println("Run docker tag succeed.")
 	return nil
 }
 
@@ -319,8 +328,8 @@ func (b *Builder) pluckImageID(imageURL string) error {
 		return err
 	}
 	if len(output) > 0 {
-		fmt.Println("pluck image id succeded.")
-		fmt.Printf("[JOB_OUT] IMAGE_ID = %s", output)
+		fmt.Println("pluck image id succeed.")
+		fmt.Printf("[JOB_OUT] IMAGE_ID = %s\n", output)
 	} else {
 		return errors.New("Can not get image id")
 	}
@@ -340,7 +349,7 @@ func (b *Builder) pluckImageDigest(imageURL string) error {
 	cut := b.Image + "@"
 	output = strings.TrimPrefix(output, cut)
 	if len(output) > 0 {
-		fmt.Println("pluck image digest succeded.")
+		fmt.Println("pluck image digest succeed.")
 		fmt.Printf("[JOB_OUT] IMAGE_DIGEST = %s\n", output)
 	} else {
 		return errors.New("Can not get image digest")

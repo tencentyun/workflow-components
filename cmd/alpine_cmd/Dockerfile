@@ -10,7 +10,7 @@ go build -v -o /go/bin/component-alpine-cmd \
 -gcflags '-N -l' \
 ./*.go
 
-FROM alpine:3.7
+FROM alpine:3.8
 RUN mkdir -p /root/src
 WORKDIR /root/src
 COPY --from=builder /go/bin/component-alpine-cmd /usr/bin/

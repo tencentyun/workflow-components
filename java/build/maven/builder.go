@@ -124,7 +124,7 @@ func (b *Builder) build() error {
 		fmt.Println("Run mvn goals failed:", err)
 		return err
 	}
-	fmt.Println("Run mvn goals succeded.")
+	fmt.Println("Run mvn goals succeed.")
 	return nil
 }
 
@@ -175,7 +175,7 @@ func (b *Builder) handleArtifacts() error {
 
 	// TODO
 	fmt.Printf("[JOB_OUT] ARTIFACT_URL = %s\n", filepath.Join(b.HubRepo, b.ArtifactPath, artifactsTar))
-	fmt.Println("Run upload artifacts succeded.")
+	fmt.Println("Run upload artifacts succeed.")
 	return nil
 }
 
@@ -185,7 +185,7 @@ func (b *Builder) gitPull() error {
 		fmt.Println("Clone project failed:", err)
 		return err
 	}
-	fmt.Println("Clone project", b.GitCloneURL, "succeded.")
+	fmt.Println("Clone project", b.GitCloneURL, "succeed.")
 	return nil
 }
 
@@ -196,7 +196,7 @@ func (b *Builder) gitReset() error {
 		fmt.Println("Switch to commit", b.GitRef, "failed:", err)
 		return err
 	}
-	fmt.Println("Switch to", b.GitRef, "succeded.")
+	fmt.Println("Switch to", b.GitRef, "succeed.")
 	return nil
 }
 

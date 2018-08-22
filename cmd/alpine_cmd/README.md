@@ -14,6 +14,11 @@
 #### 出参
 无
 
+### Tag列表及其Dockerfile链接
+
+* 3.8, latest: [Dockerfile](https://github.com/tencentyun/workflow-components/blob/31a3144a145ae2ebab6efecafa26ccdb4d955463/cmd/alpine_cmd/Dockerfile)
+* 3.7: [Dockerfile](https://github.com/tencentyun/workflow-components/blob/0ac19e1cac61bc9dfdd591a38bb5e41326f6f3c8/cmd/alpine_cmd/Dockerfile)
+
 ### 源码地址
 
 Alpine CMD: <https://github.com/tencentyun/workflow-components/tree/master/cmd/alpine_cmd>

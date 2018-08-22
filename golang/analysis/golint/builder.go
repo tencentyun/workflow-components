@@ -72,7 +72,7 @@ func (b *Builder) gitPull() error {
 		fmt.Println("Clone project failed:", err)
 		return err
 	}
-	fmt.Println("Clone project", b.GitCloneURL, "succeded.")
+	fmt.Println("Clone project", b.GitCloneURL, "succeed.")
 	return nil
 }
 
@@ -84,7 +84,7 @@ func (b *Builder) gitReset() error {
 		fmt.Println("Switch to commit", b.GitRef, "failed:", err)
 		return err
 	}
-	fmt.Println("Switch to", b.GitRef, "succeded.")
+	fmt.Println("Switch to", b.GitRef, "succeed.")
 
 	return nil
 }
@@ -101,7 +101,7 @@ func (b *Builder) build() error {
 	if _, err := (CMD{command, filepath.Join(cwd, b.ProjectName)}).Run(); err != nil {
 		fmt.Printf("Exec: %s failed: %v", script, err)
 	}
-	fmt.Printf("Exec: %s succeded.\n", script)
+	fmt.Printf("Exec: %s succeed.\n", script)
 	return nil
 }
 

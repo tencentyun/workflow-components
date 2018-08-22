@@ -131,7 +131,7 @@ func (b *Builder) pull(imageURL string) error {
 		fmt.Println("Run docker pull failed:", err)
 		return err
 	}
-	fmt.Println("Run docker pull succeded.")
+	fmt.Println("Run docker pull succeed.")
 	return nil
 }
 
@@ -141,7 +141,7 @@ func (b *Builder) push(imageURL string) error {
 		fmt.Println("Run docker push failed:", err)
 		return err
 	}
-	fmt.Println("Run docker push succeded.")
+	fmt.Println("Run docker push succeed.")
 	return nil
 }
 
@@ -151,7 +151,7 @@ func (b *Builder) tag(oldImage, newImage string) error {
 		fmt.Println("Run docker tag failed:", err)
 		return err
 	}
-	fmt.Println("Run docker tag succeded.")
+	fmt.Println("Run docker tag succeed.")
 	return nil
 }
 
@@ -180,7 +180,7 @@ func (b *Builder) pluckImageID(imageURL string) error {
 		return err
 	}
 	if len(output) > 0 {
-		fmt.Println("pluck image id succeded.")
+		fmt.Println("pluck image id succeed.")
 		fmt.Printf("[JOB_OUT] IMAGE_ID = %s", output)
 	} else {
 		return errors.New("Can not get image id")
@@ -201,7 +201,7 @@ func (b *Builder) pluckImageDigest(imageURL string) error {
 	cut := b.Image + "@"
 	output = strings.TrimPrefix(output, cut)
 	if len(output) > 0 {
-		fmt.Println("pluck image digest succeded.")
+		fmt.Println("pluck image digest succeed.")
 		fmt.Printf("[JOB_OUT] IMAGE_DIGEST = %s\n", output)
 	} else {
 		return errors.New("Can not get image digest")
