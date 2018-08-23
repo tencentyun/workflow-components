@@ -13,7 +13,7 @@ Java Junit代码测试工具, 用于生成junit报告
 
 ### 源码地址
 
-[Java Junit Test](https://github.com/tencentyun/workflow-components/tree/master/java/test/junit)
+Java Junit Test: <https://github.com/tencentyun/workflow-components/tree/master/java/test/junit>
 
 ### 构建
 `docker build -t hub.tencentyun.com/tencenthub/java_test_junit:latest .`
