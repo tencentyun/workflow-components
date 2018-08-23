@@ -11,6 +11,9 @@ Java Cpd代码分析工具, 用于检查程序中是否存在重复代码
 #### 出参
 无
 
+### Tag列表及其Dockerfile链接
+* 1.1, latest: [Dockerfile](https://github.com/tencentyun/workflow-components/blob/548c0eb6d83695c911011267ae5da7805e543631/java/analysis/cpd/Dockerfile)
+
 ### 源码地址
 
 Java Cpd Analysis：<https://github.com/tencentyun/workflow-components/tree/master/java/analysis/cpd>
