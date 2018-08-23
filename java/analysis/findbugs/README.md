@@ -12,7 +12,7 @@ Java FindBugs代码分析工具
 
 ## 源码地址
 
-[Java PMD Analysis](https://github.com/tencentyun/workflow-components/tree/master/java/analysis/findbugs)
+Java PMD Analysis: <https://github.com/tencentyun/workflow-components/tree/master/java/analysis/findbugs>
 
 ## 构建
 docker build -t hub.tencentyun.com/tencenthub/java_analysis_findbugs:latest .
