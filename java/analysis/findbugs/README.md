@@ -10,6 +10,9 @@ Java FindBugs代码分析工具
 ### 出参
 无
 
+## Tag列表及其Dockerfile连接
+* 6.6.0, latest: [Dockerfile](https://github.com/coderwangke/workflow-components/blob/243726edd2312b63944c149b3eedb3d789973047/java/analysis/pmd/Dockerfile)
+
 ## 源码地址
 
 Java PMD Analysis: <https://github.com/tencentyun/workflow-components/tree/master/java/analysis/findbugs>
