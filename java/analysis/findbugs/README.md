@@ -10,6 +10,9 @@ Java FindBugs代码分析工具
 ### 出参
 无
 
+## Tag列表及其Dockerfile链接
+* 3.0.1, latest [Dockerfile](https://github.com/tencentyun/workflow-components/blob/eaf7ad73ec1099184bb8cc5a2cbd84909dd6c829/java/analysis/findbugs/Dockerfile)
+
 ## 源码地址
 
 Java Findbugs Analysis: <https://github.com/tencentyun/workflow-components/tree/master/java/analysis/findbugs>
