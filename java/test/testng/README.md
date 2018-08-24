@@ -10,6 +10,9 @@ Java Testng代码测试工具, 用于生成testng报告
 #### 出参
 无
 
+### Tag列表及其Dockerfile链接
+* 6.9, latest: [Dockerfile](https://github.com/tencentyun/workflow-components/blob/1cc5fa362ab84dd7ad222ec9cdd1ded8635d3c14/java/test/testng/Dockerfile)
+
 ### 源码地址
 
 Java Testng Test: <https://github.com/tencentyun/workflow-components/tree/master/java/test/testng>
