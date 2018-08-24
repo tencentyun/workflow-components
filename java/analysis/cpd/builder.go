@@ -14,6 +14,7 @@ type Builder struct {
 	GitCloneURL string
 	GitRef      string
 	projectName string
+	haveCpd     string
 }
 
 const baseSpace = "/root"
@@ -63,7 +64,6 @@ func (b *Builder) run() error {
 	if err := b.afterBuild(); err != nil {
 		return err
 	}
-
 	return nil
 }
 
@@ -101,30 +101,35 @@ func pathExist(file string) bool {
 func (b *Builder) preBuild() error {
 	file := baseSpace + "/" + b.projectName + "/" + "build.gradle"
 	if ok := pathExist(file); ok != true {
-		return fmt.Errorf("file not exist")
+		return fmt.Errorf("build.gradle file not exist")
 	}
 
-	var findbugs = "echo gradle -q tasks --all | grep findbugs"
-	var findbugsIsExistCommand = []string{"sh", "-c", findbugs}
-	if isExist, _ := (CMD{Command: findbugsIsExistCommand}).Run(); isExist == "" {
-		var script = fmt.Sprintf("cat /root/findbugs.conf >> %s", file)
+	var cpd = "echo gradle -q tasks --all | grep cpd | awk '{print $1}'"
+	var cpdIsExistCommand = []string{"sh", "-c", cpd}
+	isExist, _ := (CMD{Command: cpdIsExistCommand}).Run()
+	if isExist == "" {
+		var script = fmt.Sprintf("cat /root/cpd.conf >> %s", file)
 		var command = []string{"sh", "-c", script}
 		if _, err := (CMD{Command: command}).Run(); err != nil {
 			fmt.Printf("Exec: build plugin.build failed: %v", err)
 			return err
 		}
+	} else {
+		b.haveCpd = isExist
 	}
+
 	return nil
 }
 
 func (b *Builder) build() error {
-	//fmt.Printf("Exec: %s succeded.\n", script)
 	cwd, _ := os.Getwd()
-	var command01 = []string{"gradle", "findbugsMain"}
-	(CMD{command01, filepath.Join(cwd, b.projectName)}).Run()
-
-	var command02 = []string{"gradle", "findbugsTest"}
-	(CMD{command02, filepath.Join(cwd, b.projectName)}).Run()
+	if b.haveCpd == "" {
+		var command01 = []string{"gradle", "cpdCheck"}
+		(CMD{command01, filepath.Join(cwd, b.projectName)}).Run()
+	} else {
+		var command01 = []string{"gradle", b.haveCpd}
+		(CMD{command01, filepath.Join(cwd, b.projectName)}).Run()
+	}
 
 	return nil
 }
@@ -148,15 +153,11 @@ func showXmlReport(file string) error {
 }
 
 func (b *Builder) afterBuild() error {
-	var mainFile = baseSpace + "/" + b.projectName + "/build/reports/findbugs/main.xml"
-	var testFile = baseSpace + "/" + b.projectName + "/build/reports/findbugs/test.xml"
-	if err := showXmlReport(mainFile); err != nil {
+	//show xml
+	var cpdFile = baseSpace + "/" + b.projectName + "/build/reports/cpd/cpdCheck.xml"
+	if err := showXmlReport(cpdFile); err != nil {
 		return err
 	}
-	if err := showXmlReport(testFile); err != nil {
-		return err
-	}
-
 	return nil
 }
 

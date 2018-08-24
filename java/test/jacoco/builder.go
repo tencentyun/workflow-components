@@ -103,11 +103,10 @@ func (b *Builder) preBuild() error {
 	if ok := pathExist(file); ok != true {
 		return fmt.Errorf("file not exist")
 	}
-
-	var findbugs = "echo gradle -q tasks --all | grep findbugs"
-	var findbugsIsExistCommand = []string{"sh", "-c", findbugs}
-	if isExist, _ := (CMD{Command: findbugsIsExistCommand}).Run(); isExist == "" {
-		var script = fmt.Sprintf("cat /root/findbugs.conf >> %s", file)
+	var jacocoTest = "echo gradle -q tasks --all | grep jacocoTestReport"
+	var jacocoIsExistCommand = []string{"sh", "-c", jacocoTest}
+	if isExist, _ := (CMD{Command: jacocoIsExistCommand}).Run(); isExist == "" {
+		var script = fmt.Sprintf("cat /root/jacoco.conf >> %s", file)
 		var command = []string{"sh", "-c", script}
 		if _, err := (CMD{Command: command}).Run(); err != nil {
 			fmt.Printf("Exec: build plugin.build failed: %v", err)
@@ -118,12 +117,10 @@ func (b *Builder) preBuild() error {
 }
 
 func (b *Builder) build() error {
-	//fmt.Printf("Exec: %s succeded.\n", script)
 	cwd, _ := os.Getwd()
-	var command01 = []string{"gradle", "findbugsMain"}
+	var command01 = []string{"gradle", "test"}
 	(CMD{command01, filepath.Join(cwd, b.projectName)}).Run()
-
-	var command02 = []string{"gradle", "findbugsTest"}
+	var command02 = []string{"gradle", "jacocoTestReport"}
 	(CMD{command02, filepath.Join(cwd, b.projectName)}).Run()
 
 	return nil
@@ -148,12 +145,8 @@ func showXmlReport(file string) error {
 }
 
 func (b *Builder) afterBuild() error {
-	var mainFile = baseSpace + "/" + b.projectName + "/build/reports/findbugs/main.xml"
-	var testFile = baseSpace + "/" + b.projectName + "/build/reports/findbugs/test.xml"
-	if err := showXmlReport(mainFile); err != nil {
-		return err
-	}
-	if err := showXmlReport(testFile); err != nil {
+	var testOutputFile = baseSpace + "/" + b.projectName + "/build/reports/jacoco/test/jacocoTestReport.xml"
+	if err := showXmlReport(testOutputFile); err != nil {
 		return err
 	}
 

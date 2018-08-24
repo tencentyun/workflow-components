@@ -63,7 +63,6 @@ func (b *Builder) run() error {
 	if err := b.afterBuild(); err != nil {
 		return err
 	}
-
 	return nil
 }
 
@@ -101,31 +100,29 @@ func pathExist(file string) bool {
 func (b *Builder) preBuild() error {
 	file := baseSpace + "/" + b.projectName + "/" + "build.gradle"
 	if ok := pathExist(file); ok != true {
-		return fmt.Errorf("file not exist")
+		return fmt.Errorf("build.gradle file not exist")
 	}
 
-	var findbugs = "echo gradle -q tasks --all | grep findbugs"
-	var findbugsIsExistCommand = []string{"sh", "-c", findbugs}
-	if isExist, _ := (CMD{Command: findbugsIsExistCommand}).Run(); isExist == "" {
-		var script = fmt.Sprintf("cat /root/findbugs.conf >> %s", file)
+	var jdepend = "echo gradle -q tasks --all | grep jdepend"
+	var jdependIsExistCommand = []string{"sh", "-c", jdepend}
+	if isExist, _ := (CMD{Command: jdependIsExistCommand}).Run(); isExist == "" {
+		var script = fmt.Sprintf("cat /root/jdepend.conf >> %s", file)
 		var command = []string{"sh", "-c", script}
 		if _, err := (CMD{Command: command}).Run(); err != nil {
 			fmt.Printf("Exec: build plugin.build failed: %v", err)
 			return err
 		}
 	}
+
 	return nil
 }
 
 func (b *Builder) build() error {
-	//fmt.Printf("Exec: %s succeded.\n", script)
 	cwd, _ := os.Getwd()
-	var command01 = []string{"gradle", "findbugsMain"}
+	var command01 = []string{"gradle", "jdependMain"}
 	(CMD{command01, filepath.Join(cwd, b.projectName)}).Run()
-
-	var command02 = []string{"gradle", "findbugsTest"}
+	var command02 = []string{"gradle", "jdependTest"}
 	(CMD{command02, filepath.Join(cwd, b.projectName)}).Run()
-
 	return nil
 }
 
@@ -148,15 +145,15 @@ func showXmlReport(file string) error {
 }
 
 func (b *Builder) afterBuild() error {
-	var mainFile = baseSpace + "/" + b.projectName + "/build/reports/findbugs/main.xml"
-	var testFile = baseSpace + "/" + b.projectName + "/build/reports/findbugs/test.xml"
+	//show xml
+	var mainFile = baseSpace + "/" + b.projectName + "/build/reports/jdepend/main.xml"
+	var testFile = baseSpace + "/" + b.projectName + "/build/reports/jdepend/test.xml"
 	if err := showXmlReport(mainFile); err != nil {
 		return err
 	}
 	if err := showXmlReport(testFile); err != nil {
 		return err
 	}
-
 	return nil
 }
 

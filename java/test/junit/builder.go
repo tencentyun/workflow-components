@@ -1,9 +1,7 @@
 package main
 
 import (
-	"bufio"
 	"fmt"
-	"io"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -59,11 +57,6 @@ func (b *Builder) run() error {
 	if err := b.build(); err != nil {
 		return err
 	}
-
-	if err := b.afterBuild(); err != nil {
-		return err
-	}
-
 	return nil
 }
 
@@ -104,58 +97,26 @@ func (b *Builder) preBuild() error {
 		return fmt.Errorf("file not exist")
 	}
 
-	var findbugs = "echo gradle -q tasks --all | grep findbugs"
-	var findbugsIsExistCommand = []string{"sh", "-c", findbugs}
-	if isExist, _ := (CMD{Command: findbugsIsExistCommand}).Run(); isExist == "" {
-		var script = fmt.Sprintf("cat /root/findbugs.conf >> %s", file)
-		var command = []string{"sh", "-c", script}
-		if _, err := (CMD{Command: command}).Run(); err != nil {
-			fmt.Printf("Exec: build plugin.build failed: %v", err)
-			return err
-		}
+	var script = fmt.Sprintf("cat /root/junit.conf >> %s", file)
+	var command = []string{"sh", "-c", script}
+	if _, err := (CMD{Command: command}).Run(); err != nil {
+		fmt.Printf("Exec: build plugin.build failed: %v", err)
+		return err
 	}
 	return nil
 }
 
 func (b *Builder) build() error {
-	//fmt.Printf("Exec: %s succeded.\n", script)
 	cwd, _ := os.Getwd()
-	var command01 = []string{"gradle", "findbugsMain"}
+	var command01 = []string{"gradle", "test"}
 	(CMD{command01, filepath.Join(cwd, b.projectName)}).Run()
 
-	var command02 = []string{"gradle", "findbugsTest"}
-	(CMD{command02, filepath.Join(cwd, b.projectName)}).Run()
-
-	return nil
-}
-
-func showXmlReport(file string) error {
-	fmt.Printf("SHOW REPORT: %s", file)
-	inputFile, inputError := os.Open(file)
-	if inputError != nil {
-		return fmt.Errorf("the file: %s not exist\n", file)
-	}
-	defer inputFile.Close()
-
-	inputReader := bufio.NewReader(inputFile)
-	for {
-		inputString, readerError := inputReader.ReadString('\n')
-		fmt.Printf("%s", inputString)
-		if readerError == io.EOF {
-			return nil
-		}
-	}
-}
-
-func (b *Builder) afterBuild() error {
-	var mainFile = baseSpace + "/" + b.projectName + "/build/reports/findbugs/main.xml"
-	var testFile = baseSpace + "/" + b.projectName + "/build/reports/findbugs/test.xml"
-	if err := showXmlReport(mainFile); err != nil {
-		return err
-	}
-	if err := showXmlReport(testFile); err != nil {
-		return err
-	}
+	// var mainFile = baseSpace + "/" + b.projectName + "/build/reports/findbugs/main.xml"
+	// var testFile = baseSpace + "/" + b.projectName + "/build/reports/findbugs/test.xml"
+	// var mainCommand = []string{"cat", mainFile}
+	// var testCommand = []string{"cat", testFile}
+	// (CMD{Command: mainCommand}).Run()
+	// (CMD{Command: testCommand}).Run()
 
 	return nil
 }
