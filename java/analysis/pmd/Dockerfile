@@ -10,19 +10,9 @@ go build -v -o /go/bin/component-pmd \
 -gcflags '-N -l' \
 ./*.go
 
+FROM  gradle:4.9.0-jdk8
 
-FROM  openjdk:8-jdk-alpine3.8
-
-RUN apk add --no-cache unzip tar wget git
-
-WORKDIR /opt/gradle
-RUN wget https://services.gradle.org/distributions/gradle-3.5-bin.zip \
-    && unzip gradle-3.5-bin.zip \
-    && rm -rf gradle-3.5-bin.zip
-
-ENV gradle3 /opt/gradle/gradle-3.5/bin
-ENV PATH /opt/gradle/gradle-3.5/bin:$PATH
-
+USER root
 WORKDIR /root
 COPY --from=builder /go/src/component-pmd/pmd.conf /root/pmd.conf
 COPY --from=builder /go/bin/component-pmd /usr/bin/
