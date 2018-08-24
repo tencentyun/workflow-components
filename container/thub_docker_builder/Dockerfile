@@ -33,6 +33,8 @@ LABEL TencentHubComponent='{\
   ],\
   "output": [\
     {"name": "IMAGE", "desc": "url of pushed image without tag"},\
+    {"name": "IMAGE_TAG", "desc": "Image tag"},\
+    {"name": "IMAGE_WITH_TAG", "desc": "Image with tag"},\
     {"name": "IMAGE_ID", "desc": "ID of pushed image tag"},\
     {"name": "IMAGE_DIGEST", "desc": "Image digest of pushed image tag"}\
   ]\

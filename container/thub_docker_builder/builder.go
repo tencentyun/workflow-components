@@ -170,6 +170,7 @@ func (b *Builder) run() error {
 
 	fmt.Printf("[JOB_OUT] IMAGE = %s\n", b.Image)
 	fmt.Printf("[JOB_OUT] IMAGE_TAG = %s\n", b.ImageTag)
+	fmt.Printf("[JOB_OUT] IMAGE_WITH_TAG = %s:%s\n", b.Image, b.ImageTag)
 
 	if err := b.cleanImage(imageURL); err != nil {
 		return err
