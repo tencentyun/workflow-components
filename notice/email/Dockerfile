@@ -18,7 +18,7 @@ COPY --from=builder /go/src/component-email/template.html /usr/bin/
 CMD ["component-email"]
 
 LABEL TencentHubComponent='{\
-  "description": "TencentHub官方组件(Notice Qyweixin), 使用企业微信发送通知消息.",\
+  "description": "TencentHub官方组件(Notice Email), 使用邮件发送通知消息.",\
   "input": [\
     {"name": "FROM_USER", "desc": "必填，邮件的发送方"},\
     {"name": "TO_USERS", "desc": "必填，邮件的接收方, 如user_xx@qq.com,user_yy@163.com,多个收件人之间通过','分割"},\
