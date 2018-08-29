@@ -28,7 +28,7 @@ LABEL TencentHubComponent='{\
     {"name": "ARTIFACT_PATH", "desc": "非必填，上传构建产物对应的仓库目录, 默认是仓库根目录"}\
   ],\
   "output": [ \
-    {"name": "ARTIFACT", "desc": "the output artifact after build"},\
-    {"name": "ARTIFACT_URL", "desc": "the uploaded artifact url"}\
+    {"name": "ARTIFACT", "desc": "构建产物结果列表"},\
+    {"name": "ARTIFACT_URL", "desc": "成功上传的构建产物url"}\
   ]\
 }'
