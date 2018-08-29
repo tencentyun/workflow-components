@@ -12,7 +12,7 @@
 无
 
 ## Tag列表及其Dockerfile链接
-* 6.6.0, latest: [Dockerfile]()
+* 6.6.0, latest: [Dockerfile](https://github.com/tencentyun/workflow-components/blob/1b989924f472d95354cec6b01b74aa6a48827c2c/java/analysis/pmd/Dockerfile)
 
 ### 源码地址
 
