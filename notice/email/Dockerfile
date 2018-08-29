@@ -18,15 +18,15 @@ COPY --from=builder /go/src/component-email/template.html /usr/bin/
 CMD ["component-email"]
 
 LABEL TencentHubComponent='{\
-  "description": "TencentHub Java component, using maven to run code build.",\
+  "description": "TencentHub官方组件(Notice Qyweixin), 使用企业微信发送通知消息.",\
   "input": [\
-    {"name": "FROM_USER", "desc": "required, the user who post email"},\
-    {"name": "TO_USERS", "desc": "required, the users who accept email, for example, user_xx@qq.com|user_yy@163.com|user_zz@126.com"},\
-    {"name": "SECRET", "desc": "required, the authorization code of SMTP server or login password of mailbox"},\
-    {"name": "SMTP_SERVER_PORT", "desc": "required, the SMTP server, such as, smtp.qq.com, smtp.163.com, smtp.126.com"},\
-    {"name": "SUBJECT", "desc": "optional, the subject of email"},\
-    {"name": "TEXT", "desc": "optional, the content of email"},\
-    {"name": "_WORKFLOW_FLAG_TASK_DETAIL", "default": "true", "desc": "optional, auto send flow task detail"}\
+    {"name": "FROM_USER", "desc": "必填，邮件的发送方"},\
+    {"name": "TO_USERS", "desc": "必填，邮件的接收方, 如user_xx@qq.com,user_yy@163.com,多个收件人之间通过','分割"},\
+    {"name": "SECRET", "desc": "必填，SMTP服务器(邮件发送服务器)的授权码(如QQ和163邮箱)或者邮箱的登录密码(如126邮箱)"},\
+    {"name": "SMTP_SERVER_PORT", "desc": "必填，SMTP服务器和端口(smtp.example.com:123),根据发送方的邮箱服务提供商确定SMTP服务器，举例:QQ的SMTP是smtp.qq.com:465、163的SMTP是smtp.163.com:465、126的SMTP是smtp.126.com:25等"},\
+    {"name": "SUBJECT", "desc": "选填，邮件的主题"},\
+    {"name": "TEXT", "desc": " 选填，邮件的内容"},\
+    {"name": "_WORKFLOW_FLAG_TASK_DETAIL", "default": "true", "desc": "非必填，如果为true, workflow将发送当前工作流的执行详情"}\
   ],\
   "output": []\
 }'
