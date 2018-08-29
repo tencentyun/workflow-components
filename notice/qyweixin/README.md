@@ -7,9 +7,9 @@
 #### 入参
 
 * CORP_ID 必填，企业微信上的企业ID，[企业微信术语说明](https://work.weixin.qq.com/api/doc#10013)(企业ID、应用ID、应用secret)
-* AGENT_ID 选填， 企业微信上的创建的应用ID
+* AGENT_ID 必填， 企业微信上的创建的应用ID
 * APP_SECRET 必填，企业微信上的应用secret
-* USERS 必填，接受信息的个人用户，多个用户之间通过'|'分割
+* USERS 选填，接受信息的个人用户，多个用户之间通过'|'分割, 注意: USERS、PARTYS、TAGS不能同时为空
 * PARTYS 选填，接受信息的群组用户，多个群组之间通过'|'分割
 * TAGS 选填，接受信息的标签用户，多个标签之间通过'|'分割
 * MESSAGE 选填，发送的信息内容
