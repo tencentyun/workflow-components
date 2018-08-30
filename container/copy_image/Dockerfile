@@ -18,18 +18,18 @@ COPY --from=builder /go/bin/component-docker /usr/bin/
 CMD ["component-docker"]
 
 LABEL TencentHubComponent='{\
-  "description": "TencentHub container component, build docker image",\
+  "description": "TencentHub 工作流组件, 实现镜像从一个仓库到另一个仓库的拷贝",\
   "input": [\
-    {"name": "HUB_USER", "desc": "required, the docker registry user name"},\
-    {"name": "HUB_TOKEN", "desc": "required, the docker registry user token"},\
-    {"name": "IMAGE_TAG", "desc": "optional, the result docker image tag, like `hub.cloud.tencent.com/fox/nodejs`, it can with or without tag"},\
-    {"name": "TO_HUB_USER", "desc": "required"},\
-    {"name": "TO_HUB_TOKEN", "desc": "required"},\
-    {"name": "TO_IMAGE", "desc": "required"}\
+    {"name": "HUB_USER", "desc": "必填，来源镜像仓库用户名"},\
+    {"name": "HUB_TOKEN", "desc": "必填，来源镜像仓库用户token"},\
+    {"name": "IMAGE_TAG", "desc": "必填, 来源镜像"},\
+    {"name": "TO_HUB_USER", "desc": "必填，复制的镜像仓库用户名"},\
+    {"name": "TO_HUB_TOKEN", "desc": "必填，复制的镜像仓库用户token"},\
+    {"name": "TO_IMAGE", "desc": "必填, 复制的目标镜像"}\
   ],\
   "output": [\
-    {"name": "IMAGE_ID", "desc": "ID of pushed image tag"},\
-    {"name": "IMAGE_DIGEST", "desc": "Image digest of pushed image tag"}\
+    {"name": "IMAGE_ID", "desc": "复制后新镜像生成的Image ID"},\
+    {"name": "IMAGE_DIGEST", "desc": "复制后新镜像生成的Digest"}\
   ]\
 }'
 
