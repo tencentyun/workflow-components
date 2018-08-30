@@ -30,6 +30,22 @@ type Builder struct {
 
 const TIMEOUT = 5
 
+type ServiceInfo struct {
+	Code int64
+	CodeDesc string
+	Message string
+	Data struct {
+		Service struct{
+			ServiceName string
+			Status string
+			ReasonMap map[string]int64
+			Containers []struct {
+				ContainerName string
+				Image string
+			}
+		}
+	}
+}
 // NewBuilder is
 func NewBuilder(envs map[string]string) (*Builder, error) {
 	b := &Builder{}
@@ -84,15 +100,42 @@ func NewBuilder(envs map[string]string) (*Builder, error) {
 	return b, nil
 }
 
+
+func (b *Builder) isNeedRedeploy() bool {
+	info, e := b.getServiceInfo()
+	if e != nil {
+		fmt.Println("获取服务信息异常: ", e)
+		return true
+	}
+
+	if len(info.Data.Service.Containers) == 0 {
+		return true
+	}
+
+	if b.Image != "" {
+		return b.Image == info.Data.Service.Containers[0].Image
+	} else {
+		// container TODO
+		return true
+	}
+}
+
 func (b *Builder) run() (err error) {
+	redeploy := b.isNeedRedeploy()
+
 	err = b.updateService()
 	if err != nil {
 		return err
 	}
 
-	// time.Sleep(10*time.Second)
+	if redeploy {
+		err = b.redeployClusterService()
+		if err != nil {
+			return err
+		}
+	}
+
 	ctx, cancelFunc := context.WithTimeout(context.TODO(), time.Duration(TIMEOUT) * time.Minute)
-	// ctx, cancelFunc := context.WithTimeout(context.TODO(), time.Duration(TIMEOUT) * time.Second)
 	defer cancelFunc()
 
 	c := make(chan struct{})
@@ -101,14 +144,22 @@ func (b *Builder) run() (err error) {
 			close(c)
 		}()
 	    for {
-			ok, e := b.checkService()
+			// ok, e := b.checkService()
+			info, e := b.getServiceInfo()
 			if e != nil {
 				err = e
-				return
+				fmt.Println("获取服务信息异常: ", e)
+				return // stop retry
 			}
-			if ok {
-				return
+
+			if info.Code == 0 && info.CodeDesc == "Success" {
+				fmt.Println("服务更新状态: ", info.Data.Service.Status)
+				if info.Data.Service.Status == "Normal" {
+					return // update ok
+				}
 			}
+			// retry
+			fmt.Println("服务更新消息: ", info.Message)
 			time.Sleep(10*time.Second)
 		}
 	}()
@@ -123,6 +174,7 @@ func (b *Builder) run() (err error) {
 }
 
 func (b *Builder) updateService() error {
+	fmt.Println("trying update service")
 	params := map [string]string{
 		"clusterId": b.ClusterID,
 		"serviceName": b.ServiceName,
@@ -164,7 +216,38 @@ func (b *Builder) updateService() error {
 	return errors.New(resultJSON.Message)
 }
 
-func (b *Builder) checkService() (bool, error) {
+func (b *Builder) redeployClusterService() error {
+	fmt.Println("trying redeploy cluster service")
+	params := map [string]string{
+		"clusterId": b.ClusterID,
+		"serviceName": b.ServiceName,
+		"namespace": b.Namespace,
+		"Action": "RedeployClusterService",
+	}
+
+	body, err := b.callAPI(params)
+	if err != nil {
+		return err
+	}
+
+	resultJSON := &struct {
+		Code int64
+		CodeDesc string
+		Message string
+	}{}
+	if err = json.Unmarshal(body, resultJSON); err != nil {
+		return err
+	}
+
+	fmt.Println(resultJSON)
+
+	if resultJSON.Code == 0 && resultJSON.CodeDesc == "Success" {
+		return nil
+	}
+	return errors.New(resultJSON.Message)
+}
+
+func (b *Builder) getServiceInfo() (*ServiceInfo, error) {
 	params := map [string]string{
 		"clusterId": b.ClusterID,
 		"serviceName": b.ServiceName,
@@ -174,39 +257,25 @@ func (b *Builder) checkService() (bool, error) {
 
 	body, err := b.callAPI(params)
 	if err != nil {
-		return false, err
+		return nil, err
 	}
 
-	resultJSON := &struct {
-		Code int64
-		CodeDesc string
-		Message string
-		Data struct {
-			Service struct{
-				ServiceName string
-				Status string
-				ReasonMap map[string]int64
-				Containers []struct {
-					ContainerName string
-					Image string
-				}
-			}
-		}
-	}{}
-	if err = json.Unmarshal(body, resultJSON); err != nil {
-		return false, err
+	info := &ServiceInfo{}
+	if err = json.Unmarshal(body, info); err != nil {
+		return nil, err
 	}
 
-	fmt.Println(resultJSON)
+	fmt.Println("服务当前信息: ", info)
+	return info, nil
 
-	if resultJSON.Code == 0 && resultJSON.CodeDesc == "Success" {
-		fmt.Println("服务更新状态: ", resultJSON.Data.Service.Status)
-		if resultJSON.Data.Service.Status == "Normal" {
-			return true, nil
-		}
-		return false, nil
-	}
-	return false, errors.New(resultJSON.Message)
+	//if resultJSON.Code == 0 && resultJSON.CodeDesc == "Success" {
+	//	fmt.Println("服务更新状态: ", resultJSON.Data.Service.Status)
+	//	if resultJSON.Data.Service.Status == "Normal" {
+	//		return true, nil
+	//	}
+	//	return false, nil
+	//}
+	//return false, errors.New(resultJSON.Message)
 }
 
 

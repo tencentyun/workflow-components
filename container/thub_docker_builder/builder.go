@@ -52,7 +52,7 @@ func NewBuilder(envs map[string]string) (*Builder, error) {
 		return nil, fmt.Errorf("envionment variable _WORKFLOW_FLOW_URL is invalid")
 	}
 
-	if envs["GIT_CLONE_URL"] != "" {
+	if envs["thub_docker_build"] != "" {
 		b.GitCloneURL = envs["GIT_CLONE_URL"]
 		b.GitRef = envs["GIT_REF"]
 		b.GitType = envs["GIT_TYPE"]
