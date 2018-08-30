@@ -1,7 +1,9 @@
 package main
 
 import (
+	"bufio"
 	"fmt"
+	"io"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -50,9 +52,18 @@ func (b *Builder) run() error {
 		return err
 	}
 
+	if err := b.preBuild(); err != nil {
+		return err
+	}
+
 	if err := b.build(); err != nil {
 		return err
 	}
+
+	if err := b.afterBuild(); err != nil {
+		return err
+	}
+
 	return nil
 }
 
@@ -87,19 +98,26 @@ func pathExist(file string) bool {
 	return true
 }
 
-func (b *Builder) build() error {
+func (b *Builder) preBuild() error {
 	file := baseSpace + "/" + b.projectName + "/" + "build.gradle"
 	if ok := pathExist(file); ok != true {
 		return fmt.Errorf("file not exist")
 	}
 
-	var script = fmt.Sprintf("cat /root/pmd.conf >> %s", file)
-	var command = []string{"sh", "-c", script}
-	if _, err := (CMD{Command: command}).Run(); err != nil {
-		fmt.Printf("Exec: build plugin.build failed: %v", err)
-		return err
+	var pmd = "echo gradle -q tasks --all | grep pmd"
+	var pmdIsExistCommand = []string{"sh", "-c", pmd}
+	if isExist, _ := (CMD{Command: pmdIsExistCommand}).Run(); isExist == "" {
+		var script = fmt.Sprintf("cat /root/pmd.conf >> %s", file)
+		var command = []string{"sh", "-c", script}
+		if _, err := (CMD{Command: command}).Run(); err != nil {
+			fmt.Printf("Exec: build plugin.build failed: %v", err)
+			return err
+		}
 	}
+	return nil
+}
 
+func (b *Builder) build() error {
 	cwd, _ := os.Getwd()
 	var command01 = []string{"gradle", "pmdMain"}
 	(CMD{command01, filepath.Join(cwd, b.projectName)}).Run()
@@ -107,12 +125,36 @@ func (b *Builder) build() error {
 	var command02 = []string{"gradle", "pmdTest"}
 	(CMD{command02, filepath.Join(cwd, b.projectName)}).Run()
 
+	return nil
+}
+
+func showXmlReport(file string) error {
+	fmt.Printf("SHOW REPORT: %s", file)
+	inputFile, inputError := os.Open(file)
+	if inputError != nil {
+		return fmt.Errorf("the file: %s not exist\n", file)
+	}
+	defer inputFile.Close()
+
+	inputReader := bufio.NewReader(inputFile)
+	for {
+		inputString, readerError := inputReader.ReadString('\n')
+		fmt.Printf("%s", inputString)
+		if readerError == io.EOF {
+			return nil
+		}
+	}
+}
+
+func (b *Builder) afterBuild() error {
 	var mainFile = baseSpace + "/" + b.projectName + "/build/reports/pmd/main.xml"
 	var testFile = baseSpace + "/" + b.projectName + "/build/reports/pmd/test.xml"
-	var mainCommand = []string{"cat", mainFile}
-	var testCommand = []string{"cat", testFile}
-	(CMD{Command: mainCommand}).Run()
-	(CMD{Command: testCommand}).Run()
+	if err := showXmlReport(mainFile); err != nil {
+		return err
+	}
+	if err := showXmlReport(testFile); err != nil {
+		return err
+	}
 
 	return nil
 }
