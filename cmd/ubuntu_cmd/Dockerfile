@@ -17,9 +17,9 @@ COPY --from=builder /go/bin/component-ubuntu-cmd /usr/bin/
 CMD ["component-ubuntu-cmd"]
 
 LABEL TencentHubComponent='{\
-  "description": "TencentHub component, run CMD in alpine",\
+  "description": "TencentHub 工作流组件, 在Ubuntu 环境里执行用户自定义的shell命令",\
   "input": [\
-    {"name": "CMD", "desc": "required, the command run in /bin/sh"}\
+    {"name": "CMD", "desc": "必填, 用户自定义shell命令, 支持多行, 使用`/bin/sh -c`执行"}\
   ],\
   "output": [\
   ]\
