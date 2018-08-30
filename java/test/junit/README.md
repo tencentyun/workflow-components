@@ -11,6 +11,9 @@ Java Junit代码测试工具, 用于生成junit报告
 #### 出参
 无
 
+### Tag列表及其Dockerfile链接
+* 4.12, latest: [Dockerfile](https://github.com/tencentyun/workflow-components/blob/2b6f512986367ecf5ef73ee352c2bcc204d33db3/java/test/junit/Dockerfile)
+
 ### 源码地址
 
 Java Junit Test: <https://github.com/tencentyun/workflow-components/tree/master/java/test/junit>

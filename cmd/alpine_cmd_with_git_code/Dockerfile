@@ -18,11 +18,11 @@ COPY --from=builder /go/bin/component-alpine-cmd /usr/bin/
 CMD ["component-alpine-cmd"]
 
 LABEL TencentHubComponent='{\
-  "description": "TencentHub component, clone git code and run CMD in alpine",\
+  "description": "TencentHub 工作流组件, 在Alpine 环境里clone git代码，并执行用户自定义的shell命令",\
   "input": [\
-    {"name": "GIT_CLONE_URL", "desc": "required, git clone url, you can get the authorized git repo url with assignment `${_WORKFLOW_GIT_CLONE_URL}`, which is a global environment variable"},\
-    {"name": "GIT_REF", "desc": "optional, git target reference, it can be a git commit, git tag or git branch"},\
-    {"name": "CMD", "desc": "required, the command run in /bin/sh"}\
+    {"name": "GIT_CLONE_URL", "desc": "必填，源代码地址，如为私有仓库需要授权; 如需使用系统关联的git仓库, 可以从系统提供的全局环境变量中获取: ${_WORKFLOW_GIT_CLONE_URL}"},\
+    {"name": "GIT_REF", "desc": "非必填，源代码目标提交号或者分支名, 默认为master"},\
+    {"name": "CMD", "desc": "必填, 用户自定义shell命令, 支持多行, 使用`/bin/sh -c`执行"}\
   ],\
   "output": [\
   ]\

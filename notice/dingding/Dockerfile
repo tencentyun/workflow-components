@@ -17,13 +17,13 @@ COPY --from=builder /go/bin/component-dingding /usr/bin/
 CMD ["component-dingding"]
 
 LABEL TencentHubComponent='{\
-  "description": "TencentHub notice component, using dingding to send message.",\
+  "description": "TencentHub官方组件(Notice Dingding), 使用钉钉发送通知消息.",\
   "input": [\
-    {"name": "WEBHOOK", "desc": "required, dingding webhook url"},\
-    {"name": "AT_MOBILES", "desc": "optional, @ user phone in custom notice message"},\
-    {"name": "IS_AT_ALL", "desc": "optional, @all in custom notice message"},\
-    {"name": "MESSAGE", "desc": "optional, custom notice message"},\
-    {"name": "_WORKFLOW_FLAG_TASK_DETAIL", "default": "true", "desc": "optional, auto send flow task detail"}\
+    {"name": "WEBHOOK", "desc": "必填, 钉钉机器人Webhook地址"},\
+    {"name": "AT_MOBILES", "desc": "非必填，被@人的手机号"},\
+    {"name": "IS_AT_ALL", "desc": "非必填，@所有人时:true, 否则为:false"},\
+    {"name": "MESSAGE", "desc": "非必填，自定发送的文本消息"},\
+    {"name": "_WORKFLOW_FLAG_TASK_DETAIL", "default": "true", "desc": "非必填，如果为true, workflow将发送当前工作流的执行详情"}\
   ],\
   "output": [ \
   ]\

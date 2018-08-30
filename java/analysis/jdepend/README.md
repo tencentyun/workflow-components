@@ -16,7 +16,7 @@ Java Jdepend代码分析工具, 用于根据项目生成格式良好的度量标
 
 ### 源码地址
 
-Java Junit Test: <https://github.com/tencentyun/workflow-components/tree/master/java/analysis/jdepend>
+Java Jdepend Test: <https://github.com/tencentyun/workflow-components/tree/master/java/analysis/jdepend>
 
 ### 构建
 `docker build -t hub.tencentyun.com/tencenthub/java_analysis_jdepend:latest .`

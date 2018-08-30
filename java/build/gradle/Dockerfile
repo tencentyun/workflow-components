@@ -14,24 +14,21 @@ WORKDIR /root/src
 COPY --from=builder /go/bin/component-gradle /usr/bin/
 CMD ["component-gradle"]
 LABEL TencentHubComponent='{\
-  "description": "TencentHub Java component, using maven to run code build.",\
+  "description": "TencentHub官方组件(Java Build Gradle), 使用gradle进行java项目构建",\
   "input": [\
-    {"name": "GIT_CLONE_URL", "desc": "required, git clone url, you can get the authorized git repo url with assignment `${_WORKFLOW_GIT_CLONE_URL}`, which is a global environment variable"},\
-    {"name": "GIT_REF", "desc": "optional, git target reference, it can be a git commit, git tag or git branch"},\
-
-
-
-    {"name": "GOALS", "desc": "optional, mvn options and goals, default is package"},\
-    {"name": "POM_PATH", "desc": "optional, the relative path of pom file, default is `./pom.xml`"},\
-    {"name": "HUB_REPO", "desc": "optional,the artifact repo, the result artifact will be uploaded to the repo if HUB_REPO has value"},\
-    {"name": "HUB_USER", "desc": "optional, the tencenthub repo user name. if you want use current user name and password, you can just set `_WORKFLOW_FLAG_HUB_TOKEN: true`, then the workflow engine will inject user name and token"},\
-    {"name": "HUB_TOKEN", "desc": "optional, the tencenthub repo user password"},\
-    {"name": "_WORKFLOW_FLAG_HUB_TOKEN", "default": "true", "desc": "optional, if it is true, workflow engine will inject user name and password to `HUB_USER` and `HUB_TOKEN`"},\
-    {"name": "ARTIFACT_TAG", "desc": "optional, the tag of artifacts in repo, default is `latest`"},\
-    {"name": "ARTIFACT_PATH", "desc": "optional, the path of artifacts in repo"}\
+    {"name": "GIT_CLONE_URL", "desc": "必填，源代码地址，如为私有仓库需要授权; 如需使用系统关联的git仓库, 可以从系统提供的全局环境变量中获取: ${_WORKFLOW_GIT_CLONE_URL}"},\
+    {"name": "GIT_REF", "desc": "非必填，源代码目标提交号或者分支名, 默认为master"},\
+    {"name": "GOALS", "desc": "非必填，maven 构建目标, 默认是package"},\
+    {"name": "POM_PATH", "desc": "非必填，pom 文件相对路径, 默认`./pom.xml`"},\
+    {"name": "HUB_REPO", "desc": "非必填，构建产物目标二进制仓库, 组件在构建完成后将尝试自动上传构建产物到此仓库, 如果此值为空将不会自动上传"},\
+    {"name": "HUB_USER", "desc": "非必填，上传构建产物对应仓库的用户名, 如果想使用当前主账号, 可以直接设置_WORKFLOW_FLAG_HUB_TOKEN: true, 执行引擎将自动注入当前用户名和token"},\
+    {"name": "HUB_TOKEN", "desc": "非必填，上传构建产物对应仓库的用户密码或者token, 同上, 如果设置了_WORKFLOW_FLAG_HUB_TOKEN: true, 此入参可以省略"},\
+    {"name": "_WORKFLOW_FLAG_HUB_TOKEN", "default": "true", "desc": "非必填, 若为真, 工作流将根据用户名和密码自动填充HUB_USER和HUB_TOKEN"},\
+    {"name": "ARTIFACT_TAG", "desc": "非必填，上传构建产物对应的tag, 默认是latest"},\
+    {"name": "ARTIFACT_PATH", "desc": "非必填，上传构建产物对应的仓库目录, 默认是仓库根目录"}\
   ],\
   "output": [ \
-    {"name": "ARTIFACT", "desc": "the output artifact after build"},\
-    {"name": "ARTIFACT_URL", "desc": "the uploaded artifact url"}\
+    {"name": "ARTIFACT", "desc": "构建产物结果列表"},\
+    {"name": "ARTIFACT_URL", "desc": "成功上传的构建产物url"}\
   ]\
 }'
