@@ -20,22 +20,22 @@ CMD ["component-docker"]
 LABEL TencentHubComponent='{\
   "description": "TencentHub container component, build docker image",\
   "input": [\
-    {"name": "GIT_CLONE_URL", "desc": "required, git clone url, you can get the authorized git repo url with assignment `${_WORKFLOW_GIT_CLONE_URL}`, which is a global environment variable"},\
-    {"name": "GIT_REF", "desc": "optional, git target reference, it can be a git commit, git tag or git branch"},\
-    {"name": "GIT_TYPE", "desc": "optional, type of `GIT_REF`, it can be branch, tag or commit"},\
-    {"name": "IMAGE_TAG_FORMAT", "desc": "optional, image tag format"},\
-    {"name": "IMAGE_TAG", "desc": "optional, the result docker image tag, default is `latest`"},\
-    {"name": "EXTRA_IMAGE_TAG", "desc": "optional, extra docker image tag"},\
-    {"name": "BUILD_WORKDIR", "default": ".", "desc": "optional, the work dir to run docker build"},\
-    {"name": "DOCKERFILE_PATH", "default": "Dockerfile", "desc": "optional, Dockerfile path"},\
-    {"name": "NO_CACHE", "default": "false", "desc": "optional, disable docker build cache, set flag `--no-cache` if the value is true"},\
-    {"name": "BUILD_ARGS", "desc": "optional, arguments pass to docker build as build-arg, it must be valid json string, like `{\"HTTP_PROXY\":\"http://10.20.30.2:1234\",\"TIMEOUT\":\"10\"}`"}\
+    {"name": "GIT_CLONE_URL", "desc": "必填，源代码地址，如为私有仓库需要授权; 如需使用系统关联的git仓库, 可以从系统提供的全局环境变量中获取: ${_WORKFLOW_GIT_CLONE_URL}"},\
+    {"name": "GIT_REF", "desc": "非必填，源代码git目标引用，可以是一个git branch, git tag 或者git commit ID, 默认值master"},\
+    {"name": "GIT_TYPE", "desc": "非必填, 标识`GIT_REF`的类型: `branch`, `tag` 或者 `commit`"},\
+    {"name": "IMAGE_TAG_FORMAT", "desc": "非必填, 新增镜像Tag的命名格式, 可以使用git 分支名/tag名/commit ID/当前时间等作为命名组成, 如`latest-$branch-$commit-$time`"},\
+    {"name": "IMAGE_TAG", "desc": "非必填, 目标镜像Tag, 默认值`latest`"},\
+    {"name": "EXTRA_IMAGE_TAG", "desc": "非必填, 新增目标镜像Tag"},\
+    {"name": "BUILD_WORKDIR", "default": ".", "desc": "非必填, 工作路径"},\
+    {"name": "DOCKERFILE_PATH", "default": "Dockerfile", "desc": "非必填，Dockerfile路径"},\
+    {"name": "NO_CACHE", "default": "false", "desc": "非必填，默认值是false, 如果为true 将开启`--no-cache`禁用 docker 构建缓存标志"},\
+    {"name": "BUILD_ARGS", "desc": "非必填，传递给`--build-arg`的构建参数, 必须是一个有效的json字符串"}\
   ],\
   "output": [\
-    {"name": "IMAGE", "desc": "url of pushed image without tag"},\
-    {"name": "IMAGE_TAG", "desc": "Image tag"},\
-    {"name": "IMAGE_WITH_TAG", "desc": "Image with tag"},\
-    {"name": "IMAGE_ID", "desc": "ID of pushed image tag"},\
-    {"name": "IMAGE_DIGEST", "desc": "Image digest of pushed image tag"}\
+    {"name": "IMAGE", "desc": "构建的镜像地址, 不包含tag名称,"},\
+    {"name": "IMAGE_TAG", "desc": "镜像tag名称"},\
+    {"name": "IMAGE_WITH_TAG", "desc": "构建的镜像地址, 包含tag名称"},\
+    {"name": "IMAGE_ID", "desc": "构建镜像生成的Image ID"},\
+    {"name": "IMAGE_DIGEST", "desc": "构建镜像生成的Digest"}\
   ]\
 }'

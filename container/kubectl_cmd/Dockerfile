@@ -18,13 +18,13 @@ COPY --from=builder /go/bin/component-kubectl-cmd /usr/bin/
 CMD ["component-kubectl-cmd"]
 
 LABEL TencentHubComponent='{\
-  "description": "TencentHub kubectl component, run CMD with kubectl",\
+  "description": "TencentHub 工作流组件, 在预装 kubectl 的环境里执行用户自定义的shell命令",\
   "input": [\
-    {"name": "USERNAME", "desc": "required, kubernetes username"},\
-    {"name": "PASSWORD", "desc": "required, kubernetes password"},\
-    {"name": "CERTIFICATE", "desc": "required, kubernetes certificate"},\
-    {"name": "SERVER", "desc": "required, kubernetes server address"},\
-    {"name": "CMD", "desc": "required, the command run in /bin/sh"}\
+    {"name": "USERNAME", "desc": "必填，kubernetes 用户名"},\
+    {"name": "PASSWORD", "desc": "必填，kubernetes 用户密码"},\
+    {"name": "CERTIFICATE", "desc": "必填, kubernetes 证书内容"},\
+    {"name": "SERVER", "desc": "必填, kubernetes 服务器地址"},\
+    {"name": "CMD", "desc": "必填, 用户自定义shell命令, 支持多行, 使用`/bin/sh -c`执行"}\
   ],\
   "output": [\
   ]\

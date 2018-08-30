@@ -10,6 +10,9 @@ Java Jacoco代码测试工具, 用于生成代码覆盖率报告
 #### 出参
 无
 
+### Tag列表及其Dockerfile链接
+* 0.8, latest: [Dockerfile](https://github.com/tencentyun/workflow-components/blob/21d54e12fffca3fb754860336e42f8e1e268830b/java/test/jacoco/Dockerfile)
+
 ### 源码地址
 
 Java Jacoco Test: <https://github.com/tencentyun/workflow-components/tree/master/java/test/jacoco>
