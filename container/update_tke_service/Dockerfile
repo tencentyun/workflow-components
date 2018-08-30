@@ -18,16 +18,16 @@ COPY --from=builder /go/bin/component-update-tke-service /usr/bin/
 CMD ["component-update-tke-service"]
 
 LABEL TencentHubComponent='{\
-  "description": "TencentHub container trigger component, update tke service image",\
+  "description": "TencentHub 工作流组件, 更新TKE服务",\
   "input": [\
-    {"name": "TENCENTCLOUD_SECRET_ID", "desc": "required, tencent cloud secret ID"},\
-    {"name": "TENCENTCLOUD_SECRET_KEY", "desc": "required, tencent cloud secret key"},\
-    {"name": "REGION", "desc": "required, the region code: Beijing:bj, Guangzhou:gz, Shanghai:sh, HongKong:hk, America:ca, Singapore:sg"},\
-    {"name": "CLUSTER_ID", "desc": "required, target cluster ID"},\
-    {"name": "SERVICE_NAME", "desc": "required, target service name"},\
-    {"name": "CONTAINERS", "desc": "optional, for multiple contanier service, it must be a valid json string, format like `{\"containerName1\": \"image1\", \"containerName2\": \"image2\"}`"},\
-    {"name": "IMAGE", "desc": "optonal, for single contanier service, the new image of target service, `CONTAINERS` has high priority"},\
-    {"name": "NAMESPACE", "desc": "optional, service namespace, default is `default`"}\
+    {"name": "TENCENTCLOUD_SECRET_ID", "desc": "必填，在云API密钥管理上申请的标识身份的SecretId，一个SecretId对应唯一的SecretKey"},\
+    {"name": "TENCENTCLOUD_SECRET_KEY", "desc": "必填，SecretId 对应的唯一SecretKey"},\
+    {"name": "REGION", "desc": "必填, 区域参数，用来标识希望操作哪个区域的实例"},\
+    {"name": "CLUSTER_ID", "desc": "必填, 服务所在的TKE 集群ID"},\
+    {"name": "SERVICE_NAME", "desc": "必填, TKE 服务名"},\
+    {"name": "CONTAINERS", "desc": "可选, 新镜像，如果服务中一个实例下有多个容器需要传入此参数，需要一个合法的json字符串, 格式例如 `{\"containerName1\": \"image1\", \"containerName2\": \"image2\"}`"},\
+    {"name": "IMAGE", "desc": "可选, 新镜像，如果服务中一个实例下只有一个容器可以传此参数(image和containers二者必填一个)"},\
+    {"name": "NAMESPACE", "desc": "可选, kubernetes 服务命名空间, 默认为default"}\
   ],\
   "output": [\
   ]\
