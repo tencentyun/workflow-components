@@ -27,7 +27,7 @@ func main() {
 		fmt.Println("build faild: ", err)
 		os.Exit(1)
 	}
-	if err := builder.run("/usr/bin/template.html"); err != nil {
+	if err := builder.run(); err != nil {
 		fmt.Println("build faild: ", err)
 		os.Exit(1)
 	} else {

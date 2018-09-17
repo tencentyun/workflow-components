@@ -15,8 +15,7 @@ type Builder struct {
 	// 用户提供参数, 通过环境变量传入
 	GitCloneURL string
 	GitRef      string
-	Goals       string
-	PomPath     string
+	EntryFile   string
 
 	HubRepo      string
 	HubUser      string
@@ -52,10 +51,8 @@ func NewBuilder(envs map[string]string) (*Builder, error) {
 		b.GitRef = "master"
 	}
 
-	b.Goals = strings.TrimSpace(strings.TrimPrefix(strings.TrimSpace(envs["GOALS"]), "mvn "))
-
-	if b.PomPath = envs["POM_PATH"]; b.PomPath == "" {
-		b.PomPath = "./pom.xml"
+	if b.EntryFile = envs["ENTRY_FILE"]; b.EntryFile == "" {
+		b.EntryFile = "./build.gradle"
 	}
 
 	b.HubUser = envs["HUB_USER"]
@@ -103,32 +100,24 @@ func (b *Builder) run() error {
 }
 
 func (b *Builder) build() error {
-	var command = strings.Fields(b.Goals)
+	var command = []string{"gradle", "jar"}
 
-	if len(command) == 0 {
-		command = append(command, "gradle", "package")
-	}
-
-	if command[0] != "gradle" {
-		command = append([]string{"gradle"}, command...)
-	}
-
-	command = append(command, "-f", b.PomPath)
+	command = append(command, "-b", b.EntryFile)
 
 	cwd, _ := os.Getwd()
 	if _, err := (CMD{command, filepath.Join(cwd, b.projectName)}).Run(); err != nil {
-		fmt.Println("Run mvn goals failed:", err)
+		fmt.Println("Run gradle jar failed:", err)
 		return err
 	}
-	fmt.Println("Run mvn goals succeed.")
+	fmt.Println("Run gradle jar succeed.")
 	return nil
 }
 
 func (b *Builder) handleArtifacts() error {
 	cwd, _ := os.Getwd()
-	targetPath := filepath.Join(cwd, b.projectName, "target")
+	targetPath := filepath.Join(cwd, b.projectName)
 
-	command := []string{"find", "./", "-name", "*.jar", "-o", "-name", "*.war"}
+	command := []string{"find", "./", "-name", "*.jar"}
 	output, err := (CMD{command, targetPath}).Run()
 	if err != nil {
 		fmt.Println("Run find artifacts failed:", err)

@@ -6,14 +6,14 @@
       <tr class="header">
         <td style="padding: 40px;">
           <p>
-            <b>{{ .t_title}}</b>
+            <b> {{ .Name}}<br>状态: {{ .Status}}<br>{{totalTime .Start .End}}</b>
           </p>
         </td>
       </tr>
       <tr class="content">
         <td style="padding:40px;">
           <p>
-            <b>{{ .t_content}}</b>
+            {{range .Stages}}<b>{{myFunc .}}</b>{{end}}
           </p>
         </td>
       </tr>
@@ -21,8 +21,8 @@
         <td style="padding: 35px 0 0 0;">
           <table border="0" cellspacing="0" cellpadding="0" class="buttonwrapper">
             <tr>
-              <td class="button" height="30">
-                <a href={{ .t_url}} target="_blank">详情</a>
+              <td class="button" height="35">
+                <a href={{ .DetailURL}} target="_blank">点击链接查看详情</a>
               </td>
             </tr>
           </table>

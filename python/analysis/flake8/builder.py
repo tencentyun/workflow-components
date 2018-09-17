@@ -16,7 +16,6 @@ class Builder:
             print("envionment variables GIT_CLONE_URL is required", file=sys.stderr)
             exit(1)
 
-        self.git_clone_URL = envs.get("GIT_CLONE_URL").rstrip('/')
         self.project_name = os.path.basename(self.git_clone_URL.rstrip('.git'))
 
         self.files = envs.get('FILES')
@@ -24,7 +23,6 @@ class Builder:
             self.files = './**/*.py'
 
     def run(self):
-        # print(self.__dict__)
         os.chdir(BASE_SPACE)
 
         return self.git_pull() and self.git_reset() and self.build() 

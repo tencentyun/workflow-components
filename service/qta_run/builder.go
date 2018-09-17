@@ -16,11 +16,13 @@ const (
 )
 
 type Builder struct {
-	PlanID  int
-	TaskID  int
-	Name    string
-	Puin    string
-	payload interface{}
+	PlanID    int
+	TaskID    int
+	Name      string
+	Puin      string
+	endStatus string
+	reportID  string
+	payload   interface{}
 }
 
 func NewBuilder(envs map[string]string) (*Builder, error) {
@@ -95,6 +97,10 @@ func (b *Builder) doLoop() error {
 	}
 	if status == "timeout" {
 		fmt.Printf("The preset 30-minute query time has timed out. For the result of task running, please log in to qta.")
+	} else {
+		if err := b.showQtaReport(); err != nil {
+			return err
+		}
 	}
 	return nil
 }
@@ -138,7 +144,8 @@ func (b *Builder) doReq() string {
 	fmt.Printf("resp from QTA:%s\n", resp.String())
 
 	var queryRes struct {
-		Status string `json:"status"`
+		Status   string `json:"status"`
+		ReportID string `json:"report_id"`
 	}
 	if err = resp.ToJSON(&queryRes); err != nil {
 		fmt.Printf("unmarshal resp failed:%v", err)
@@ -148,7 +155,49 @@ func (b *Builder) doReq() string {
 	if queryRes.Status == "init" || queryRes.Status == "waiting" || queryRes.Status == "running" {
 		return "unfinish"
 	}
+	b.endStatus = queryRes.Status
+	b.reportID = queryRes.ReportID
 	return "finish"
+}
+func (b *Builder) showQtaReport() error {
+	//当任务执行的最终状态不为done或者report_id为空时，直接返回，不需要打印报告
+	if b.endStatus != "done" || b.reportID == "" {
+		return nil
+	}
+	queryURL := fmt.Sprintf("http://qta.tencentyun.com/api/v1/report/%s/case/", b.reportID)
+	fmt.Println(queryURL)
+	r := req.New()
+	r.SetTimeout(10 * time.Second)
+	header := req.Header{
+		"Authorization": fmt.Sprintf("TencentHub %s skey %s", b.Puin, APP_ID),
+	}
+	resp, err := r.Get(queryURL, header)
+	if err != nil {
+		return fmt.Errorf("do http req failed:%v", err)
+	}
+	if resp.Response().StatusCode != http.StatusOK {
+		return fmt.Errorf("bad status code: %s, body: %s", resp.Response().Status, resp.String())
+	}
+
+	type testCase struct {
+		Name     string `json:"name"`
+		Result   string `json:"result"`
+		ReportID string `json:"report_id"`
+		Reason   string `json:"reason"`
+	}
+
+	var queryRes struct {
+		Count   int        `json:"count"`
+		Results []testCase `json:"results"`
+	}
+
+	if err = resp.ToJSON(&queryRes); err != nil {
+		return fmt.Errorf("unmarshal resp failed:%v", err)
+	}
+
+	fmt.Printf("report from QTA:%+v\n", queryRes)
+
+	return nil
 }
 
 //curl -v -H "Content-Type:application/json" -H "Authorization: TencentHub 3105311399 skey 251005787" -X POST --data '{"name": "test04", "testtype_id": 3, "start_by": {"start_type": "manual"}, "project_id": 1, "properties": [{"name": "TEST_REPO_URL", "value": "https://drun-1256586152.cos.ap-guangzhou.myqcloud.com/qt4a-debug.tgz"}, {"name": "PRODUCT_PATH", "value": "https://drun-1256586152.cos.ap-guangzhou.myqcloud.com/app-debug-2.apk"}, {"name": "TESTCASENAME", "value": "demotest"}], "resources": [{"max_cnt": 1, "min_cnt": 1, "type": "node", "group": "NodePool"}, {"max_cnt": 1, "min_cnt": 1, "type": "android", "group": "QT4A_Cloudroid"}]}'  --cookie "app_id=251005787;p_uin=o3105311399;skey=EtUUy2cgmJV1*ylTrjziV-muNxA188GmMc2JrNT*pGs_" http://qta.tencentyun.com/api/v1/task/plan/

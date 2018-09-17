@@ -9,9 +9,12 @@ import (
 	"os/exec"
 	"strconv"
 	"strings"
+	"time"
 
 	gomail "gopkg.in/gomail.v2"
 )
+
+const STAGE_TYPE_END = "end"
 
 type Builder struct {
 	FromUser     string
@@ -58,7 +61,6 @@ func NewBuilder(envs map[string]string) (*Builder, error) {
 	b.Subject = envs["SUBJECT"]
 
 	if envs["TEXT"] != "" {
-		b.Type = "text"
 		b.Body = envs["TEXT"]
 		return b, nil
 	}
@@ -68,34 +70,19 @@ func NewBuilder(envs map[string]string) (*Builder, error) {
 	if err != nil {
 		return nil, err
 	}
-	var totalTime string
-	if task.End != nil && task.Start != nil {
-		totalTime = fmt.Sprintf("总耗时: %d 秒", (int64)(task.End.Sub(*task.Start).Seconds()))
-	}
-	fmt.Println(totalTime)
 
-	emailContent := EmailContent{
-		Title: fmt.Sprintf("%s/%s/%s", task.Namespace, task.Repo, task.Name),
-		Text:  fmt.Sprintf("状态: %s\n%s", task.Status, totalTime),
-		Url:   task.DetailURL,
+	fmt.Printf("show: %+v\n", task)
+
+	data, err := ParseTemplate(task)
+	if err != nil {
+		return nil, err
 	}
-	b.EmailContent = emailContent
-	b.Type = "html"
+	b.Body = data
+
 	return b, nil
 }
 
-func (b *Builder) run(templateName string) error {
-	if b.Type == "html" {
-		items := make(map[string]string)
-
-		items["t_title"] = b.EmailContent.Title
-		items["t_content"] = b.EmailContent.Text
-		items["t_url"] = b.EmailContent.Url
-		err := b.ParseTemplate(templateName, items)
-		if err != nil {
-			log.Fatal(err)
-		}
-	}
+func (b *Builder) run() error {
 	if err := b.SendEmail(); err != nil {
 		log.Printf("Failed to send the email to %s\n", b.ToUsers)
 		return err
@@ -105,17 +92,44 @@ func (b *Builder) run(templateName string) error {
 	return nil
 }
 
-func (b *Builder) ParseTemplate(fileName string, data interface{}) error {
-	t, err := template.ParseFiles(fileName)
+func ParseTemplate(data *FlowTask) (string, error) {
+	var fileName = "/usr/bin/template.html"
+
+	t, err := template.New("template.html").Funcs(template.FuncMap{"myFunc": myFunc, "totalTime": timeConsuming}).ParseFiles(fileName)
 	if err != nil {
-		return err
+		return "", err
 	}
 	buffer := new(bytes.Buffer)
 	if err := t.Execute(buffer, data); err != nil {
-		return err
+		return "", err
 	}
-	b.Body = buffer.String()
-	return nil
+	return buffer.String(), nil
+}
+
+func myFunc(stage Stage) template.HTML {
+	var mdText = ""
+	nm := stage.Name
+	status := stage.Status
+	stageType := stage.Type
+	jobs := stage.Jobs
+	if stageType != STAGE_TYPE_END {
+		mdText += fmt.Sprintf(" %s : %s <br>", nm, status)
+
+		for _, job := range jobs {
+			name := job.Name
+			status := job.Status
+			mdText += fmt.Sprintf("&nbsp &nbsp &nbsp &nbsp %s : %s <br>", name, status)
+		}
+	}
+
+	return template.HTML(mdText)
+}
+func timeConsuming(start *time.Time, end *time.Time) string {
+	var totalTime string
+	if start != nil && end != nil {
+		totalTime = fmt.Sprintf("总耗时: %d 秒", (int64)(end.Sub(*start).Seconds()))
+	}
+	return totalTime
 }
 
 func (b *Builder) SendEmail() error {
