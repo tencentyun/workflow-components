@@ -1,7 +1,7 @@
 package main
 
 import (
-	"cd/k8s"
+	"kubecd/k8s"
 	"errors"
 	"fmt"
 	"io/ioutil"

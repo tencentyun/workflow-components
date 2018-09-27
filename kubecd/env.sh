@@ -86,9 +86,9 @@ export NAMESPACE=zhong
 # unset DEPLOYMENT_NAME
 
 #9回滚
-export ACTION=rollback
-export FROM_DEPLOYMENT_NAME=fox-web-service-4
-export TO_DEPLOYMENT_NAME=fox-web-service-3
+# export ACTION=rollback
+# export FROM_DEPLOYMENT_NAME=fox-web-service-4
+# export TO_DEPLOYMENT_NAME=fox-web-service-3
 
 #10删除指定版本
 export ACTION=delete
