@@ -20,3 +20,4 @@
 *.swk
 *.swm
 *.swl
+**/vendor
