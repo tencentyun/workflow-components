@@ -11,8 +11,8 @@ import (
 	"strings"
 )
 
-const baseSpace = "/Users/testuser"
-//const baseSpace = "/root"
+//const baseSpace = "/Users/testuser"
+const baseSpace = "/root"
 
 // Builder is
 type Builder struct {
@@ -98,17 +98,17 @@ func NewBuilder(envs map[string]string) (*Builder, error) {
 		b.DeployGroup = envs["DEPLOY_GROUP"]
 
 		if envs["REPLICAS"] == "" {
-			return nil, fmt.Errorf("environment variable REPLICAS is required")
+			envs["REPLICAS"] = "0"
 		}
 		replicas, err := strconv.ParseInt(envs["REPLICAS"], 10, 64)
 		if err != nil {
-			return nil, fmt.Errorf("invalid environment variable REPLICAS: %s", replicas)
+			return nil, fmt.Errorf("invalid environment variable REPLICAS: %s", envs["REPLICAS"])
 		}
 		b.Replicas = int32(replicas)
 
 		if envs["STRATEGY"] != k8s.StrategyRecreate && envs["STRATEGY"] != k8s.StrategyBlueGreen &&
 			envs["STRATEGY"] != k8s.StrategyCanary && envs["STRATEGY"] != k8s.StrategyOffline {
-			return nil, fmt.Errorf("invalid environment variable REPLICAS: %s", replicas)
+			return nil, fmt.Errorf("invalid environment variable STRATEGY: %s", envs["STRATEGY"])
 		}
 
 		b.Strategy = envs["STRATEGY"]
