@@ -23,6 +23,7 @@ type Builder struct {
 	HubToken     string
 	ArtifactTag  string
 	ArtifactPath string
+	M2SettingXML string
 
 	projectName string
 }
@@ -76,6 +77,8 @@ func NewBuilder(envs map[string]string) (*Builder, error) {
 		b.ArtifactTag = "latest"
 	}
 
+	b.M2SettingXML = envs["M2_SETTINGS_XML"]
+
 	return b, nil
 }
 
@@ -92,6 +95,10 @@ func (b *Builder) run() error {
 		return err
 	}
 
+	if err := b.setM2SettingXML(); err != nil {
+		return err
+	}
+
 	if err := b.build(); err != nil {
 		return err
 	}
@@ -103,6 +110,22 @@ func (b *Builder) run() error {
 	// if err != nil {
 	// 	return
 	// }
+	return nil
+}
+
+func (b *Builder) setM2SettingXML() error {
+	var command = []string{"cp", "/usr/share/maven/conf/settings.xml", "/root/.m2/settings.xml"}
+	if _, err := (CMD{Command: command}).Run(); err != nil {
+		fmt.Println("copy settings.xml failed:", err)
+		return err
+	}
+	if b.M2SettingXML != "" {
+		command = []string{"echo", b.M2SettingXML, ">", "/root/.m2/setting.xml"}
+		if _, err := (CMD{Command: command}).Run(); err != nil {
+			fmt.Println("write setting to .m2/settings.xml failed:", err)
+			return err
+		}
+	}
 	return nil
 }
 

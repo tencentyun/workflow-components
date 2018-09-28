@@ -13,6 +13,7 @@ var envList = []string{
 
 	"GOALS", "POM_PATH",
 	"HUB_REPO", "ARTIFACT_TAG", "ARTIFACT_PATH",
+	"M2_SETTINGS_XML",
 
 	"HUB_USER",
 	"HUB_TOKEN",
