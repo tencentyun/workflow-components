@@ -114,17 +114,18 @@ func (b *Builder) run() error {
 }
 
 func (b *Builder) setM2SettingXML() error {
+	if b.M2SettingXML == "" {
+		return nil
+	}
 	var command = []string{"cp", "/usr/share/maven/conf/settings.xml", "/root/.m2/settings.xml"}
 	if _, err := (CMD{Command: command}).Run(); err != nil {
 		fmt.Println("copy settings.xml failed:", err)
 		return err
 	}
-	if b.M2SettingXML != "" {
-		command = []string{"echo", b.M2SettingXML, ">", "/root/.m2/setting.xml"}
-		if _, err := (CMD{Command: command}).Run(); err != nil {
-			fmt.Println("write setting to .m2/settings.xml failed:", err)
-			return err
-		}
+	command = []string{"echo", b.M2SettingXML, ">", "/root/.m2/settings.xml"}
+	if _, err := (CMD{Command: command}).Run(); err != nil {
+		fmt.Println("write setting to .m2/settings.xml failed:", err)
+		return err
 	}
 	return nil
 }
