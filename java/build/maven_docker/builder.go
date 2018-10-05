@@ -56,19 +56,6 @@ func NewBuilder(envs map[string]string) (*Builder, error) {
 		b.PomPath = "./pom.xml"
 	}
 
-	b.HubUser = envs["HUB_USER"]
-	b.HubToken = envs["HUB_TOKEN"]
-
-	if b.HubUser == "" && b.HubToken == "" {
-		b.HubUser = envs["_WORKFLOW_HUB_USER"]
-		b.HubToken = envs["_WORKFLOW_HUB_TOKEN"]
-	}
-	if b.HubUser == "" || b.HubToken == "" {
-		return nil, fmt.Errorf("envionment variable HUB_USER, HUB_TOKEN are required")
-	}
-
-	b.HubRepo = envs["HUB_REPO"]
-
 	b.M2SettingXML = envs["M2_SETTINGS_XML"]
 
 	return b, nil

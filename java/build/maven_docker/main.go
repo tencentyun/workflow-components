@@ -11,14 +11,9 @@ var envList = []string{
 	"_WORKFLOW_GIT_CLONE_URL",
 	"_WORKFLOW_GIT_REF",
 
-	"GOALS", "POM_PATH",
-	"HUB_REPO",
+	"GOALS",
+	"POM_PATH",
 	"M2_SETTINGS_XML",
-
-	"HUB_USER",
-	"HUB_TOKEN",
-	"_WORKFLOW_HUB_USER",
-	"_WORKFLOW_HUB_TOKEN",
 }
 
 func main() {

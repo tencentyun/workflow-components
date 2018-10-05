@@ -29,9 +29,6 @@ LABEL TencentHubComponent='{\
     {"name": "M2_SETTINGS_XML", "desc": "非必填，$user/.m2/setting.xml配置文件内容，默认使用maven的全局配置"},\
     {"name": "GOALS", "desc": "非必填，maven 构建目标, 默认是package"},\
     {"name": "POM_PATH", "desc": "非必填，pom 文件相对路径, 默认`./pom.xml`"},\
-    {"name": "HUB_REPO", "desc": "非必填，构建产物目标二进制仓库, 组件在构建完成后将尝试自动上传构建产物到此仓库, 如果此值为空将不会自动上传"},\
-    {"name": "HUB_USER", "desc": "非必填，上传构建产物对应仓库的用户名, 如果想使用当前主账号, 可以直接设置_WORKFLOW_FLAG_HUB_TOKEN: true, 执行引擎将自动注入当前用户名和token"},\
-    {"name": "HUB_TOKEN", "desc": "非必填，上传构建产物对应仓库的用户密码或者token, 同上, 如果设置了_WORKFLOW_FLAG_HUB_TOKEN: true, 此入参可以省略"},\
     {"name": "_WORKFLOW_FLAG_HUB_TOKEN", "default": "true", "desc": "非必填, 若为真, 工作流将根据用户名和密码自动填充HUB_USER和HUB_TOKEN"}\
   ]\
 }'
