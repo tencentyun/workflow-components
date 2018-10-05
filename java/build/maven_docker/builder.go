@@ -85,10 +85,6 @@ func (b *Builder) run() error {
 		return err
 	}
 
-	if err := b.execCommand(); err != nil {
-        return err
-    }
-
 	// if err := b.handleArtifacts(); err != nil {
 	// 	return err
 	// }
@@ -130,11 +126,17 @@ func (b *Builder) build() error {
 	command = append(command, "-f", b.PomPath)
 
 	cwd, _ := os.Getwd()
-	if _, err := (CMD{command, filepath.Join(cwd, b.projectName)}).Run(); err != nil {
+	if _, err := (CMD{command, filepath.Join(cwd, b.projectName),b.ExtCommand}).Run(); err != nil {
 		fmt.Println("Run mvn goals failed:", err)
 		return err
 	}
 	fmt.Println("Run mvn goals succeed.")
+
+	if _, err := (CMD{command, filepath.Join(cwd, b.projectName),b.ExtCommand}).ExecCommand(); err != nil {
+		fmt.Println("Run extCommand failed:", err)
+		return err
+	}
+	fmt.Println("Run extCommand succeed.")
 	return nil
 }
 
@@ -159,12 +161,21 @@ func (b *Builder) gitReset() error {
 	return nil
 }
 
-func (b *Builder) execCommand() error{
-    if(b.ExtCommand == ""){
+type CMD struct {
+	Command []string // cmd with args
+	WorkDir string
+	ExtCommand string
+}
+
+func (c CMD) ExecCommand() (string, error){
+    if(c.ExtCommand == ""){
         return nil
     }
-	fmt.Printf("exec:", b.ExtCommand)
-    cmd := exec.Command("/bin/bash", "-c", b.ExtCommand)
+	fmt.Printf("exec:", c.ExtCommand)
+    cmd := exec.Command("/bin/bash", "-c", c.ExtCommand)
+    if c.WorkDir != "" {
+        cmd.Dir = c.WorkDir
+    }
     var out bytes.Buffer
 
     cmd.Stdout = &out
@@ -173,12 +184,7 @@ func (b *Builder) execCommand() error{
         fmt.Println("exec:", b.ExtCommand, "\nFailed:", err)
     }
     fmt.Printf(out.String())
-    return err
-}
-
-type CMD struct {
-	Command []string // cmd with args
-	WorkDir string
+    return out.String(),err
 }
 
 func (c CMD) Run() (string, error) {
