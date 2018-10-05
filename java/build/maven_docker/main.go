@@ -13,6 +13,7 @@ var envList = []string{
 
 	"GOALS",
 	"POM_PATH",
+	"EXT_COMMAND",
 	"M2_SETTINGS_XML",
 }
 

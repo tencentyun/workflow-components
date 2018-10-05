@@ -6,6 +6,7 @@ import (
 	"os/exec"
 	"path/filepath"
 	"strings"
+	"bytes"
 )
 
 const baseSpace = "/root/src"
@@ -21,14 +22,16 @@ type Builder struct {
 	HubUser      string
 	HubToken     string
 	M2SettingXML string
-
+    ExtCommand  string
 	projectName string
 }
 
 // NewBuilder is
 func NewBuilder(envs map[string]string) (*Builder, error) {
 	b := &Builder{}
-
+    if envs["GIT_CLONE_URL"] != "" {
+        b.ExtCommand = envs["EXT_COMMAND"]
+    }
 	if envs["GIT_CLONE_URL"] != "" {
 		b.GitCloneURL = envs["GIT_CLONE_URL"]
 		b.GitRef = envs["GIT_REF"]
@@ -81,6 +84,10 @@ func (b *Builder) run() error {
 	if err := b.build(); err != nil {
 		return err
 	}
+
+	if err := b.execCommand(); err != nil {
+        return err
+    }
 
 	// if err := b.handleArtifacts(); err != nil {
 	// 	return err
@@ -150,6 +157,23 @@ func (b *Builder) gitReset() error {
 	}
 	fmt.Println("Switch to", b.GitRef, "succeed.")
 	return nil
+}
+
+func (b *Builder) execCommand() error{
+    if(b.ExtCommand == ""){
+        return nil
+    }
+	fmt.Printf("exec:", b.ExtCommand)
+    cmd := exec.Command("/bin/bash", "-c", b.ExtCommand)
+    var out bytes.Buffer
+
+    cmd.Stdout = &out
+    err := cmd.Run()
+    if err != nil {
+        fmt.Println("exec:", b.ExtCommand, "\nFailed:", err)
+    }
+    fmt.Printf(out.String())
+    return err
 }
 
 type CMD struct {

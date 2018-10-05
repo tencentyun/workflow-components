@@ -9,6 +9,7 @@
 - `M2_SETTINGS_XML` 非必填，`$user/.m2/setting.xml`配置文件内容，默认使用maven的全局配置
 - `GOALS` 非必填，maven 构建目标, 默认是`package`
 - `POM_PATH` 非必填，pom 文件相对路径, 默认`./pom.xml`
+- `EXT_COMMAND` 非必填，GOALS之外的命令, 默认不执行
 
 ### Tag列表及其Dockerfile链接
 

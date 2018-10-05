@@ -29,6 +29,7 @@ LABEL TencentHubComponent='{\
     {"name": "M2_SETTINGS_XML", "desc": "非必填，$user/.m2/setting.xml配置文件内容，默认使用maven的全局配置"},\
     {"name": "GOALS", "desc": "非必填，maven 构建目标, 默认是package"},\
     {"name": "POM_PATH", "desc": "非必填，pom 文件相对路径, 默认`./pom.xml`"},\
+    {"name": "EXT_COMMAND", "desc": "非必填，GOALS之外的命令, 默认不执行"},\
     {"name": "_WORKFLOW_FLAG_HUB_TOKEN", "default": "true", "desc": "非必填, 若为真, 工作流将根据用户名和密码自动填充HUB_USER和HUB_TOKEN"}\
   ]\
 }'
