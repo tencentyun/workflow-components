@@ -126,7 +126,7 @@ func (b *Builder) build() error {
 	command = append(command, "-f", b.PomPath)
 
 	cwd, _ := os.Getwd()
-	if _, err := (CMD{command, filepath.Join(cwd, b.projectName),b.ExtCommand}).Run(); err != nil {
+	if _, err := (CMD{Command: command, WorkDir: filepath.Join(cwd, b.projectName)}).Run(); err != nil {
 		fmt.Println("Run mvn goals failed:", err)
 		return err
 	}
@@ -153,7 +153,7 @@ func (b *Builder) gitPull() error {
 func (b *Builder) gitReset() error {
 	cwd, _ := os.Getwd()
 	var command = []string{"git", "checkout", b.GitRef, "--"}
-	if _, err := (CMD{command, filepath.Join(cwd, b.projectName)}).Run(); err != nil {
+	if _, err := (CMD{Command: command, WorkDir: filepath.Join(cwd, b.projectName)}).Run(); err != nil {
 		fmt.Println("Switch to commit", b.GitRef, "failed:", err)
 		return err
 	}
@@ -169,7 +169,7 @@ type CMD struct {
 
 func (c CMD) ExecCommand() (string, error){
     if(c.ExtCommand == ""){
-        return nil
+        return "",nil
     }
 	fmt.Printf("exec:", c.ExtCommand)
     cmd := exec.Command("/bin/bash", "-c", c.ExtCommand)
@@ -181,7 +181,7 @@ func (c CMD) ExecCommand() (string, error){
     cmd.Stdout = &out
     err := cmd.Run()
     if err != nil {
-        fmt.Println("exec:", b.ExtCommand, "\nFailed:", err)
+        fmt.Println("exec:", c.ExtCommand, "\nFailed:", err)
     }
     fmt.Printf(out.String())
     return out.String(),err
