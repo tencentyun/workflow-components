@@ -10,6 +10,7 @@ import (
 )
 
 const baseSpace = "/root/src"
+const cacheSpace = "/workflow-cache"
 
 type Builder struct {
 	// 用户提供参数, 通过环境变量传入
@@ -25,6 +26,10 @@ type Builder struct {
 	ArtifactPath string
 	M2SettingXML string
 
+	WorkflowCache bool
+
+	workDir     string
+	gitDir      string
 	projectName string
 }
 
@@ -79,20 +84,31 @@ func NewBuilder(envs map[string]string) (*Builder, error) {
 
 	b.M2SettingXML = envs["M2_SETTINGS_XML"]
 
+	b.WorkflowCache = strings.ToLower(envs["_WORKFLOW_FLAG_CACHE"]) == "true"
+
+	if b.WorkflowCache {
+		b.workDir = cacheSpace
+	} else {
+		b.workDir = baseSpace
+	}
+	b.gitDir = filepath.Join(b.workDir, b.projectName)
+
 	return b, nil
 }
 
 func (b *Builder) run() error {
-	if err := os.Chdir(baseSpace); err != nil {
-		return fmt.Errorf("chdir to baseSpace(%s) failed:%v", baseSpace, err)
+	if err := os.Chdir(b.workDir); err != nil {
+		return fmt.Errorf("chdir to work dir(%s) failed:%v", b.workDir, err)
 	}
 
-	if err := b.gitPull(); err != nil {
-		return err
-	}
+	if _, err := os.Stat(b.gitDir); os.IsNotExist(err) {
+		if err := b.gitPull(); err != nil {
+			return err
+		}
 
-	if err := b.gitReset(); err != nil {
-		return err
+		if err := b.gitReset(); err != nil {
+			return err
+		}
 	}
 
 	if err := b.setM2SettingXML(); err != nil {
@@ -106,10 +122,7 @@ func (b *Builder) run() error {
 	if err := b.handleArtifacts(); err != nil {
 		return err
 	}
-	// err = b.doPush(b.Image)
-	// if err != nil {
-	// 	return
-	// }
+
 	return nil
 }
 
@@ -142,8 +155,7 @@ func (b *Builder) build() error {
 
 	command = append(command, "-f", b.PomPath)
 
-	cwd, _ := os.Getwd()
-	if _, err := (CMD{command, filepath.Join(cwd, b.projectName)}).Run(); err != nil {
+	if _, err := (CMD{command, b.gitDir}).Run(); err != nil {
 		fmt.Println("Run mvn goals failed:", err)
 		return err
 	}
@@ -152,8 +164,7 @@ func (b *Builder) build() error {
 }
 
 func (b *Builder) handleArtifacts() error {
-	cwd, _ := os.Getwd()
-	targetPath := filepath.Join(cwd, b.projectName, "target")
+	targetPath := filepath.Join(b.gitDir, "target")
 
 	command := []string{"find", "./", "-name", "*.jar", "-o", "-name", "*.war"}
 	output, err := (CMD{command, targetPath}).Run()
@@ -213,9 +224,8 @@ func (b *Builder) gitPull() error {
 }
 
 func (b *Builder) gitReset() error {
-	cwd, _ := os.Getwd()
 	var command = []string{"git", "checkout", b.GitRef, "--"}
-	if _, err := (CMD{command, filepath.Join(cwd, b.projectName)}).Run(); err != nil {
+	if _, err := (CMD{command, b.gitDir}).Run(); err != nil {
 		fmt.Println("Switch to commit", b.GitRef, "failed:", err)
 		return err
 	}
