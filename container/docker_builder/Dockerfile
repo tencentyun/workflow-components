@@ -10,7 +10,7 @@ go build -v -o /go/bin/component-docker \
 -gcflags '-N -l' \
 ./*.go
 
-FROM ubuntu
+FROM ubuntu:18.04
 RUN apt-get -yqq update && apt-get -yqq install docker.io && apt-get -yqq install git
 RUN mkdir -p /root/src
 WORKDIR /root/src

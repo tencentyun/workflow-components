@@ -36,7 +36,7 @@ type Builder struct {
 	gitTag        string
 	gitCommitTime string
 	projectName   string
-	envs  map[string]string
+	envs          map[string]string
 }
 
 // NewBuilder is
@@ -252,8 +252,8 @@ func (b *Builder) build(imageURL string) error {
 		dockerfilePath = filepath.Join(baseSpace, b.projectName, b.DockerFilePath)
 	}
 
-	var command = []string{"docker", "build"}
-	// var command = []string{"docker", "build", "--pull"}
+	// var command = []string{"docker", "build"}
+	var command = []string{"docker", "build", "--pull"}
 
 	if dockerfilePath != "" {
 		command = append(command, "--file", dockerfilePath)
@@ -273,7 +273,7 @@ func (b *Builder) build(imageURL string) error {
 		} else {
 			for k, v := range args {
 				if strings.HasPrefix(v, "${") && strings.HasSuffix(v, "}") {
-					envKey := v[2:len(v)-1]
+					envKey := v[2 : len(v)-1]
 					if envValue, ok := b.envs[envKey]; ok {
 						command = append(command, "--build-arg", fmt.Sprintf("%s=%s", k, envValue))
 						continue
