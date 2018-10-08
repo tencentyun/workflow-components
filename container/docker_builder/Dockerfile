@@ -10,7 +10,7 @@ go build -v -o /go/bin/component-docker \
 -gcflags '-N -l' \
 ./*.go
 
-FROM ubuntu
+FROM ubuntu:18.04
 RUN apt-get -yqq update && apt-get -yqq install docker.io && apt-get -yqq install git
 RUN mkdir -p /root/src
 WORKDIR /root/src
@@ -38,6 +38,7 @@ LABEL TencentHubComponent='{\
   "output": [\
     {"name": "IMAGE", "desc": "构建的镜像地址, 不包含tag名称,"},\
     {"name": "IMAGE_ID", "desc": "构建镜像生成的Image ID"},\
+    {"name": "IMAGE_WITH_TAG", "desc": "构建的镜像地址, 包含tag名称"},\
     {"name": "IMAGE_DIGEST", "desc": "构建镜像生成的Digest"}\
   ]\
 }'
