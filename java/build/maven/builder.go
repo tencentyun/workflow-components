@@ -84,7 +84,7 @@ func NewBuilder(envs map[string]string) (*Builder, error) {
 
 func (b *Builder) run() error {
 	if err := os.Chdir(baseSpace); err != nil {
-		return fmt.Errorf("Chdir to baseSpace(%s) failed:%v", baseSpace, err)
+		return fmt.Errorf("chdir to baseSpace(%s) failed:%v", baseSpace, err)
 	}
 
 	if err := b.gitPull(); err != nil {
