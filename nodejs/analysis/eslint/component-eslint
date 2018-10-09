@@ -1,5 +1,8 @@
 #!/usr/bin/env node
 
+const baseSpace = "/root/src"
+const cacheSpace = "/workflow-cache"
+
 // builder
 function Builder(envs) {
   if (envs["GIT_CLONE_URL"]) {
@@ -20,29 +23,36 @@ function Builder(envs) {
 
   let paths = this.gitCloneURL.replace(/\.git$/, "").split('/');
   this.projectName = paths[paths.length - 1];
+  this.workflowCache = (envs["_WORKFLOW_FLAG_CACHE"] || "").toLowerCase() == "true"
+  if (this.workflowCache) {
+      this.workDir = cacheSpace
+  } else {
+      this.workDir = baseSpace
+  }
+  this.gitDir = require("path").join(this.workDir, this.projectName);
 }
 
 Builder.prototype.gitPull = async function() {
-  let cmd = new CMD(`git clone --recurse-submodules ${this.gitCloneURL} ${this.projectName}`);
+  let cmd = new CMD(`git clone --recurse-submodules ${this.gitCloneURL} ${this.projectName}`, this.workDir);
   await cmd.run();
 };
 
 Builder.prototype.gitReset = async function() {
-  let cwd = require("path").join(process.cwd(), this.projectName);
-  let cmd = new CMD(`git checkout ${this.gitRef} --`, cwd);
+  let cmd = new CMD(`git checkout ${this.gitRef} --`, this.gitDir);
   await cmd.run();
 };
 
 Builder.prototype.lint = async function() {
-  let cwd = require("path").join(process.cwd(), this.projectName);
-  let cmd = new CMD(`eslint ${this.lintParams} ${this.lintPath}`, cwd);
+  let cmd = new CMD(`eslint ${this.lintParams} ${this.lintPath}`, this.gitDir);
   await cmd.run();
 };
 
 Builder.prototype.run = async function() {
   try {
-    await this.gitPull();
-    await this.gitReset();
+    if (!require('fs').existsSync(this.gitDir)) {
+      await this.gitPull();
+      await this.gitReset();
+    }
     await this.lint();
   } catch (e) {
     console.error("BUILD FAILED: ", e.message);
@@ -88,7 +98,8 @@ CMD.prototype.run = function() {
 const envList = [ // inputs
   "GIT_CLONE_URL", "GIT_REF",
   "_WORKFLOW_GIT_CLONE_URL", "_WORKFLOW_GIT_REF",
-  "LINT_PATH", "LINT_PARAMS"
+  "LINT_PATH", "LINT_PARAMS",
+  "_WORKFLOW_FLAG_CACHE"
 ];
 let envs = {};
 for (let envName of envList) {
