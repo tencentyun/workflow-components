@@ -8,7 +8,10 @@ import (
 	"strings"
 )
 
-const baseSpace = "/go/src"
+const (
+	baseSpace = "/go/src"
+	cacheSpace = "/workflow-cache"
+)
 
 type Builder struct {
 	GitCloneURL        string
@@ -16,6 +19,11 @@ type Builder struct {
 	GtestPackageOrFile string
 	GtestParams        string
 	ProjectName        string
+
+	WorkflowCache bool
+
+	workDir string
+	gitDir  string
 }
 
 func NewBuilder(envs map[string]string) (*Builder, error) {
@@ -39,20 +47,31 @@ func NewBuilder(envs map[string]string) (*Builder, error) {
 	b.GtestPackageOrFile = envs["GTEST_PACKAGE_FILE"]
 	b.GtestParams = envs["GTEST_PARAMS"]
 
+	b.WorkflowCache = strings.ToLower(envs["_WORKFLOW_FLAG_CACHE"]) == "true"
+
+	if b.WorkflowCache {
+		b.workDir = cacheSpace
+	} else {
+		b.workDir = baseSpace
+	}
+	b.gitDir = filepath.Join(b.workDir, b.ProjectName)
+
 	return b, nil
 }
 
 func (b *Builder) run() error {
-	if err := os.Chdir(baseSpace); err != nil {
-		return fmt.Errorf("chdir to baseSpace(%s) failed:%v", baseSpace, err)
+	if err := os.Chdir(b.workDir); err != nil {
+		return fmt.Errorf("chdir to workdir (%s) failed:%v", b.workDir, err)
 	}
 
-	if err := b.gitPull(); err != nil {
-		return err
-	}
+	if _, err := os.Stat(b.gitDir); os.IsNotExist(err) {
+		if err := b.gitPull(); err != nil {
+			return err
+		}
 
-	if err := b.gitReset(); err != nil {
-		return err
+		if err := b.gitReset(); err != nil {
+			return err
+		}
 	}
 
 	if err := b.build(); err != nil {
@@ -75,7 +94,7 @@ func (b *Builder) gitReset() error {
 	cwd, _ := os.Getwd()
 	fmt.Println("current: ", cwd)
 	var command = []string{"git", "checkout", b.GitRef, "--"}
-	if _, err := (CMD{command, filepath.Join(cwd, b.ProjectName)}).Run(); err != nil {
+	if _, err := (CMD{command, b.gitDir}).Run(); err != nil {
 		fmt.Println("Switch to commit", b.GitRef, "failed:", err)
 		return err
 	}
@@ -93,7 +112,7 @@ func (b *Builder) build() error {
 		script = fmt.Sprintf("gp test %s %s", b.GtestParams, b.GtestPackageOrFile)
 	}
 	var command = []string{"sh", "-c", script}
-	if _, err := (CMD{command, filepath.Join(cwd, b.ProjectName)}).Run(); err != nil {
+	if _, err := (CMD{command, b.gitDir}).Run(); err != nil {
 		fmt.Printf("Exec: %s failed: %v", script, err)
 	}
 	fmt.Printf("Exec: %s succeed.\n", script)

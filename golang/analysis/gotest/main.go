@@ -12,6 +12,8 @@ var envsList = []string{
 	"_WORKFLOW_GIT_REF",
 	"GTEST_PACKAGE_FILE",
 	"GTEST_PARAMS",
+
+	"_WORKFLOW_FLAG_CACHE",
 }
 
 func main() {

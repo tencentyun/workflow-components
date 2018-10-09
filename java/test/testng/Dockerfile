@@ -14,9 +14,9 @@ go build -v -o /go/bin/component-testng \
 FROM  gradle:4.9.0-jdk8
 
 USER root
-WORKDIR /root
-COPY --from=builder /go/src/component-testng/testng.conf /root/testng.conf
-copy --from=builder /go/bin/component-testng /usr/bin/
+WORKDIR /root/src
+
+COPY --from=builder /go/bin/component-testng /usr/bin/
 
 CMD ["component-testng"]
 LABEL TencentHubComponent='{\

@@ -8,13 +8,21 @@ import (
 	"strings"
 )
 
+const (
+	baseSpace  = "/root/src"
+	cacheSpace = "/workflow-cache"
+)
+
 type Builder struct {
 	GitCloneURL string
 	GitRef      string
 	projectName string
-}
 
-const baseSpace = "/root"
+	WorkflowCache bool
+
+	workDir string
+	gitDir  string
+}
 
 func NewBuilder(envs map[string]string) (*Builder, error) {
 	b := &Builder{}
@@ -34,20 +42,31 @@ func NewBuilder(envs map[string]string) (*Builder, error) {
 	s := strings.TrimSuffix(strings.TrimSuffix(b.GitCloneURL, "/"), ".git")
 	b.projectName = s[strings.LastIndex(s, "/")+1:]
 
+	b.WorkflowCache = strings.ToLower(envs["_WORKFLOW_FLAG_CACHE"]) == "true"
+
+	if b.WorkflowCache {
+		b.workDir = cacheSpace
+	} else {
+		b.workDir = baseSpace
+	}
+	b.gitDir = filepath.Join(b.workDir, b.projectName)
+
 	return b, nil
 }
 
 func (b *Builder) run() error {
-	if err := os.Chdir(baseSpace); err != nil {
-		return fmt.Errorf("chdir to baseSpace(%s) failed:%v", baseSpace, err)
+	if err := os.Chdir(b.workDir); err != nil {
+		return fmt.Errorf("chdir to workdir (%s) failed:%v", b.workDir, err)
 	}
 
-	if err := b.gitPull(); err != nil {
-		return err
-	}
+	if _, err := os.Stat(b.gitDir); os.IsNotExist(err) {
+		if err := b.gitPull(); err != nil {
+			return err
+		}
 
-	if err := b.gitReset(); err != nil {
-		return err
+		if err := b.gitReset(); err != nil {
+			return err
+		}
 	}
 
 	if err := b.preBuild(); err != nil {
@@ -75,7 +94,7 @@ func (b *Builder) gitReset() error {
 	cwd, _ := os.Getwd()
 	fmt.Println("current: ", cwd)
 	var command = []string{"git", "checkout", b.GitRef, "--"}
-	if _, err := (CMD{command, filepath.Join(cwd, b.projectName)}).Run(); err != nil {
+	if _, err := (CMD{command, b.gitDir}).Run(); err != nil {
 		fmt.Println("Switch to commit", b.GitRef, "failed:", err)
 		return err
 	}
@@ -93,25 +112,18 @@ func pathExist(file string) bool {
 }
 
 func (b *Builder) preBuild() error {
-	file := baseSpace + "/" + b.projectName + "/" + "build.gradle"
+	// check build.gradle is or not exist
+	file := b.gitDir + "/" + "build.gradle"
 	if ok := pathExist(file); ok != true {
 		return fmt.Errorf("build.gradle file not exist")
-	}
-
-	var script = fmt.Sprintf("cat /root/javadoc.conf >> %s", file)
-	var command = []string{"sh", "-c", script}
-	if _, err := (CMD{Command: command}).Run(); err != nil {
-		fmt.Printf("Exec: build plugin.build failed: %v", err)
-		return err
 	}
 
 	return nil
 }
 
 func (b *Builder) build() error {
-	cwd, _ := os.Getwd()
 	var command01 = []string{"gradle", "javadoc"}
-	if _, err := (CMD{command01, filepath.Join(cwd, b.projectName)}).Run(); err != nil {
+	if _, err := (CMD{command01, b.gitDir}).Run(); err != nil {
 		fmt.Printf("Exec: javadoc failed: %v", err)
 		return err
 	}
@@ -121,21 +133,13 @@ func (b *Builder) build() error {
 
 func (b *Builder) afterBuild() error {
 	//tar javadoc
-	cwd, _ := os.Getwd()
-	var tarScript = "tar -zcvf /root/javadoc.tar javadoc 1>/dev/null 2>&1"
+	var tarScript = "tar -zcvf javadoc.tar javadoc 1>/dev/null 2>&1"
 	var tarCommand = []string{"sh", "-c", tarScript}
-	var tarPath = b.projectName + "/build/docs"
-	if _, err := (CMD{tarCommand, filepath.Join(cwd, tarPath)}).Run(); err != nil {
+	var tarPath = b.gitDir + "/build/docs"
+	if _, err := (CMD{tarCommand, tarPath}).Run(); err != nil {
 		fmt.Printf("Exec: tar javadoc failed: %v", err)
 		return err
 	}
-	//upload javadoc
-	// var curlScript = "curl -i -X PUT -T /root/javadoc.tar http://localhost:9090/upload 2>/dev/null"
-	// var curlCommand = []string{"sh", "-c", curlScript}
-	// if _, err := (CMD{Command: curlCommand}).Run(); err != nil {
-	// 	fmt.Printf("Exec: upload javadoc failed: %v\n", err)
-	// 	return err
-	// }
 	return nil
 }
 

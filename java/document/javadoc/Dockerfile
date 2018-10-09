@@ -14,9 +14,9 @@ go build -v -o /go/bin/component-javadoc \
 FROM  gradle:4.9.0-jdk8
 
 USER root
-WORKDIR /root
-COPY --from=builder /go/src/component-javadoc/javadoc.conf /root/javadoc.conf
-copy --from=builder /go/bin/component-javadoc /usr/bin/
+WORKDIR /root/src
+
+COPY --from=builder /go/bin/component-javadoc /usr/bin/
 
 CMD ["component-javadoc"]
 LABEL TencentHubComponent='{\

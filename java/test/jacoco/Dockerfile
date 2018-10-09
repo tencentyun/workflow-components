@@ -14,9 +14,9 @@ go build -v -o /go/bin/component-jacoco \
 FROM  gradle:4.9.0-jdk8
 
 USER root
-WORKDIR /root
-COPY --from=builder /go/src/component-jacoco/jacoco.conf /root/jacoco.conf
-copy --from=builder /go/bin/component-jacoco /usr/bin/
+WORKDIR /root/src
+
+COPY --from=builder /go/bin/component-jacoco /usr/bin/
 
 CMD ["component-jacoco"]
 LABEL TencentHubComponent='{\

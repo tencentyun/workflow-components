@@ -7,7 +7,7 @@ import (
 
 var envList = []string{
 	"GIT_CLONE_URL", "GIT_REF",
-	"_WORKFLOW_GIT_CLONE_URL", "_WORKFLOW_GIT_REF",
+	"_WORKFLOW_GIT_CLONE_URL", "_WORKFLOW_GIT_REF", "_WORKFLOW_FLAG_CACHE",
 
 	"CMD",
 }

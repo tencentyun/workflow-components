@@ -1,7 +1,10 @@
 package main
 
 import (
+	"bufio"
 	"fmt"
+	"io"
+	"io/ioutil"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -12,9 +15,16 @@ type Builder struct {
 	GitCloneURL string
 	GitRef      string
 	projectName string
+
+	WorkflowCache bool
+	workDir       string
+	gitDir        string
 }
 
-const baseSpace = "/root"
+const (
+	baseSpace  = "/root/src"
+	cacheSpace = "/workflow-cache"
+)
 
 func NewBuilder(envs map[string]string) (*Builder, error) {
 	b := &Builder{}
@@ -34,20 +44,31 @@ func NewBuilder(envs map[string]string) (*Builder, error) {
 	s := strings.TrimSuffix(strings.TrimSuffix(b.GitCloneURL, "/"), ".git")
 	b.projectName = s[strings.LastIndex(s, "/")+1:]
 
+	b.WorkflowCache = strings.ToLower(envs["_WORKFLOW_FLAG_CACHE"]) == "true"
+
+	if b.WorkflowCache {
+		b.workDir = cacheSpace
+	} else {
+		b.workDir = baseSpace
+	}
+	b.gitDir = filepath.Join(b.workDir, b.projectName)
+
 	return b, nil
 }
 
 func (b *Builder) run() error {
-	if err := os.Chdir(baseSpace); err != nil {
-		return fmt.Errorf("chdir to baseSpace(%s) failed:%v", baseSpace, err)
+	if err := os.Chdir(b.workDir); err != nil {
+		return fmt.Errorf("chdir to workdir (%s) failed:%v", b.workDir, err)
 	}
 
-	if err := b.gitPull(); err != nil {
-		return err
-	}
+	if _, err := os.Stat(b.gitDir); os.IsNotExist(err) {
+		if err := b.gitPull(); err != nil {
+			return err
+		}
 
-	if err := b.gitReset(); err != nil {
-		return err
+		if err := b.gitReset(); err != nil {
+			return err
+		}
 	}
 
 	if err := b.preBuild(); err != nil {
@@ -55,6 +76,10 @@ func (b *Builder) run() error {
 	}
 
 	if err := b.build(); err != nil {
+		return err
+	}
+
+	if err := b.afterBuild(); err != nil {
 		return err
 	}
 	return nil
@@ -74,7 +99,7 @@ func (b *Builder) gitReset() error {
 	cwd, _ := os.Getwd()
 	fmt.Println("current: ", cwd)
 	var command = []string{"git", "checkout", b.GitRef, "--"}
-	if _, err := (CMD{command, filepath.Join(cwd, b.projectName)}).Run(); err != nil {
+	if _, err := (CMD{command, b.gitDir}).Run(); err != nil {
 		fmt.Println("Switch to commit", b.GitRef, "failed:", err)
 		return err
 	}
@@ -92,17 +117,11 @@ func pathExist(file string) bool {
 }
 
 func (b *Builder) preBuild() error {
-	file := baseSpace + "/" + b.projectName + "/" + "build.gradle"
+	file := b.gitDir + "/" + "build.gradle"
 	if ok := pathExist(file); ok != true {
 		return fmt.Errorf("file not exist")
 	}
 
-	var script = fmt.Sprintf("cat /root/junit.conf >> %s", file)
-	var command = []string{"sh", "-c", script}
-	if _, err := (CMD{Command: command}).Run(); err != nil {
-		fmt.Printf("Exec: build plugin.build failed: %v", err)
-		return err
-	}
 	return nil
 }
 
@@ -111,12 +130,42 @@ func (b *Builder) build() error {
 	var command01 = []string{"gradle", "test"}
 	(CMD{command01, filepath.Join(cwd, b.projectName)}).Run()
 
-	// var mainFile = baseSpace + "/" + b.projectName + "/build/reports/findbugs/main.xml"
-	// var testFile = baseSpace + "/" + b.projectName + "/build/reports/findbugs/test.xml"
-	// var mainCommand = []string{"cat", mainFile}
-	// var testCommand = []string{"cat", testFile}
-	// (CMD{Command: mainCommand}).Run()
-	// (CMD{Command: testCommand}).Run()
+	return nil
+}
+func showXmlReport(file string) error {
+	fmt.Printf("SHOW REPORT: %s", file)
+	inputFile, inputError := os.Open(file)
+	if inputError != nil {
+		return fmt.Errorf("the file: %s not exist\n", file)
+	}
+	defer inputFile.Close()
+
+	inputReader := bufio.NewReader(inputFile)
+	for {
+		inputString, readerError := inputReader.ReadString('\n')
+		fmt.Printf("%s", inputString)
+		if readerError == io.EOF {
+			return nil
+		}
+	}
+}
+
+func (b *Builder) afterBuild() error {
+	testPath := b.gitDir + "/build/test-results/test"
+	rd, err := ioutil.ReadDir(testPath)
+	if err != nil {
+		return fmt.Errorf("path %s not exist", testPath)
+	}
+	for _, fi := range rd {
+		if !fi.IsDir() {
+			if strings.HasSuffix(fi.Name(), ".xml") {
+				xmlFile := testPath + fi.Name()
+				if err := showXmlReport(xmlFile); err != nil {
+					return err
+				}
+			}
+		}
+	}
 
 	return nil
 }

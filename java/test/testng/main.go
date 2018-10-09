@@ -10,6 +10,8 @@ var envsList = []string{
 	"GIT_REF",
 	"_WORKFLOW_GIT_CLONE_URL",
 	"_WORKFLOW_GIT_REF",
+
+	"_WORKFLOW_FLAG_CACHE",
 }
 
 func main() {

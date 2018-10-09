@@ -12,6 +12,8 @@ var envList = []string{
 	"_WORKFLOW_GIT_REF",
 	"ANALYSIS_OPTIONS",
 	"ANALYSIS_TARGET",
+
+	"_WORKFLOW_FLAG_CACHE",
 }
 
 func main() {

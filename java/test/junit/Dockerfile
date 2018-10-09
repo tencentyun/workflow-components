@@ -14,9 +14,9 @@ go build -v -o /go/bin/component-junit \
 FROM  gradle:4.9.0-jdk8
 
 USER root
-WORKDIR /root
-COPY --from=builder /go/src/component-junit/junit.conf /root/junit.conf
-copy --from=builder /go/bin/component-junit /usr/bin/
+WORKDIR /root/src
+
+COPY --from=builder /go/bin/component-junit /usr/bin/
 
 CMD ["component-junit"]
 LABEL TencentHubComponent='{\

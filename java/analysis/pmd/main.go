@@ -8,8 +8,11 @@ import (
 var envsList = []string{
 	"GIT_CLONE_URL",
 	"GIT_REF",
+	"OUT_PUT_XML",
 	"_WORKFLOW_GIT_CLONE_URL",
 	"_WORKFLOW_GIT_REF",
+
+	"_WORKFLOW_FLAG_CACHE",
 }
 
 func main() {

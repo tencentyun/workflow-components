@@ -8,16 +8,23 @@ import (
 	"strings"
 )
 
-const baseSpace = "/root/src"
+const (
+	baseSpace  = "/root/src"
+	cacheSpace = "/workflow-cache"
+)
 
 type Builder struct {
 	// 用户提供参数, 通过环境变量传入
 	GitCloneURL     string
-	GitRef      string
+	GitRef          string
 	AnalysisOptions string
 	AnalysisTarget  string
 
 	projectName string
+
+	WorkflowCache bool
+	workDir       string
+	gitDir        string
 }
 
 // NewBuilder is
@@ -43,20 +50,32 @@ func NewBuilder(envs map[string]string) (*Builder, error) {
 
 	s := strings.TrimSuffix(strings.TrimSuffix(b.GitCloneURL, "/"), ".git")
 	b.projectName = s[strings.LastIndex(s, "/")+1:]
+
+	b.WorkflowCache = strings.ToLower(envs["_WORKFLOW_FLAG_CACHE"]) == "true"
+
+	if b.WorkflowCache {
+		b.workDir = cacheSpace
+	} else {
+		b.workDir = baseSpace
+	}
+	b.gitDir = filepath.Join(b.workDir, b.projectName)
+
 	return b, nil
 }
 
 func (b *Builder) run() error {
-	if err := os.Chdir(baseSpace); err != nil {
-		return fmt.Errorf("chdir to baseSpace(%s) failed:%v", baseSpace, err)
+	if err := os.Chdir(b.workDir); err != nil {
+		return fmt.Errorf("chdir to workdir (%s) failed:%v", b.workDir, err)
 	}
 
-	if err := b.gitPull(); err != nil {
-		return err
-	}
+	if _, err := os.Stat(b.gitDir); os.IsNotExist(err) {
+		if err := b.gitPull(); err != nil {
+			return err
+		}
 
-	if err := b.gitReset(); err != nil {
-		return err
+		if err := b.gitReset(); err != nil {
+			return err
+		}
 	}
 
 	if err := b.build(); err != nil {
@@ -67,15 +86,14 @@ func (b *Builder) run() error {
 }
 
 func (b *Builder) build() error {
-	cwd, _ := os.Getwd()
-	var command = []string{"java", "-jar", "checkstyle-8.10-all.jar"}
+	var command = []string{"java", "-jar", "/root/src/checkstyle-8.10-all.jar"}
 
 	if b.AnalysisOptions != "" {
 		command = append(command, b.AnalysisOptions)
 	}
 	command = append(command, "-c")
-	command = append(command, "checkstyle.xml")
-	command = append(command, filepath.Join(cwd, b.projectName, b.AnalysisTarget))
+	command = append(command, "/root/src/checkstyle.xml")
+	command = append(command, filepath.Join(b.gitDir, b.AnalysisTarget))
 
 	if _, err := (CMD{Command: command}).Run(); err != nil {
 		fmt.Println("Run checkstyle failed:", err)
@@ -96,10 +114,8 @@ func (b *Builder) gitPull() error {
 }
 
 func (b *Builder) gitReset() error {
-	cwd, _ := os.Getwd()
-	fmt.Println("current: ", cwd)
 	var command = []string{"git", "checkout", b.GitRef, "--"}
-	if _, err := (CMD{command, filepath.Join(cwd, b.projectName)}).Run(); err != nil {
+	if _, err := (CMD{command, b.gitDir}).Run(); err != nil {
 		fmt.Println("Switch to commit", b.GitRef, "failed:", err)
 		return err
 	}
@@ -107,7 +123,6 @@ func (b *Builder) gitReset() error {
 
 	return nil
 }
-
 
 type CMD struct {
 	Command []string // cmd with args

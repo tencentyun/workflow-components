@@ -15,9 +15,17 @@ type Builder struct {
 	GitRef      string
 	projectName string
 	haveCpd     string
+	OutputXml   bool
+
+	WorkflowCache bool
+	workDir       string
+	gitDir        string
 }
 
-const baseSpace = "/root"
+const (
+	baseSpace  = "/root/src"
+	cacheSpace = "/workflow-cache"
+)
 
 func NewBuilder(envs map[string]string) (*Builder, error) {
 	b := &Builder{}
@@ -37,20 +45,33 @@ func NewBuilder(envs map[string]string) (*Builder, error) {
 	s := strings.TrimSuffix(strings.TrimSuffix(b.GitCloneURL, "/"), ".git")
 	b.projectName = s[strings.LastIndex(s, "/")+1:]
 
+	b.WorkflowCache = strings.ToLower(envs["_WORKFLOW_FLAG_CACHE"]) == "true"
+
+	if b.WorkflowCache {
+		b.workDir = cacheSpace
+	} else {
+		b.workDir = baseSpace
+	}
+	b.gitDir = filepath.Join(b.workDir, b.projectName)
+
+	b.OutputXml = strings.ToLower(envs["OUT_PUT_XML"]) == "true"
+
 	return b, nil
 }
 
 func (b *Builder) run() error {
-	if err := os.Chdir(baseSpace); err != nil {
-		return fmt.Errorf("chdir to baseSpace(%s) failed:%v", baseSpace, err)
+	if err := os.Chdir(b.workDir); err != nil {
+		return fmt.Errorf("chdir to workdir (%s) failed:%v", b.workDir, err)
 	}
 
-	if err := b.gitPull(); err != nil {
-		return err
-	}
+	if _, err := os.Stat(b.gitDir); os.IsNotExist(err) {
+		if err := b.gitPull(); err != nil {
+			return err
+		}
 
-	if err := b.gitReset(); err != nil {
-		return err
+		if err := b.gitReset(); err != nil {
+			return err
+		}
 	}
 
 	if err := b.preBuild(); err != nil {
@@ -61,8 +82,10 @@ func (b *Builder) run() error {
 		return err
 	}
 
-	if err := b.afterBuild(); err != nil {
-		return err
+	if b.OutputXml == true {
+		if err := b.afterBuild(); err != nil {
+			return err
+		}
 	}
 	return nil
 }
@@ -78,10 +101,8 @@ func (b *Builder) gitPull() error {
 }
 
 func (b *Builder) gitReset() error {
-	cwd, _ := os.Getwd()
-	fmt.Println("current: ", cwd)
 	var command = []string{"git", "checkout", b.GitRef, "--"}
-	if _, err := (CMD{command, filepath.Join(cwd, b.projectName)}).Run(); err != nil {
+	if _, err := (CMD{command, b.gitDir}).Run(); err != nil {
 		fmt.Println("Switch to commit", b.GitRef, "failed:", err)
 		return err
 	}
@@ -106,30 +127,19 @@ func (b *Builder) preBuild() error {
 
 	var cpd = "echo gradle -q tasks --all | grep cpd | awk '{print $1}'"
 	var cpdIsExistCommand = []string{"sh", "-c", cpd}
-	isExist, _ := (CMD{Command: cpdIsExistCommand}).Run()
-	if isExist == "" {
-		var script = fmt.Sprintf("cat /root/cpd.conf >> %s", file)
-		var command = []string{"sh", "-c", script}
-		if _, err := (CMD{Command: command}).Run(); err != nil {
-			fmt.Printf("Exec: build plugin.build failed: %v", err)
-			return err
-		}
+	haveCpd, _ := (CMD{cpdIsExistCommand, b.gitDir}).Run()
+	if haveCpd == "" {
+		return fmt.Errorf("gradle cpd not exist")
 	} else {
-		b.haveCpd = isExist
+		b.haveCpd = haveCpd
 	}
 
 	return nil
 }
 
 func (b *Builder) build() error {
-	cwd, _ := os.Getwd()
-	if b.haveCpd == "" {
-		var command01 = []string{"gradle", "cpdCheck"}
-		(CMD{command01, filepath.Join(cwd, b.projectName)}).Run()
-	} else {
-		var command01 = []string{"gradle", b.haveCpd}
-		(CMD{command01, filepath.Join(cwd, b.projectName)}).Run()
-	}
+	var command01 = []string{"gradle", b.haveCpd}
+	(CMD{command01, b.gitDir}).Run()
 
 	return nil
 }
@@ -154,7 +164,7 @@ func showXmlReport(file string) error {
 
 func (b *Builder) afterBuild() error {
 	//show xml
-	var cpdFile = baseSpace + "/" + b.projectName + "/build/reports/cpd/cpdCheck.xml"
+	var cpdFile = b.gitDir + "/build/reports/cpd/cpdCheck.xml"
 	if err := showXmlReport(cpdFile); err != nil {
 		return err
 	}

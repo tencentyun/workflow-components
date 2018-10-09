@@ -145,14 +145,14 @@ func ParseSimpleArg(s string) (string, string) {
 	return s[:index], s[index+1:]
 }
 
-// insert new hub into /etc/containers/registries.conf
+// add new hub into /etc/containers/registries.conf
 func SetHubConf(hub string) error {
-	insert := fmt.Sprintf("12s/docker.io/%s", hub)
+	insert := fmt.Sprintf("12s/docker.io/%s/", hub)
 	var command = []string{"sed", "-i", insert, "/etc/containers/registries.conf"}
 	if _, err := (CMD{Command: command}).Run(); err != nil {
-		fmt.Println("insert registry failed:", err)
+		fmt.Println("add registry failed:", err)
 		return err
 	}
-	fmt.Println("insert registry succeed.")
+	fmt.Println("add registry succeed.")
 	return nil
 }
