@@ -30,6 +30,7 @@ var envList = []string{
 	"_WORKFLOW_HUB_TOKEN",
 
 	"_WORKFLOW_BUILD_TYPE",
+	"_WORKFLOW_FLAG_CACHE",
 }
 
 func main() {

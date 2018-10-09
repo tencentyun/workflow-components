@@ -29,10 +29,10 @@ type Builder struct {
 	BuildArgs      string
 	NoCache        bool
 
+	WorkflowCache bool
+
 	HubUser  string
 	HubToken string
-
-	WorkflowCache bool
 
 	hub           string
 	gitCommit     string
@@ -109,6 +109,15 @@ func NewBuilder(envs map[string]string) (*Builder, error) {
 	s := strings.TrimSuffix(strings.TrimSuffix(b.GitCloneURL, "/"), ".git")
 	b.projectName = s[strings.LastIndex(s, "/")+1:]
 
+	b.WorkflowCache = strings.ToLower(envs["_WORKFLOW_FLAG_CACHE"]) == "true"
+
+	if b.WorkflowCache {
+		b.workDir = cacheSpace
+	} else {
+		b.workDir = baseSpace
+	}
+	b.gitDir = filepath.Join(b.workDir, b.projectName)
+
 	if envs["_WORKFLOW_BUILD_TYPE"] != "manually" { // 手动构建不看这个参数
 		b.ExtraImageTag = envs["EXTRA_IMAGE_TAG"]
 	}
@@ -121,15 +130,6 @@ func NewBuilder(envs map[string]string) (*Builder, error) {
 		b.NoCache = true
 	}
 	b.envs = envs
-
-	b.WorkflowCache = strings.ToLower(envs["_WORKFLOW_FLAG_CACHE"]) == "true"
-
-	if b.WorkflowCache {
-		b.workDir = cacheSpace
-	} else {
-		b.workDir = baseSpace
-	}
-	b.gitDir = filepath.Join(b.workDir, b.projectName)
 
 	return b, nil
 }
@@ -200,7 +200,7 @@ func (b *Builder) run() error {
 
 func (b *Builder) gitPull() error {
 	var command = []string{"git", "clone", "--recurse-submodules", b.GitCloneURL, b.projectName}
-	if _, err := (CMD{Command: command}).Run(); err != nil {
+	if _, err := (CMD{command, b.workDir}).Run(); err != nil {
 		fmt.Println("Clone project failed:", err)
 		return err
 	}

@@ -12,6 +12,7 @@ import (
 )
 
 const baseSpace = "/root/src"
+const cacheSpace = "/workflow-cache"
 
 // Builder is
 type Builder struct {
@@ -28,6 +29,8 @@ type Builder struct {
 	BuildArgs      string
 	NoCache        bool
 
+	WorkflowCache bool
+
 	HubUser  string
 	HubToken string
 
@@ -37,6 +40,9 @@ type Builder struct {
 	gitCommitTime string
 	projectName   string
 	envs          map[string]string
+
+	workDir string
+	gitDir  string
 }
 
 // NewBuilder is
@@ -101,6 +107,15 @@ func NewBuilder(envs map[string]string) (*Builder, error) {
 	s := strings.TrimSuffix(strings.TrimSuffix(b.GitCloneURL, "/"), ".git")
 	b.projectName = s[strings.LastIndex(s, "/")+1:]
 
+	b.WorkflowCache = strings.ToLower(envs["_WORKFLOW_FLAG_CACHE"]) == "true"
+
+	if b.WorkflowCache {
+		b.workDir = cacheSpace
+	} else {
+		b.workDir = baseSpace
+	}
+	b.gitDir = filepath.Join(b.workDir, b.projectName)
+
 	if envs["_WORKFLOW_BUILD_TYPE"] != "manually" { // 手动构建不看这个参数
 		b.ExtraImageTag = envs["EXTRA_IMAGE_TAG"]
 	}
@@ -117,16 +132,18 @@ func NewBuilder(envs map[string]string) (*Builder, error) {
 }
 
 func (b *Builder) run() error {
-	if err := os.Chdir(baseSpace); err != nil {
-		return fmt.Errorf("Chdir to baseSpace(%s) failed:%v", baseSpace, err)
+	if err := os.Chdir(b.workDir); err != nil {
+		return fmt.Errorf("chdir to workdir (%s) failed:%v", b.workDir, err)
 	}
 
-	if err := b.gitPull(); err != nil {
-		return err
-	}
+	if _, err := os.Stat(b.gitDir); os.IsNotExist(err) {
+		if err := b.gitPull(); err != nil {
+			return err
+		}
 
-	if err := b.gitReset(); err != nil {
-		return err
+		if err := b.gitReset(); err != nil {
+			return err
+		}
 	}
 
 	if b.ImageTag == "" && b.ImageTagFormat != "" {
@@ -180,7 +197,7 @@ func (b *Builder) run() error {
 
 func (b *Builder) gitPull() error {
 	var command = []string{"git", "clone", "--recurse-submodules", b.GitCloneURL, b.projectName}
-	if _, err := (CMD{Command: command}).Run(); err != nil {
+	if _, err := (CMD{command, b.workDir}).Run(); err != nil {
 		fmt.Println("Clone project failed:", err)
 		return err
 	}
@@ -189,9 +206,8 @@ func (b *Builder) gitPull() error {
 }
 
 func (b *Builder) gitReset() error {
-	cwd, _ := os.Getwd()
 	var command = []string{"git", "checkout", b.GitRef, "--"}
-	if _, err := (CMD{command, filepath.Join(cwd, b.projectName)}).Run(); err != nil {
+	if _, err := (CMD{command, b.gitDir}).Run(); err != nil {
 		fmt.Println("Switch to git ref ", b.GitRef, "failed:", err)
 		return err
 	}
@@ -201,12 +217,11 @@ func (b *Builder) gitReset() error {
 
 func (b *Builder) GenImageTag() error {
 	var commitID, branchOrTag string
-	cwd, _ := os.Getwd()
 
 	// Get commit ID
 	if b.GitType != "commit" {
 		command := []string{"git", "show", "-s", "--format=%H", b.GitRef, "--"}
-		output, err := (CMD{command, filepath.Join(cwd, b.projectName)}).Run()
+		output, err := (CMD{command, b.gitDir}).Run()
 		if err != nil {
 			fmt.Println("get git commit id failed:", err)
 			return err
@@ -246,10 +261,10 @@ func (b *Builder) loginRegistry() error {
 }
 
 func (b *Builder) build(imageURL string) error {
-	var contextDir = filepath.Join(baseSpace, b.projectName, b.BuildWorkdir)
+	var contextDir = filepath.Join(b.gitDir, b.BuildWorkdir)
 	var dockerfilePath string
 	if b.DockerFilePath != "" {
-		dockerfilePath = filepath.Join(baseSpace, b.projectName, b.DockerFilePath)
+		dockerfilePath = filepath.Join(b.gitDir, b.DockerFilePath)
 	}
 
 	// var command = []string{"docker", "build"}
