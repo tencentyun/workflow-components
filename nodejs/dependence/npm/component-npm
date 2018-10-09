@@ -1,6 +1,8 @@
 #!/usr/bin/env node
 
-let path = require("path");
+const path = require("path");
+const baseSpace = "/root/src"
+const cacheSpace = "/workflow-cache"
 
 // builder
 function Builder(envs) {
@@ -21,6 +23,14 @@ function Builder(envs) {
 
   let paths = this.gitCloneURL.replace(/\.git$/, "").split('/');
   this.projectName = paths[paths.length - 1];
+
+  this.workflowCache = (envs["_WORKFLOW_FLAG_CACHE"] || "").toLowerCase() == "true"
+  if (this.workflowCache) {
+      this.workDir = cacheSpace
+  } else {
+      this.workDir = baseSpace
+  }
+  this.gitDir = path.join(this.workDir, this.projectName);
 
   this.hubRepo = (envs["HUB_REPO"] || "").replace(/\/$/, "");
   if (!this.hubRepo) {
@@ -53,19 +63,17 @@ function Builder(envs) {
 }
 
 Builder.prototype.gitPull = async function() {
-  let cmd = new CMD(`git clone --recurse-submodules ${this.gitCloneURL} ${this.projectName}`);
+  let cmd = new CMD(`git clone --recurse-submodules ${this.gitCloneURL} ${this.projectName}`, this.workDir);
   await cmd.run();
 };
 
 Builder.prototype.gitReset = async function() {
-  let cwd = path.join(process.cwd(), this.projectName);
-  let cmd = new CMD(`git checkout ${this.gitRef} --`, cwd);
+  let cmd = new CMD(`git checkout ${this.gitRef} --`, this.gitDir);
   await cmd.run();
 };
 
 Builder.prototype.npm = async function() {
-  let cwd = path.join(process.cwd(), this.projectName);
-  let cmd = new CMD(`npm install ${this.npmParams}`, cwd);
+  let cmd = new CMD(`npm install ${this.npmParams}`, this.gitDir);
   await cmd.run();
 };
 
@@ -75,9 +83,8 @@ Builder.prototype.handleArtifacts = async function() {
         return
     }
 
-    let cwd = path.join(process.cwd(), this.projectName);
     let artifactsTar = this.outDir + '.tar';
-    let cmd = new CMD(`tar  -cjf ${artifactsTar} ${this.outDir}`, cwd);
+    let cmd = new CMD(`tar  -cjf ${artifactsTar} ${this.outDir}`, this.gitDir);
 
     await cmd.run();
 
@@ -88,7 +95,7 @@ Builder.prototype.handleArtifacts = async function() {
         --path=${path.join(this.artifactPath, artifactsTar)} \
         --tag=${this.artifactTag}`;
 
-    cmd = new CMD(command, cwd);
+    cmd = new CMD(command, this.gitDir);
     await cmd.run();
 
     console.log(`[JOB_OUT] ARTIFACT_URL = ${path.join(this.hubRepo, this.artifactPath, artifactsTar)}\n`);
@@ -97,8 +104,10 @@ Builder.prototype.handleArtifacts = async function() {
 
 Builder.prototype.run = async function() {
   try {
-    await this.gitPull();
-    await this.gitReset();
+    if (!require('fs').existsSync(this.gitDir)) {
+      await this.gitPull();
+      await this.gitReset();
+    }
     await this.npm();
     await this.handleArtifacts();
   } catch (e) {
@@ -150,7 +159,9 @@ const envList = [ // inputs
   "HUB_REPO", "ARTIFACT_TAG", "ARTIFACT_PATH",
 
   "HUB_USER", "HUB_TOKEN",
-  "_WORKFLOW_HUB_USER", "_WORKFLOW_HUB_TOKEN"
+  "_WORKFLOW_HUB_USER", "_WORKFLOW_HUB_TOKEN",
+
+  "_WORKFLOW_FLAG_CACHE"
 ];
 let envs = {};
 for (let envName of envList) {
