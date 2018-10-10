@@ -54,9 +54,14 @@ func NewBuilder(envs map[string]string) (*Builder, error) {
 	s := strings.TrimSuffix(strings.TrimSuffix(b.GitCloneURL, "/"), ".git")
 	b.projectName = s[strings.LastIndex(s, "/")+1:]
 
-	if b.GitRef = envs["GIT_REF"]; b.GitRef == "" {
-		b.GitRef = "master"
+	b.WorkflowCache = strings.ToLower(envs["_WORKFLOW_FLAG_CACHE"]) == "true"
+
+	if b.WorkflowCache {
+		b.workDir = cacheSpace
+	} else {
+		b.workDir = baseSpace
 	}
+	b.gitDir = filepath.Join(b.workDir, b.projectName)
 
 	b.Goals = strings.TrimSpace(strings.TrimPrefix(strings.TrimSpace(envs["GOALS"]), "mvn "))
 
@@ -83,16 +88,6 @@ func NewBuilder(envs map[string]string) (*Builder, error) {
 	}
 
 	b.M2SettingXML = envs["M2_SETTINGS_XML"]
-
-	b.WorkflowCache = strings.ToLower(envs["_WORKFLOW_FLAG_CACHE"]) == "true"
-
-	if b.WorkflowCache {
-		b.workDir = cacheSpace
-	} else {
-		b.workDir = baseSpace
-	}
-	b.gitDir = filepath.Join(b.workDir, b.projectName)
-
 	return b, nil
 }
 
