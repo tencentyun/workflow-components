@@ -99,7 +99,8 @@ func (c *Cluster) GetDeploymentByDeployGroup(dgName, target string) (dm *extv1be
 	}
 	if len(dmList) == 0 {
 		// return nil, errors.New("no deployment")
-		return nil, nil
+		return c.GetDeployment(dgName) // 临时方案, 对tke的服务初次部署时, 尝试查找和dgName同名的deployment
+		// return nil, nil
 	}
 	if target == "newest" {
 		dm = dmList[len(dmList)-1]

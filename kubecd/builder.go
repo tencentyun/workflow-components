@@ -1,11 +1,11 @@
 package main
 
 import (
-	"kubecd/k8s"
 	"errors"
 	"fmt"
 	"io/ioutil"
 	extv1beta1 "k8s.io/api/extensions/v1beta1"
+	"kubecd/k8s"
 	"path/filepath"
 	"strconv"
 	"strings"
@@ -255,8 +255,8 @@ func (b *Builder) deploy() (err error) {
 		}
 		dm, err = c.GetDeploymentByDeployGroup(b.DeployGroup, target)
 	}
-	if err != nil {
-		return
+	if dm == nil {
+		return fmt.Errorf("can not get deployment template %s", err)
 	}
 
 	info := &k8s.DeployInfo{
@@ -324,8 +324,8 @@ func (b *Builder) scale() (err error) {
 	} else {
 		dm, err = c.GetDeploymentByDeployGroup(b.DeployGroup, b.DeployTarget)
 	}
-	if err != nil {
-		return
+	if dm == nil {
+		return fmt.Errorf("can not get deployment target %s", err)
 	}
 
 	//svc, err := c.GetService(b.Services)
@@ -359,8 +359,8 @@ func (b *Builder) disable() (err error) {
 	} else {
 		dm, err = c.GetDeploymentByDeployGroup(b.DeployGroup, b.DeployTarget)
 	}
-	if err != nil {
-		return
+	if dm == nil {
+		return fmt.Errorf("can not get deployment target %s", err)
 	}
 
 	if err := c.DisableDeploymentAllTraffic(dm); err != nil {
@@ -378,8 +378,8 @@ func (b *Builder) enable() (err error) {
 	} else {
 		dm, err = c.GetDeploymentByDeployGroup(b.DeployGroup, b.DeployTarget)
 	}
-	if err != nil {
-		return
+	if dm == nil {
+		return fmt.Errorf("can not get deployment target %s", err)
 	}
 
 	if err := c.EnableDeploymentAllTraffic(dm); err != nil {
@@ -397,8 +397,9 @@ func (b *Builder) delete() (err error) {
 	} else {
 		dm, err = c.GetDeploymentByDeployGroup(b.DeployGroup, b.DeployTarget)
 	}
-	if err != nil {
-		return
+
+	if dm == nil {
+		return fmt.Errorf("can not get deployment target %s", err)
 	}
 	// envs := b.envs
 	// svc, err := c.GetService(b.Services)
@@ -459,11 +460,9 @@ func (b *Builder) rollback() (err error) {
 	} else {
 		fromDm, err = c.GetDeploymentByDeployGroup(b.DeployGroup, b.FromDeployTarget)
 	}
-	if err != nil {
-		return
-	}
+
 	if fromDm == nil {
-		return errors.New("cat not find from deployment")
+		return fmt.Errorf("can not get to deployment %s", err)
 	}
 
 	if b.ToDeploymentName != "" {
@@ -471,11 +470,9 @@ func (b *Builder) rollback() (err error) {
 	} else {
 		toDm, err = c.GetDeploymentByDeployGroup(b.DeployGroup, b.ToDeployTarget)
 	}
-	if err != nil {
-		return
-	}
+
 	if toDm == nil {
-		return errors.New("cat not find to deployment")
+		return fmt.Errorf("can not get from deployment %s", err)
 	}
 
 	if fromDm.Name == toDm.Name {
