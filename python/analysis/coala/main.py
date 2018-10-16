@@ -7,7 +7,7 @@ import sys
 def main():
     env_list = [
         'GIT_CLONE_URL', 'GIT_REF',
-        "_WORKFLOW_GIT_CLONE_URL", "_WORKFLOW_GIT_REF",
+        "_WORKFLOW_GIT_CLONE_URL", "_WORKFLOW_GIT_REF", "_WORKFLOW_FLAG_CACHE"
         'BEARS', 'FILES']
     envs = {}
     for env_name in env_list:

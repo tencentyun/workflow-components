@@ -12,6 +12,7 @@ import (
 
 const (
 	APP_ID  = "3321337994"
+	QTA_URL = "http://qta.tencentyun.com"
 	RUN_URL = "http://qta.tencentyun.com/api/v1/task/task/"
 )
 
@@ -180,9 +181,10 @@ func (b *Builder) showQtaReport() error {
 	}
 
 	type testCase struct {
+		ID       int    `json:"id"`
 		Name     string `json:"name"`
 		Result   string `json:"result"`
-		ReportID string `json:"report_id"`
+		ReportID int    `json:"report_id"`
 		Reason   string `json:"reason"`
 	}
 
@@ -196,6 +198,12 @@ func (b *Builder) showQtaReport() error {
 	}
 
 	fmt.Printf("report from QTA:%+v\n", queryRes)
+
+	fmt.Println("follows, urls report more test case detail:")
+	for _, tc := range queryRes.Results {
+		detail := fmt.Sprintf("%s/api/v1/report/%s/case/%d/info/html/", QTA_URL, b.reportID, tc.ID)
+		fmt.Println(detail)
+	}
 
 	return nil
 }

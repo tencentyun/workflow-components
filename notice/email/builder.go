@@ -17,15 +17,18 @@ import (
 const STAGE_TYPE_END = "end"
 
 type Builder struct {
-	FromUser     string
-	Secret       string
-	ToUsers      string
-	Subject      string
-	Type         string
-	Server       string
-	Port         string
-	Body         string
-	EmailContent EmailContent
+	FromUser       string
+	Secret         string
+	ToUsers        string
+	Subject        string
+	Type           string
+	Server         string
+	Port           string
+	Body           string
+	PauseFlag      bool
+	PauseResumeURL string
+	PauseStopURL   string
+	EmailContent   EmailContent
 }
 
 func NewBuilder(envs map[string]string) (*Builder, error) {
@@ -58,10 +61,19 @@ func NewBuilder(envs map[string]string) (*Builder, error) {
 		fmt.Printf("smtp_server: %s, smtp_port: %s\n", b.Server, b.Port)
 	}
 
+	b.PauseFlag = strings.ToLower(envs["_WORKFLOW_FLAG_PAUSE_NOTICE"]) == "true"
+	if b.PauseFlag {
+		b.PauseResumeURL = envs["_WORKFLOW_FLOW_PAUSE_HOOK_RESUME_API"]
+		b.PauseStopURL = envs["_WORKFLOW_FLOW_PAUSE_HOOK_STOP_API"]
+	}
+
 	b.Subject = envs["SUBJECT"]
 
 	if envs["TEXT"] != "" {
 		b.Body = envs["TEXT"]
+		if b.PauseFlag == true {
+			b.Body += fmt.Sprintf("<br><br>当前工作流处于暂停状态<br>继续执行链接:%s<br>终止执行链接:%s", b.PauseResumeURL, b.PauseStopURL)
+		}
 		return b, nil
 	}
 
@@ -71,9 +83,11 @@ func NewBuilder(envs map[string]string) (*Builder, error) {
 		return nil, err
 	}
 
-	fmt.Printf("show: %+v\n", task)
+	taskNew := getFlowTaskSupportPause(task, b.PauseFlag, b.PauseResumeURL, b.PauseStopURL)
 
-	data, err := ParseTemplate(task)
+	fmt.Printf("show: %+v\n", taskNew)
+
+	data, err := ParseTemplate(taskNew)
 	if err != nil {
 		return nil, err
 	}
@@ -82,7 +96,24 @@ func NewBuilder(envs map[string]string) (*Builder, error) {
 	return b, nil
 }
 
+func getFlowTaskSupportPause(task *FlowTask, flag bool, resume, stop string) *FlowTaskNew {
+	return &FlowTaskNew{
+		Namespace:      task.Namespace,
+		Repo:           task.Repo,
+		Name:           task.Name,
+		Status:         task.Status,
+		Start:          task.Start,
+		End:            task.End,
+		DetailURL:      task.DetailURL,
+		Stages:         task.Stages,
+		PauseFlag:      flag,
+		PauseResumeURL: resume,
+		PauseStopURL:   stop,
+	}
+}
+
 func (b *Builder) run() error {
+	fmt.Printf("builder: %+v\n", b)
 	if err := b.SendEmail(); err != nil {
 		log.Printf("Failed to send the email to %s\n", b.ToUsers)
 		return err
@@ -92,10 +123,11 @@ func (b *Builder) run() error {
 	return nil
 }
 
-func ParseTemplate(data *FlowTask) (string, error) {
+func ParseTemplate(data *FlowTaskNew) (string, error) {
 	var fileName = "/usr/bin/template.html"
+	// var fileName = "template.html"
 
-	t, err := template.New("template.html").Funcs(template.FuncMap{"myFunc": myFunc, "totalTime": timeConsuming}).ParseFiles(fileName)
+	t, err := template.New("template.html").Funcs(template.FuncMap{"myFunc": myFunc, "totalTime": timeConsuming, "pauseInfo": getPauseInfo}).ParseFiles(fileName)
 	if err != nil {
 		return "", err
 	}
@@ -130,6 +162,31 @@ func timeConsuming(start *time.Time, end *time.Time) string {
 		totalTime = fmt.Sprintf("总耗时: %d 秒", (int64)(end.Sub(*start).Seconds()))
 	}
 	return totalTime
+}
+
+func getPauseInfo(flag bool, resume, stop string) template.HTML {
+	var info = ""
+	if flag == true {
+		info = fmt.Sprintf(`
+      <tr class="pause">
+        <td style="padding: 40px 0 0 0;">
+        <p> 当前工作流处于暂停状态 </p>
+          <table border="0" cellspacing="0" cellpadding="0" class="buttonwrapper">
+            <tr>
+              <td class="button" height="35">
+                点击链接继续执行: <a href=%s target="_blank">%s</a>
+              </td>
+            </tr>
+            <tr>
+              <td class="button" height="35">
+                点击链接停止执行: <a href=%s target="_blank">%s</a>
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>`, resume, resume, stop, stop)
+	}
+	return template.HTML(info)
 }
 
 func (b *Builder) SendEmail() error {

@@ -17,10 +17,13 @@ const STAGE_TYPE_END = "end"
 const baseSpace = "/root/src"
 
 type Builder struct {
-	Webhook   string
-	AtMobiles []string
-	IsAtAll   bool
-	Message   string
+	Webhook        string
+	AtMobiles      []string
+	IsAtAll        bool
+	Message        string
+	PauseFlag      bool
+	PauseResumeURL string
+	PauseStopURL   string
 
 	payload interface{}
 }
@@ -47,8 +50,18 @@ func NewBuilder(envs map[string]string) (*Builder, error) {
 		IsAtAll:   b.IsAtAll,
 	}
 
+	b.PauseFlag = strings.ToLower(envs["_WORKFLOW_FLAG_PAUSE_NOTICE"]) == "true"
+
+	if b.PauseFlag {
+		b.PauseResumeURL = envs["_WORKFLOW_FLOW_PAUSE_HOOK_RESUME_API"]
+		b.PauseStopURL = envs["_WORKFLOW_FLOW_PAUSE_HOOK_STOP_API"]
+	}
+
 	if envs["MESSAGE"] != "" {
 		b.Message = envs["MESSAGE"]
+		if b.PauseFlag {
+			b.Message += fmt.Sprintf("\n\n当前工作流处于暂停状态\n继续执行链接:%s\n终止执行链接:%s", b.PauseResumeURL, b.PauseStopURL)
+		}
 
 		text := Text{
 			Content: b.Message,
@@ -71,18 +84,19 @@ func NewBuilder(envs map[string]string) (*Builder, error) {
 		return nil, err
 	}
 
+	taskNew := getFlowTaskNew(task, b.PauseFlag, b.PauseResumeURL, b.PauseStopURL)
 	//use template
 	t := template.New("taskflow")
-	t.Funcs(template.FuncMap{"myFunc": showStage, "totalTime": timeConsuming})
+	t.Funcs(template.FuncMap{"myFunc": showStage, "totalTime": timeConsuming, "pauseInfo": getPauseInfo})
 	t, _ = t.Parse(`### {{.Name}}{{"\n"}}状态: {{ .Status}}{{"\n"}}{{totalTime .Start .End}}{{"\n"}}
 		{{range .Stages}}
     		{{myFunc .}}
 		{{end}}
-		{{"\n"}}[点击链接查看详情]({{.DetailURL}})
+		{{"\n"}}[点击链接查看详情]({{.DetailURL}}{{"\n"}}{{pauseInfo .PauseFlag .PauseResumeURL .PauseStopURL}})
 		`)
 
 	buf := new(bytes.Buffer)
-	t.Execute(buf, task)
+	t.Execute(buf, taskNew)
 	fmt.Println(buf.String())
 
 	md := Markdown{
@@ -98,6 +112,21 @@ func NewBuilder(envs map[string]string) (*Builder, error) {
 
 	return b, nil
 
+}
+func getFlowTaskNew(task *FlowTask, flag bool, resume, stop string) *FlowTaskNew {
+	return &FlowTaskNew{
+		Namespace:      task.Namespace,
+		Repo:           task.Repo,
+		Name:           task.Name,
+		Status:         task.Status,
+		Start:          task.Start,
+		End:            task.End,
+		DetailURL:      task.DetailURL,
+		Stages:         task.Stages,
+		PauseFlag:      flag,
+		PauseResumeURL: resume,
+		PauseStopURL:   stop,
+	}
 }
 func showStage(stage Stage) string {
 	var mdText = "\n"
@@ -123,6 +152,14 @@ func timeConsuming(start *time.Time, end *time.Time) string {
 		totalTime = fmt.Sprintf("总耗时: %d 秒", (int64)(end.Sub(*start).Seconds()))
 	}
 	return totalTime
+}
+
+func getPauseInfo(flag bool, resume, stop string) string {
+	var info string
+	if flag {
+		info = fmt.Sprintf("\n\n当前工作流处于暂停状态\n继续执行链接:%s\n终止执行链接:%s", resume, stop)
+	}
+	return info
 }
 
 func (b *Builder) run() error {

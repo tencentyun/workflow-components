@@ -25,8 +25,7 @@ LABEL TencentHubComponent='{\
     {"name": "USERS", "desc": "选填，接受信息的个人用户，多个用户之间通过'|'分割, 注意: USERS、PARTYS、TAGS不能同时为空"},\
     {"name": "PARTYS", "desc": "选填，接受信息的群组用户，多个群组之间通过'|'分割"},\
     {"name": "TAGS", "desc": "选填，接受信息的标签用户，多个标签之间通过'|'分割"},\
-    {"name": "MESSAGE", "desc": "选填，发送的信息内容"},\
-    {"name": "_WORKFLOW_FLAG_TASK_DETAIL", "default": "true", "desc": "非必填，如果为true, workflow将发送当前工作流的执行详情"}\
+    {"name": "MESSAGE", "desc": "选填，发送的信息内容"}\
   ],\
   "output": []\
 }'

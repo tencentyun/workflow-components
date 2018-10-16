@@ -3,6 +3,7 @@ import subprocess
 import os
 
 BASE_SPACE = "/root/src"
+CACHE_SPACE = "/workflow-cache"
 
 class Builder:
     def __init__(self, envs):
@@ -22,13 +23,24 @@ class Builder:
         if not self.files:
             self.files = './**/*.py'
 
-    def run(self):
-        os.chdir(BASE_SPACE)
+        self.workflow_cache = envs.get("_WORKFLOW_FLAG_CACHE").lower() == "true"
+        if self.workflow_cache:
+            self.work_dir = CACHE_SPACE
+        else:
+            self.work_dir = BASE_SPACE
 
-        return self.git_pull() and self.git_reset() and self.build() 
+        self.git_dir = os.path.join(self.work_dir, self.project_name)
+
+    def run(self):
+        os.chdir(self.git_dir)
+
+        if os.path.exists(self.git_dir) == True:
+            return self.build()
+        else:
+            return self.git_pull() and self.git_reset() and self.build() 
 
     def git_pull(self):
-        cmd = ['git', 'clone', '--recurse-submodules', self.git_clone_URL, self.project_name]
+        cmd = ['git', 'clone', '--recurse-submodules', self.git_dir]
         print("Run CMD %s" % ' '.join(cmd), file=sys.stdout)
         r = subprocess.run(cmd)
 
@@ -41,7 +53,7 @@ class Builder:
     def git_reset(self):
         cmd = ['git', 'checkout', self.git_ref, '--']
         print("Run CMD %s" % ' '.join(cmd), file=sys.stdout)
-        r = subprocess.run(cmd, cwd=os.path.join(BASE_SPACE, self.project_name))
+        r = subprocess.run(cmd, cwd=self.git_dir)
 
         if (r.returncode == 0):
             return True
@@ -52,7 +64,7 @@ class Builder:
     def build(self):
         cmd = ['flake8', '--filename', self.files]
         print("Run CMD %s" % (' '.join(cmd)), file=sys.stdout)
-        r = subprocess.run(cmd, cwd=os.path.join(BASE_SPACE, self.project_name), stdout=subprocess.PIPE)
+        r = subprocess.run(cmd, cwd=self.git_dir, stdout=subprocess.PIPE)
 
         out = str(r.stdout, 'utf-8').strip()
         print(out, file=sys.stdout)
