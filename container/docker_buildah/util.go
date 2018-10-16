@@ -3,22 +3,14 @@ package main
 import (
 	"bytes"
 	"fmt"
-	"math/rand"
 	"regexp"
-	"strings"
 	"time"
 )
 
 const (
-	tagMinLen   = 1
-	tagMaxLen   = 128
-	imageMinLen = 1
-	imageMaxLen = 255
+	tagMinLen = 1
+	tagMaxLen = 128
 )
-
-func init() {
-	rand.Seed(time.Now().UnixNano())
-}
 
 var letterRunes = []rune("abcdefghijklmnopqrstuvwxyz")
 
@@ -84,22 +76,6 @@ func GenImageTag(tagFormat, branch, commit string) (string, error) {
 	return tag, nil
 }
 
-func ShortCommitSHA(commitSHA string) string {
-	if len(commitSHA) > 7 {
-		return commitSHA[:7]
-	}
-
-	return commitSHA
-}
-
-func RandStringRunes(n int) string {
-	b := make([]rune, n)
-	for i := range b {
-		b[i] = letterRunes[rand.Intn(len(letterRunes))]
-	}
-	return string(b)
-}
-
 func isIllegalLength(s string, min int, max int) bool {
 	if min == -1 {
 		return (len(s) > max)
@@ -108,19 +84,6 @@ func isIllegalLength(s string, min int, max int) bool {
 		return (len(s) < min)
 	}
 	return (len(s) < min || len(s) > max)
-}
-
-func ValidateImageName(image string) error {
-	if isIllegalLength(image, imageMinLen, imageMaxLen) {
-		return fmt.Errorf("image is illegal in length. (greater than %d or less than %d)",
-			imageMinLen, imageMaxLen)
-	}
-	validImage := regexp.MustCompile("^[a-z0-9]+(?:[._-][a-z0-9]+)*$")
-	legal := validImage.MatchString(image)
-	if !legal {
-		return fmt.Errorf("image name:%s contains illegal characters!", image)
-	}
-	return nil
 }
 
 var validTag = regexp.MustCompile("^\\w+[\\w.-]*$")
@@ -135,14 +98,6 @@ func ValidateTagName(tag string) error {
 		return fmt.Errorf("tag:%s contains illegal characters!", tag)
 	}
 	return nil
-}
-
-func ParseSimpleArg(s string) (string, string) {
-	var index = strings.Index(s, "=")
-	if index < 0 {
-		return s, ""
-	}
-	return s[:index], s[index+1:]
 }
 
 // add new hub into /etc/containers/registries.conf

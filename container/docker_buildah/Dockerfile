@@ -38,6 +38,7 @@ LABEL TencentHubComponent='{\
   "output": [\
     {"name": "IMAGE", "desc": "构建的镜像地址, 不包含tag名称,"},\
     {"name": "IMAGE_ID", "desc": "构建镜像生成的Image ID"},\
+    {"name": "IMAGE_WITH_TAG", "desc": "构建的镜像地址, 包含tag名称"},\
     {"name": "IMAGE_DIGEST", "desc": "构建镜像生成的Digest"}\
   ]\
 }'

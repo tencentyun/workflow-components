@@ -33,6 +33,8 @@ type Builder struct {
 	BuildArgs      string
 	NoCache        bool
 
+	WorkflowCache bool
+
 	HubUser  string
 	HubToken string
 
@@ -43,7 +45,7 @@ type Builder struct {
 	projectName   string
 	envs          map[string]string
 
-	WorkflowCache bool
+
 	workDir       string
 	gitDir        string
 }
@@ -96,7 +98,7 @@ func NewBuilder(envs map[string]string) (*Builder, error) {
 		part := strings.SplitN(b.Image, "/", 2)
 		b.hub = part[0]
 	} else {
-		b.hub = "docker.io" // default server
+		b.hub = DOCKER_HUB // default server
 		//set image: docker.io/hale/imagename:tag
 		b.Image = b.hub + "/" + b.Image
 	}
@@ -195,6 +197,7 @@ func (b *Builder) run() error {
 
 	fmt.Printf("[JOB_OUT] IMAGE = %s\n", b.Image)
 	fmt.Printf("[JOB_OUT] IMAGE_TAG = %s\n", b.ImageTag)
+	fmt.Printf("[JOB_OUT] IMAGE_WITH_TAG = %s:%s\n", b.Image, b.ImageTag)
 
 	if err := b.cleanImage(imageURL); err != nil {
 		return err
@@ -205,7 +208,7 @@ func (b *Builder) run() error {
 
 func (b *Builder) gitPull() error {
 	var command = []string{"git", "clone", "--recurse-submodules", b.GitCloneURL, b.projectName}
-	if _, err := (CMD{Command: command}).Run(); err != nil {
+	if _, err := (CMD{command, b.workDir}).Run(); err != nil {
 		fmt.Println("Clone project failed:", err)
 		return err
 	}
@@ -324,16 +327,6 @@ func (b *Builder) build(imageURL string) error {
 	return nil
 }
 
-func (b *Builder) newTag(old, new string) error {
-	var command = []string{"buildah", "tag", old, new}
-	if _, err := (CMD{Command: command}).Run(); err != nil {
-		fmt.Println("Run buildah tag failed:", err)
-		return err
-	}
-	fmt.Println("Run buildah tag succeed.")
-	return nil
-}
-
 func (b *Builder) push(imageURL string) error {
 	var command = []string{"podman", "push", imageURL}
 	if _, err := (CMD{Command: command}).Run(); err != nil {
@@ -344,29 +337,13 @@ func (b *Builder) push(imageURL string) error {
 	return nil
 }
 
-func (b *Builder) cleanImage(imageURL string) error {
-	var command = []string{"buildah", "rmi", imageURL}
+func (b *Builder) newTag(old, new string) error {
+	var command = []string{"buildah", "tag", old, new}
 	if _, err := (CMD{Command: command}).Run(); err != nil {
-		fmt.Println("Run buildah rmi", imageURL, "failed:", err)
+		fmt.Println("Run buildah tag failed:", err)
 		return err
 	}
-	fmt.Println("clean local image completely.")
-	return nil
-}
-
-func ensureDirExists(dir string) (err error) {
-	f, err := os.Stat(dir)
-	if err != nil {
-		if os.IsNotExist(err) {
-			return os.MkdirAll(dir, os.FileMode(0755))
-		}
-		return err
-	}
-
-	if !f.IsDir() {
-		return fmt.Errorf("%s is not dir", dir)
-	}
-
+	fmt.Println("Run buildah tag succeed.")
 	return nil
 }
 
@@ -406,6 +383,31 @@ func (b *Builder) pluckImageDigest(imageURL string) error {
 		fmt.Printf("[JOB_OUT] IMAGE_DIGEST = %s\n", output)
 	} else {
 		return errors.New("Can not get image digest")
+	}
+
+	return nil
+}
+func (b *Builder) cleanImage(imageURL string) error {
+	var command = []string{"buildah", "rmi", imageURL}
+	if _, err := (CMD{Command: command}).Run(); err != nil {
+		fmt.Println("Run buildah rmi", imageURL, "failed:", err)
+		return err
+	}
+	fmt.Println("clean local image completely.")
+	return nil
+}
+
+func ensureDirExists(dir string) (err error) {
+	f, err := os.Stat(dir)
+	if err != nil {
+		if os.IsNotExist(err) {
+			return os.MkdirAll(dir, os.FileMode(0755))
+		}
+		return err
+	}
+
+	if !f.IsDir() {
+		return fmt.Errorf("%s is not dir", dir)
 	}
 
 	return nil
