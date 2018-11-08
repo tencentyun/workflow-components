@@ -5,18 +5,26 @@ import (
 	"os"
 )
 
-func main() {
+var envList = []string{
+	"CACHE_ID",
+}
 
-	builder, err := NewBuilder()
+func main() {
+	envs := make(map[string]string)
+	for _, envName := range envList {
+		envs[envName] = os.Getenv(envName)
+	}
+
+	builder, err := NewBuilder(envs)
 	if err != nil {
 		fmt.Println("BUILDER FAILED: ", err)
 		os.Exit(1)
 	}
 
 	if err := builder.run(); err != nil {
-		fmt.Println("INIT FAILED: ", err)
+		fmt.Println("CLEAN FAILED: ", err)
 		os.Exit(1)
 	} else {
-		fmt.Println("INIT SUCCEED")
+		fmt.Println("CLEAN SUCCEED")
 	}
 }

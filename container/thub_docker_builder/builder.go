@@ -220,7 +220,8 @@ func (b *Builder) GenImageTag() error {
 
 	// Get commit ID
 	if b.GitType != "commit" {
-		command := []string{"git", "show", "-s", "--format=%H", b.GitRef, "--"}
+		command := []string{"git", "show", "-s", "--format=%H"}
+		// command := []string{"git", "show", "-s", "--format=%H", b.GitRef, "--"}
 		output, err := (CMD{command, b.gitDir}).Run()
 		if err != nil {
 			fmt.Println("get git commit id failed:", err)

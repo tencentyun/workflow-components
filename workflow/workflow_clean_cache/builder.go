@@ -10,11 +10,18 @@ const baseSpace = "/root/src"
 
 // Builder is
 type Builder struct {
+	CacheID string
 }
 
 // NewBuilder is
-func NewBuilder() (*Builder, error) {
-	b := &Builder{}
+func NewBuilder(envs map[string]string) (*Builder, error) {
+	b := &Builder{
+		CacheID: envs["CACHE_ID"],
+	}
+
+	if b.CacheID == "" {
+		return nil, fmt.Errorf("envionment variable CACHE_ID is required")
+	}
 
 	return b, nil
 }
@@ -29,7 +36,7 @@ func (b *Builder) run() error {
 
 func (b *Builder) cleanCache() error {
 	// command := []string{"rm", "-rf", "/workflow-cache/*"} // why this not working?
-	command := []string{"/bin/sh", "-c", "rm -rf /workflow-cache/*"}
+	command := []string{"/bin/sh", "-c", fmt.Sprintf("rm -rf /workflow-cache/%s", b.CacheID)}
 	if _, err := (CMD{Command: command}).Run(); err != nil {
 		fmt.Println("clean cache failed:", err)
 		return err
