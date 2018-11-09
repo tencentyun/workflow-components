@@ -1,4 +1,4 @@
-package k8s
+package builder
 
 import (
 	extv1beta1 "k8s.io/api/extensions/v1beta1"

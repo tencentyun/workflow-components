@@ -1,11 +1,10 @@
-package main
+package builder
 
 import (
 	"errors"
 	"fmt"
 	"io/ioutil"
 	extv1beta1 "k8s.io/api/extensions/v1beta1"
-	"kubecd/k8s"
 	"path/filepath"
 	"strconv"
 	"strings"
@@ -49,7 +48,7 @@ type Builder struct {
 	ShrinkTo     int64
 	AutoDeletion bool
 
-	cluster *k8s.Cluster
+	cluster *Cluster
 }
 
 // NewBuilder is
@@ -106,8 +105,8 @@ func NewBuilder(envs map[string]string) (*Builder, error) {
 		}
 		b.Replicas = int32(replicas)
 
-		if envs["STRATEGY"] != k8s.StrategyRecreate && envs["STRATEGY"] != k8s.StrategyBlueGreen &&
-			envs["STRATEGY"] != k8s.StrategyCanary && envs["STRATEGY"] != k8s.StrategyOffline {
+		if envs["STRATEGY"] != StrategyRecreate && envs["STRATEGY"] != StrategyBlueGreen &&
+			envs["STRATEGY"] != StrategyCanary && envs["STRATEGY"] != StrategyOffline {
 			return nil, fmt.Errorf("invalid environment variable STRATEGY: %s", envs["STRATEGY"])
 		}
 
@@ -213,7 +212,7 @@ func NewBuilder(envs map[string]string) (*Builder, error) {
 	return b, nil
 }
 
-func (b *Builder) run() error {
+func (b *Builder) Run() error {
 	err := b.initConfig()
 	if err != nil {
 		return err
@@ -259,7 +258,7 @@ func (b *Builder) deploy() (err error) {
 		return fmt.Errorf("can not get deployment template %s", err)
 	}
 
-	info := &k8s.DeployInfo{
+	info := &DeployInfo{
 		Strategy:    b.Strategy,
 		Template:    dm,
 		DeployGroup: b.DeployGroup,
@@ -508,7 +507,7 @@ func (b *Builder) initConfig() error {
 	}
 
 	conf := filepath.Join(baseSpace, ".kube/config")
-	if cluster, err := k8s.NewCluster(conf, "default-system", b.Namespace); err != nil {
+	if cluster, err := NewCluster(conf, "default-system", b.Namespace); err != nil {
 		return err
 	} else {
 		b.cluster = cluster

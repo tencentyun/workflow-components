@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"strings"
+	"kubecd/builder"
 )
 
 var envList = []string{
@@ -65,13 +66,13 @@ func main() {
 		envs[envName] = strings.TrimSpace(os.Getenv(envName))
 	}
 
-	builder, err := NewBuilder(envs)
+	builder, err := builder.NewBuilder(envs)
 	if err != nil {
 		fmt.Println("BUILDER FAILED: ", err)
 		os.Exit(1)
 	}
 
-	if err := builder.run(); err != nil {
+	if err := builder.Run(); err != nil {
 		fmt.Println("BUILD FAILED: ", err)
 		os.Exit(1)
 	} else {
