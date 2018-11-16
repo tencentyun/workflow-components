@@ -10,7 +10,7 @@ go build -v -o /go/bin/component-docker \
 -gcflags '-N -l' \
 ./*.go
 
-FROM wangke007/my-fedora:v0.1
+FROM hub.tencentyun.com/tencenthub/fedora-buildah:v1.4
 
 USER root
 RUN mkdir -p /root/src

@@ -1,4 +1,4 @@
-## 组件名称：Docker Builder
+## 组件名称：Docker Buildah
 
 ### Docker：
 [Docker]根据Dockerfile生成Docker Image的组件, 并推送到image相关的镜像仓库中, 支持推送到其他平台仓库
@@ -31,8 +31,8 @@
 
 ### 源码地址
 
-Docker Builder: <https://github.com/tencentyun/workflow-components/tree/master/container/docker_builder>
+Docker Buildah: <https://github.com/tencentyun/workflow-components/tree/master/container/docker_buildah>
 
 ### 构建:
 
-`docker build -t hub.tencentyun.com/tencenthub/docker_builder .`
+`docker build -t hub.tencentyun.com/tencenthub/docker_builder:buildah .`

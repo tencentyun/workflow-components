@@ -13,15 +13,18 @@ import (
 )
 
 type Builder struct {
-	CorpId    string
-	AppSecret string
-	Users     string
-	Partys    string
-	Tags      string
-	AgentId   string
-	MsgType   string
-	Message   string
-	Payload   TextCard
+	CorpId         string
+	AppSecret      string
+	Users          string
+	Partys         string
+	Tags           string
+	AgentId        string
+	MsgType        string
+	Message        string
+	PauseFlag      bool
+	PauseResumeURL string
+	PauseStopURL   string
+	Payload        TextCard
 }
 
 func NewBuilder(envs map[string]string) (*Builder, error) {
@@ -56,9 +59,20 @@ func NewBuilder(envs map[string]string) (*Builder, error) {
 		b.Tags = envs["TAGS"]
 	}
 
+	b.PauseFlag = strings.ToLower(envs["_WORKFLOW_FLAG_PAUSE_NOTICE"]) == "true"
+
+	if b.PauseFlag {
+		b.PauseResumeURL = envs["_WORKFLOW_FLOW_PAUSE_HOOK_RESUME_API"]
+		b.PauseStopURL = envs["_WORKFLOW_FLOW_PAUSE_HOOK_STOP_API"]
+	}
+
 	if envs["MESSAGE"] != "" {
 		b.MsgType = "text"
 		b.Message = envs["MESSAGE"]
+
+		if b.PauseFlag {
+			b.Message += fmt.Sprintf("\n\n当前工作流处于暂停状态\n继续执行链接:%s\n终止执行链接:%s", b.PauseResumeURL, b.PauseStopURL)
+		}
 		return b, nil
 	}
 
@@ -67,16 +81,23 @@ func NewBuilder(envs map[string]string) (*Builder, error) {
 	if err != nil {
 		return nil, err
 	}
-	fmt.Println(task)
+
+	taskNew := getFlowTaskNew(task, b.PauseFlag, b.PauseResumeURL, b.PauseStopURL)
 	var totalTime string
-	if task.End != nil && task.Start != nil {
-		totalTime = fmt.Sprintf("总耗时: %d 秒", (int64)(task.End.Sub(*task.Start).Seconds()))
+	if taskNew.End != nil && taskNew.Start != nil {
+		totalTime = fmt.Sprintf("总耗时: %d 秒", (int64)(taskNew.End.Sub(*taskNew.Start).Seconds()))
+	}
+
+	description := fmt.Sprintf(`<div class=\"normal\">状态: %s<br>%s</div>`, taskNew.Status, totalTime)
+
+	if b.PauseFlag {
+		description += fmt.Sprintf(`<div class=\"gray\">当前工作流处于暂停状态</div><div class=\"gray\">继续执行链接:%s<br>终止执行链接:%s</div>`, b.PauseResumeURL, b.PauseStopURL)
 	}
 
 	textCard := TextCard{
-		Title:       fmt.Sprintf("%s/%s/%s", task.Namespace, task.Repo, task.Name),
-		MessageURL:  task.DetailURL,
-		Description: fmt.Sprintf("状态: %s\n%s", task.Status, totalTime),
+		Title:       fmt.Sprintf("%s/%s/%s", taskNew.Namespace, taskNew.Repo, taskNew.Name),
+		MessageURL:  taskNew.DetailURL,
+		Description: description,
 		BtnTxt:      "详情",
 	}
 	b.MsgType = "textcard"
@@ -95,6 +116,21 @@ func (b *Builder) run() error {
 		return err
 	}
 	return nil
+}
+
+func getFlowTaskNew(task *FlowTask, flag bool, resume, stop string) *FlowTaskNew {
+	return &FlowTaskNew{
+		Namespace:      task.Namespace,
+		Repo:           task.Repo,
+		Name:           task.Name,
+		Status:         task.Status,
+		Start:          task.Start,
+		End:            task.End,
+		DetailURL:      task.DetailURL,
+		PauseFlag:      flag,
+		PauseResumeURL: resume,
+		PauseStopURL:   stop,
+	}
 }
 
 func (b *Builder) GetToken() (string, error) {

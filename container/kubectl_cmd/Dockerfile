@@ -20,8 +20,9 @@ CMD ["component-kubectl-cmd"]
 LABEL TencentHubComponent='{\
   "description": "TencentHub 工作流组件, 在预装 kubectl 的环境里执行用户自定义的shell命令",\
   "input": [\
-    {"name": "USERNAME", "desc": "必填，kubernetes 用户名"},\
-    {"name": "PASSWORD", "desc": "必填，kubernetes 用户密码"},\
+    {"name": "USERNAME", "desc": "选填，kubernetes 用户名"},\
+    {"name": "PASSWORD", "desc": "选填，kubernetes 用户密码"},\
+    {"name": "TOKEN", "desc": "选填，kubernetes 登录token"},\
     {"name": "CERTIFICATE", "desc": "必填, kubernetes 证书内容"},\
     {"name": "SERVER", "desc": "必填, kubernetes 服务器地址"},\
     {"name": "CMD", "desc": "必填, 用户自定义shell命令, 支持多行, 使用`/bin/sh -c`执行"}\

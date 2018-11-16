@@ -22,8 +22,7 @@ LABEL TencentHubComponent='{\
     {"name": "WEBHOOK", "desc": "必填, 钉钉机器人Webhook地址"},\
     {"name": "AT_MOBILES", "desc": "非必填，被@人的手机号"},\
     {"name": "IS_AT_ALL", "desc": "非必填，@所有人时:true, 否则为:false"},\
-    {"name": "MESSAGE", "desc": "非必填，自定发送的文本消息"},\
-    {"name": "_WORKFLOW_FLAG_TASK_DETAIL", "default": "true", "desc": "非必填，如果为true, workflow将发送当前工作流的执行详情"}\
+    {"name": "MESSAGE", "desc": "非必填，自定发送的文本消息"}\
   ],\
   "output": [ \
   ]\

@@ -25,8 +25,7 @@ LABEL TencentHubComponent='{\
     {"name": "SECRET", "desc": "必填，SMTP服务器(邮件发送服务器)的授权码(如QQ和163邮箱)或者邮箱的登录密码(如126邮箱)"},\
     {"name": "SMTP_SERVER_PORT", "desc": "必填，SMTP服务器和端口(smtp.example.com:123),根据发送方的邮箱服务提供商确定SMTP服务器，举例:QQ的SMTP是smtp.qq.com:465、163的SMTP是smtp.163.com:465、126的SMTP是smtp.126.com:25等"},\
     {"name": "SUBJECT", "desc": "选填，邮件的主题"},\
-    {"name": "TEXT", "desc": " 选填，邮件的内容"},\
-    {"name": "_WORKFLOW_FLAG_TASK_DETAIL", "default": "true", "desc": "非必填，如果为true, workflow将发送当前工作流的执行详情"}\
+    {"name": "TEXT", "desc": " 选填，邮件的内容"}\
   ],\
   "output": []\
 }'

@@ -45,9 +45,8 @@ type Builder struct {
 	projectName   string
 	envs          map[string]string
 
-
-	workDir       string
-	gitDir        string
+	workDir string
+	gitDir  string
 }
 
 // NewBuilder is
@@ -267,14 +266,14 @@ func (b *Builder) loginRegistry() error {
 		fmt.Println("podman login failed:", err)
 		return err
 	}
-	if b.hub != DOCKER_HUB {
-		err := SetHubConf(b.hub)
-		if err != nil {
-			fmt.Printf("insert hub into /etc/containers/registries.conf failed")
-			return err
-		}
-		fmt.Println("insert hub into /etc/containers/registries.conf failed succ.")
-	}
+	// if b.hub != DOCKER_HUB {
+	// 	err := SetHubConf(b.hub)
+	// 	if err != nil {
+	// 		fmt.Println("insert hub into /etc/containers/registries.conf failed")
+	// 		return err
+	// 	}
+	// 	fmt.Println("insert hub into /etc/containers/registries.conf succ.")
+	// }
 	fmt.Println("podman login succ.")
 	return nil
 }

@@ -15,7 +15,9 @@ type Builder struct {
 	Certificate string
 	Server      string
 	Cmd         string
+	Token       string
 	// Resource    string
+	IsToken bool
 
 	// output string
 }
@@ -24,15 +26,20 @@ type Builder struct {
 func NewBuilder(envs map[string]string) (*Builder, error) {
 	b := &Builder{}
 
-	if envs["USERNAME"] == "" {
-		return nil, fmt.Errorf("envionment variable USERNAME is required")
-	}
-	b.Username = envs["USERNAME"]
+	b.IsToken = (envs["TOKEN"] == "")
 
-	if envs["PASSWORD"] == "" {
-		return nil, fmt.Errorf("envionment variable PASSWORD is required")
+	if b.IsToken {
+		if envs["USERNAME"] == "" {
+			return nil, fmt.Errorf("envionment variable USERNAME is required")
+		}
+		b.Username = envs["USERNAME"]
+		if envs["PASSWORD"] == "" {
+			return nil, fmt.Errorf("envionment variable PASSWORD is required")
+		}
+		b.Username = envs["PASSWORD"]
+	} else {
+		b.Token = envs["TOKEN"]
 	}
-	b.Password = envs["PASSWORD"]
 
 	if envs["CERTIFICATE"] == "" {
 		return nil, fmt.Errorf("envionment variable CERTIFICATE is required")
@@ -73,15 +80,26 @@ func (b *Builder) initConfig() error {
 		return err
 	}
 
-	commands := [][]string{
-		// {"echo", os.Getenv( "CERTIFICATE"), ">", "/root/cluster-ca.crt"},
-		// {"sh", "-c", "echo $CERTIFICATE > /root/cluster-ca.crt"},
-		{"kubectl", "config", "set-credentials", "default-admin", fmt.Sprintf("--username=%s", b.Username), fmt.Sprintf("--password=%s", b.Password)},
-		{"kubectl", "config", "set-cluster", "default-cluster", fmt.Sprintf("--server=%s", b.Server), "--certificate-authority=/root/cluster-ca.crt"},
-		{"kubectl", "config", "set-context", "default-system", "--cluster=default-cluster", "--user=default-admin"},
-		{"kubectl", "config", "use-context", "default-system"},
-		//{"cat", "/root/cluster-ca.crt"},
-		//{"cat", "/root/.kube/config"},
+	var commands [][]string
+
+	if b.IsToken {
+		commands = [][]string{
+			// {"echo", os.Getenv( "CERTIFICATE"), ">", "/root/cluster-ca.crt"},
+			// {"sh", "-c", "echo $CERTIFICATE > /root/cluster-ca.crt"},
+			{"kubectl", "config", "set-credentials", "default-admin", fmt.Sprintf("--username=%s", b.Username), fmt.Sprintf("--password=%s", b.Password)},
+			{"kubectl", "config", "set-cluster", "default-cluster", fmt.Sprintf("--server=%s", b.Server), "--certificate-authority=/root/cluster-ca.crt"},
+			{"kubectl", "config", "set-context", "default-system", "--cluster=default-cluster", "--user=default-admin"},
+			{"kubectl", "config", "use-context", "default-system"},
+			//{"cat", "/root/cluster-ca.crt"},
+			//{"cat", "/root/.kube/config"},
+		}
+	} else {
+		commands = [][]string{
+			{"kubectl", "config", "set-cluster", "default-cluster", fmt.Sprintf("--server=%s", b.Server), "--certificate-authority=/root/cluster-ca.crt"},
+			{"kubectl", "config", "set-credentials", "default-admin", fmt.Sprintf("--token=%s", b.Token)},
+			{"kubectl", "config", "set-context", "default-system", "--cluster=default-cluster", "--user=default-admin"},
+			{"kubectl", "config", "use-context", "default-system"},
+		}
 	}
 
 	for _, command := range commands {

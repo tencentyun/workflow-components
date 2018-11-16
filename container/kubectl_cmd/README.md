@@ -7,8 +7,9 @@
 ### 组件参数
 #### 入参
 
-- `USERNAME` 必填，kubernetes 用户名
-- `PASSWORD` 必填，kubernetes 用户密码
+- `USERNAME` 选填，kubernetes 用户名
+- `PASSWORD` 选填 用户密码
+- `TOKEN` 选填，kubernetes token （用户名密码和token必填一种)
 - `CERTIFICATE` 必填, kubernetes 证书内容
 - `SERVER` 必填, kubernetes 服务器地址
 - `CMD` 必填, 用户自定义shell命令, 支持多行, 使用`/bin/sh -c`执行

@@ -10,6 +10,8 @@ var envList = []string{
 	"PASSWORD",
 	"CERTIFICATE",
 	"SERVER",
+
+	"TOKEN",
 	// "RESOURCE",
 
 	"CMD",
