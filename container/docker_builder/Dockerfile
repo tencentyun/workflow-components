@@ -32,8 +32,7 @@ LABEL TencentHubComponent='{\
     {"name": "BUILD_WORKDIR", "default": ".", "desc": "非必填, 工作路径"},\
     {"name": "DOCKERFILE_PATH", "default": "Dockerfile", "desc": "非必填，Dockerfile路径"},\
     {"name": "NO_CACHE", "default": "false", "desc": "非必填，docker 构建缓存标志"},\
-    {"name": "BUILD_ARGS", "desc": "非必填，传递给`--build-arg`的构建参数, 必须是一个有效的json字符串"},\
-    {"name": "_WORKFLOW_FLAG_DIND", "default": "true", "desc": "必填，需要设置为true来开启镜像构建环境"}\
+    {"name": "BUILD_ARGS", "desc": "非必填，传递给`--build-arg`的构建参数, 必须是一个有效的json字符串"}\
   ],\
   "output": [\
     {"name": "IMAGE", "desc": "构建的镜像地址, 不包含tag名称,"},\
