@@ -36,11 +36,13 @@ func (b *Builder) run() error {
 
 func (b *Builder) cleanCache() error {
 	// command := []string{"rm", "-rf", "/workflow-cache/*"} // why this not working?
+	(CMD{Command: []string{"/bin/sh", "-c", "ls /workflow-cache/"}}).Run()
 	command := []string{"/bin/sh", "-c", fmt.Sprintf("rm -rf /workflow-cache/%s", b.CacheID)}
 	if _, err := (CMD{Command: command}).Run(); err != nil {
 		fmt.Println("clean cache failed:", err)
 		return err
 	}
+	(CMD{Command: []string{"/bin/sh", "-c", "ls /workflow-cache/"}}).Run()
 
 	return nil
 }

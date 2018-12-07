@@ -12,4 +12,3 @@ go build -v -o /go/bin/workflow_clean_cache \
 FROM alpine:3.8
 COPY --from=builder /go/bin/workflow_clean_cache /usr/bin/
 ENTRYPOINT ["/usr/bin/workflow_clean_cache"]
-INIT SUCCEED
