@@ -72,7 +72,24 @@ func NewBuilder(envs map[string]string) (*Builder, error) {
 	if envs["TEXT"] != "" {
 		b.Body = envs["TEXT"]
 		if b.PauseFlag == true {
-			b.Body += fmt.Sprintf("<br><br>当前工作流处于暂停状态<br>继续执行链接:%s<br>终止执行链接:%s", b.PauseResumeURL, b.PauseStopURL)
+			b.Body += fmt.Sprintf(`
+      <tr class="pause">
+        <td style="padding: 40px 0 0 0;">
+        <p> 当前工作流处于暂停状态 </p>
+          <table border="0" cellspacing="0" cellpadding="0" class="buttonwrapper">
+            <tr>
+              <td class="button" height="35">
+                点击链接继续执行: <a href=%s target="_blank">%s</a>
+              </td>
+            </tr>
+            <tr>
+              <td class="button" height="35">
+                点击链接停止执行: <a href=%s target="_blank">%s</a>
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr`, b.PauseResumeURL, b.PauseResumeURL, b.PauseStopURL, b.PauseStopURL)
 		}
 		return b, nil
 	}
@@ -124,8 +141,8 @@ func (b *Builder) run() error {
 }
 
 func ParseTemplate(data *FlowTaskNew) (string, error) {
-	var fileName = "/usr/bin/template.html"
-	// var fileName = "template.html"
+	//var fileName = "/ustemplatemplate.html"
+	var fileName = "template.html"
 
 	t, err := template.New("template.html").Funcs(template.FuncMap{"myFunc": myFunc, "totalTime": timeConsuming, "pauseInfo": getPauseInfo}).ParseFiles(fileName)
 	if err != nil {
@@ -150,7 +167,7 @@ func myFunc(stage Stage) template.HTML {
 		for _, job := range jobs {
 			name := job.Name
 			status := job.Status
-			mdText += fmt.Sprintf("&nbsp &nbsp &nbsp &nbsp %s : %s <br>", name, status)
+			mdText += fmt.Sprintf("&nbsp;&nbsp;&nbsp;&nbsp;%s : %s <br>", name, status)
 		}
 	}
 
