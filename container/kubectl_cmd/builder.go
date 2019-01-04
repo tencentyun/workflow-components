@@ -16,19 +16,16 @@ type Builder struct {
 	Server      string
 	Cmd         string
 	Token       string
-	// Resource    string
-	IsToken bool
-
-	// output string
+	Namespace   string
 }
 
 // NewBuilder is
 func NewBuilder(envs map[string]string) (*Builder, error) {
 	b := &Builder{}
 
-	b.IsToken = (envs["TOKEN"] == "")
-
-	if b.IsToken {
+	if envs["TOKEN"] != "" {
+		b.Token = envs["TOKEN"]
+	} else {
 		if envs["USERNAME"] == "" {
 			return nil, fmt.Errorf("envionment variable USERNAME is required")
 		}
@@ -37,8 +34,6 @@ func NewBuilder(envs map[string]string) (*Builder, error) {
 			return nil, fmt.Errorf("envionment variable PASSWORD is required")
 		}
 		b.Username = envs["PASSWORD"]
-	} else {
-		b.Token = envs["TOKEN"]
 	}
 
 	if envs["CERTIFICATE"] == "" {
@@ -51,10 +46,11 @@ func NewBuilder(envs map[string]string) (*Builder, error) {
 	}
 	b.Server = envs["SERVER"]
 
-	//if envs["RESOURCE"] == "" {
-	//	return nil, fmt.Errorf("envionment variable RESOURCE is required")
-	//}
-	//b.Resource = envs["RESOURCE"]
+	if envs["NAMESPACE"] != "" {
+		b.Namespace = envs["NAMESPACE"]
+	} else {
+		b.Namespace = envs["default"]
+	}
 
 	b.Cmd = envs["CMD"]
 	return b, nil
@@ -67,9 +63,6 @@ func (b *Builder) run() error {
 	if err := b.execCmd(); err != nil {
 		return err
 	}
-	// if err := b.RESOURCEapply(); err != nil {
-	// 	return err
-	// }
 
 	return nil
 }
@@ -80,27 +73,25 @@ func (b *Builder) initConfig() error {
 		return err
 	}
 
-	var commands [][]string
+	var commands, c1, c2 [][]string
 
-	if b.IsToken {
-		commands = [][]string{
-			// {"echo", os.Getenv( "CERTIFICATE"), ">", "/root/cluster-ca.crt"},
-			// {"sh", "-c", "echo $CERTIFICATE > /root/cluster-ca.crt"},
-			{"kubectl", "config", "set-credentials", "default-admin", fmt.Sprintf("--username=%s", b.Username), fmt.Sprintf("--password=%s", b.Password)},
-			{"kubectl", "config", "set-cluster", "default-cluster", fmt.Sprintf("--server=%s", b.Server), "--certificate-authority=/root/cluster-ca.crt"},
-			{"kubectl", "config", "set-context", "default-system", "--cluster=default-cluster", "--user=default-admin"},
-			{"kubectl", "config", "use-context", "default-system"},
-			//{"cat", "/root/cluster-ca.crt"},
-			//{"cat", "/root/.kube/config"},
+	if b.Token != "" {
+		c1 = [][]string{
+			{"kubectl", "config", "set-credentials", "default-admin", fmt.Sprintf("--token=%s", b.Token)},
 		}
 	} else {
-		commands = [][]string{
-			{"kubectl", "config", "set-cluster", "default-cluster", fmt.Sprintf("--server=%s", b.Server), "--certificate-authority=/root/cluster-ca.crt"},
-			{"kubectl", "config", "set-credentials", "default-admin", fmt.Sprintf("--token=%s", b.Token)},
-			{"kubectl", "config", "set-context", "default-system", "--cluster=default-cluster", "--user=default-admin"},
-			{"kubectl", "config", "use-context", "default-system"},
+		c1 = [][]string{
+			{"kubectl", "config", "set-credentials", "default-admin", fmt.Sprintf("--username=%s", b.Username), fmt.Sprintf("--password=%s", b.Password)},
 		}
 	}
+
+	c2 = [][]string{
+		{"kubectl", "config", "set-cluster", "default-cluster", fmt.Sprintf("--server=%s", b.Server), "--certificate-authority=/root/cluster-ca.crt"},
+		{"kubectl", "config", "set-context", "default-system", "--cluster=default-cluster", "--user=default-admin", fmt.Sprintf("--namespace=%s", b.Namespace)},
+		{"kubectl", "config", "use-context", "default-system"},
+	}
+
+	commands = append(c1, c2...)
 
 	for _, command := range commands {
 		if _, err := (CMD{Command: command}).Run(); err != nil {

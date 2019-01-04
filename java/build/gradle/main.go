@@ -11,6 +11,7 @@ var envList = []string{
 	"_WORKFLOW_GIT_CLONE_URL",
 	"_WORKFLOW_GIT_REF",
 	"ENTRY_FILE",
+	"GRADLE_TASK",
 
 	"HUB_REPO", "ARTIFACT_TAG", "ARTIFACT_PATH",
 

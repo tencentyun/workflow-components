@@ -12,7 +12,7 @@ var envList = []string{
 	"SERVER",
 
 	"TOKEN",
-	// "RESOURCE",
+	"NAMESPACE",
 
 	"CMD",
 }

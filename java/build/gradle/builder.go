@@ -19,6 +19,7 @@ type Builder struct {
 	GitCloneURL string
 	GitRef      string
 	EntryFile   string
+	Task        string
 
 	HubRepo      string
 	HubUser      string
@@ -56,6 +57,11 @@ func NewBuilder(envs map[string]string) (*Builder, error) {
 
 	if b.GitRef = envs["GIT_REF"]; b.GitRef == "" {
 		b.GitRef = "master"
+	}
+
+	b.Task = strings.TrimSpace(strings.TrimPrefix(strings.TrimSpace(envs["GRADLE_TASK"]), "gradle "))
+	if b.Task == "" {
+		b.Task = "jar"
 	}
 
 	if b.EntryFile = envs["ENTRY_FILE"]; b.EntryFile == "" {
@@ -118,11 +124,10 @@ func (b *Builder) run() error {
 }
 
 func (b *Builder) build() error {
-	var command = []string{"gradle", "jar"}
+	var command = []string{"gradle"}
 
-	command = append(command, "-b", b.EntryFile)
+	command = append(command, b.Task, "-b", b.EntryFile)
 
-	cwd, _ := os.Getwd()
 	if _, err := (CMD{command, b.gitDir}).Run(); err != nil {
 		fmt.Println("Run gradle jar failed:", err)
 		return err
@@ -190,7 +195,6 @@ func (b *Builder) gitPull() error {
 }
 
 func (b *Builder) gitReset() error {
-	cwd, _ := os.Getwd()
 	var command = []string{"git", "checkout", b.GitRef, "--"}
 	if _, err := (CMD{command, b.gitDir}).Run(); err != nil {
 		fmt.Println("Switch to commit", b.GitRef, "failed:", err)
