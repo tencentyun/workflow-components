@@ -80,7 +80,8 @@ func NewBuilder(envs map[string]string) (*Builder, error) {
 		return nil, fmt.Errorf("envionment variable HUB_USER, HUB_TOKEN are required")
 	}
 
-	b.HubRepo = envs["HUB_REPO"]
+	b.HubRepo = strings.TrimPrefix(strings.TrimSpace(envs["HUB_REPO"]), "hub.tencentyun.com/")
+	// b.HubRepo = envs["HUB_REPO"]
 	b.ArtifactPath = envs["ARTIFACT_PATH"]
 	b.ArtifactTag = envs["ARTIFACT_TAG"]
 	if b.ArtifactTag == "" {
