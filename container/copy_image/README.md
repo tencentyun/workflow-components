@@ -10,7 +10,7 @@
 - `HUB_USER` 必填，来源镜像仓库用户名, `docker login` 镜像仓库的用户名
 - `HUB_TOKEN` 必填，来源镜像仓库用户token, `docker login` 镜像仓库的用户密码
 - `_WORKFLOW_FLAG_HUB_TOKEN` 可选, 工作流系统标志位, 此标志位如果为`true`, 将自动注入工作流用户名和密码, 因此可以省略`HUB_USER`和`HUB_TOKEN`
-- `IMAGE` 必填, 来源镜像, 如`hub.cloud.tencent.com/fox/from_my_awesome_image`
+- `IMAGE_TAG` 必填, 来源镜像, 如`hub.cloud.tencent.com/fox/from_my_awesome_image`
 - `TO_IMAGE` 必填, 复制的目标镜像, 如`hub.cloud.tencent.com/fox/to_my_awesome_image`
 - `TO_HUB_USER` 必填，复制的镜像仓库用户名, `docker login` 镜像仓库的用户名
 - `TO_HUB_TOKEN` 必填，复制的镜像仓库用户token, `docker login` 镜像仓库的用户密码

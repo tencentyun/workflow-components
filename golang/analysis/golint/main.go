@@ -8,6 +8,7 @@ import (
 var envsList = []string{
 	"GIT_CLONE_URL",
 	"GIT_REF",
+	"BUILD_PACKAGE_NAME",
 	"_WORKFLOW_GIT_CLONE_URL",
 	"_WORKFLOW_GIT_REF",
 	"LINT_PACKAGE",

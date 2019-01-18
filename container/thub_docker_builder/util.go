@@ -144,3 +144,13 @@ func ParseSimpleArg(s string) (string, string) {
 	}
 	return s[:index], s[index+1:]
 }
+
+func GetDockerfileFromUrl(workDir, url string) error {
+	var command = []string{"wget", "-P", workDir, "-O", "Dockerfile", url}
+	if _, err := (CMD{Command: command}).Run(); err != nil {
+		fmt.Println("wget Dockerfile failed:", err)
+		return err
+	}
+	fmt.Println("wget Dockerfile succ.")
+	return nil
+}

@@ -17,4 +17,4 @@ Golang 单元测试工具
 [Golang Gotest Analysis](https://github.com/tencentyun/workflow-components/tree/master/golang/analysis/gotest)
 
 ## 构建
-docker build -t hub.tencentyun.com/tencenthub/golang_analysis_gotest:latest .
+`docker build -t hub.tencentyun.com/tencenthub/golang_analysis_gotest:latest .`
