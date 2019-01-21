@@ -267,7 +267,14 @@ func (b *Builder) build(imageURL string) error {
 	var contextDir = filepath.Join(b.gitDir, b.BuildWorkdir)
 	var dockerfilePath string
 	if b.DockerFilePath != "" {
-		dockerfilePath = filepath.Join(b.gitDir, b.DockerFilePath)
+		if strings.HasPrefix(b.DockerFilePath, "https://") || strings.HasPrefix(b.DockerFilePath, "http://") {
+			if err := GetDockerfileFromUrl(contextDir, b.DockerFilePath); err != nil {
+				return err
+			}
+			dockerfilePath = filepath.Join(contextDir, "Dockerfile")
+		} else {
+			dockerfilePath = filepath.Join(b.gitDir, b.DockerFilePath)
+		}
 	}
 
 	// var command = []string{"docker", "build"}

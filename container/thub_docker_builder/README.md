@@ -14,7 +14,7 @@
 - `EXTRA_IMAGE_TAG` 非必填, 新增目标镜像Tag
 - `IMAGE_TAG_FORMAT` 非必填, 新增镜像Tag的命名格式, 可以使用git 分支名/tag名/commit ID/当前时间等作为命名组成, 如`latest-$branch-$commit-$time`
 - `BUILD_WORKDIR` 非必填, 默认".", 工作路径
-- `DOCKERFILE_PATH` 非必填，默认"Dockerfile"，Dockerfile路径
+- `DOCKERFILE_PATH` 非必填，默认"Dockerfile"，Dockerfile路径，并支持远程url
 - `NO_CACHE` 非必填，默认值是false, 如果为true 将开启`--no-cache`禁用 docker 构建缓存标志
 - `BUILD_ARGS` 非必填，传递给`--build-arg`的构建参数, 必须是一个有效的json字符串, 如`{"HTTP_PROXY":"http://10.20.30.2:1234","TIMEOUT":"10"}`, 将生成构建参数`--build-arg HTTP_PROXY=http://10.20.30.2:1234 --build-arg TIMEOUT=10`
 
