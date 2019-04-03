@@ -1,0 +1,185 @@
+#!/usr/bin/env node
+
+const path = require("path");
+const baseSpace = "/root/src"
+const cacheSpace = "/workflow-cache"
+
+// builder
+function Builder(envs) {
+  if (envs["GIT_CLONE_URL"]) {
+    this.gitCloneURL = envs["GIT_CLONE_URL"].replace(/\/$/, "");
+    this.gitRef = envs["GIT_REF"] ||  "master";
+  } else if (envs["_WORKFLOW_GIT_CLONE_URL"]) {
+    this.gitCloneURL = envs["_WORKFLOW_GIT_CLONE_URL"].replace(/\/$/, "");
+    this.gitRef = envs["_WORKFLOW_GIT_REF"] ||  "master";
+  }
+  if (!this.gitCloneURL) {
+    console.error("envionment variables GIT_CLONE_URL is required");
+    process.exit(1);
+  }
+
+  if (!envs["BUILD_PATH"]) {
+    console.error("envionment variables BUILD_PATH is required");
+    process.exit(1);
+  }
+
+  this.buildPath = envs["BUILD_PATH"];
+  this.buildParams = envs["BUILD_PARAMS"] || '';
+  this.outDir = (envs["OUT_DIR"] || "").replace(/\/$/, "");
+
+  let paths = this.gitCloneURL.replace(/\.git$/, "").split('/');
+  this.projectName = paths[paths.length - 1];
+  this.workflowCache = (envs["_WORKFLOW_FLAG_CACHE"] || "").toLowerCase() == "true"
+  if (this.workflowCache) {
+      this.workDir = cacheSpace
+  } else {
+      this.workDir = baseSpace
+  }
+  this.gitDir = path.join(this.workDir, this.projectName);
+
+  this.hubRepo = (envs["HUB_REPO"] || "").replace(/\/$/, "");
+  if (!this.outDir || !this.hubRepo) {
+      return; // no need upload
+  }
+
+  this.hubUser = envs["HUB_USER"];
+  this.hubToken = envs["HUB_TOKEN"];
+
+  if (!this.hubUser || !this.hubToken) {
+      this.hubUser = envs["_WORKFLOW_HUB_USER"];
+      this.hubToken = envs["_WORKFLOW_HUB_TOKEN"];
+  }
+
+  if (!this.hubUser || !this.hubToken) {
+      console.error("envionment variable HUB_USER, HUB_TOKEN are required\n");
+      process.exit(1);
+  }
+
+  this.artifactPath = (envs["ARTIFACT_PATH"] || "").replace(/\/$/, "");
+  if (this.artifactPath) {
+      this.artifactPath = this.artifactPath + '/';
+  }
+
+  this.artifactTag = envs["ARTIFACT_TAG"];
+  if (!this.artifactTag) {
+      this.artifactTag = "latest";
+  }
+}
+
+Builder.prototype.gitPull = async function() {
+  let cmd = new CMD(`git clone --recurse-submodules ${this.gitCloneURL} ${this.projectName}`, this.workDir);
+  await cmd.run();
+};
+
+Builder.prototype.gitReset = async function() {
+  let cmd = new CMD(`git checkout ${this.gitRef} --`, this.gitDir);
+  await cmd.run();
+};
+
+Builder.prototype.npmInstall = async function() {
+  let cmd = new CMD(`npm install`, this.gitDir);
+  await cmd.run();
+};
+
+Builder.prototype.build = async function() {
+  let command = `uglifyjs ${this.buildParams} ${this.buildPath}`;
+  if (this.outDir) {
+    command = `${command} --out-dir ${this.outDir}`
+  }
+  let cmd = new CMD(command, this.gitDir);
+  await cmd.run();
+};
+
+Builder.prototype.handleArtifacts = async function() {
+   if (!this.hubRepo) {
+        console.log("HUB_REPO is empty, no need upload artifacts");
+        return
+    }
+
+    let artifactsTar = this.outDir + '.tar';
+    let cmd = new CMD(`tar  -cjf ${artifactsTar} ${this.outDir}`, this.gitDir);
+
+    await cmd.run();
+
+    let command = `/.workflow/bin/thub push \
+        --username=${this.hubUser} --password=${this.hubToken} \
+        --repo=${this.hubRepo} \
+        --localpath=${artifactsTar} \
+        --path=${path.join(this.artifactPath, artifactsTar)} \
+        --tag=${this.artifactTag}`
+
+    cmd = new CMD(command, this.gitDir);
+    await cmd.run();
+
+    console.log(`[JOB_OUT] ARTIFACT_URL = ${path.join(this.hubRepo, this.artifactPath, artifactsTar)}\n`)
+    console.log("Run upload artifacts succeed.")
+};
+
+Builder.prototype.run = async function() {
+  try {
+    if (!require('fs').existsSync(this.gitDir)) {
+      await this.gitPull();
+      await this.gitReset();
+      await this.npmInstall();
+    }
+    await this.build();
+    await this.handleArtifacts();
+  } catch (e) {
+    console.error("BUILD FAILED: ", e.message);
+    process.exit(1);
+  }
+};
+
+function CMD(command, cwd) {
+  this.command = command;
+  this.cwd = cwd;
+}
+
+CMD.prototype.run = function() {
+  let cmd = this;
+  let promise = new Promise(function(resolve, reject) {
+    console.log(`Run CMD ${cmd.cwd ? 'in ' + cmd.cwd : ''}: ${cmd.command}`);
+
+    let exec = require('child_process').exec;
+    let e = exec(cmd.command, {cwd: cmd.cwd});
+    let stdout, stderr;
+
+    e.stdout.on('data', data =>{
+      stdout = stdout + data;
+      process.stdout.write(data);
+    });
+    e.stderr.on('data', data =>{
+      stderr = stderr + data;
+      process.stderr.write(data);
+    });
+
+    e.on('exit', (code) => {
+      if (code == 0 || code == null) {
+        resolve(stdout);
+      } else {
+        reject(new Error(`CMD (${cmd.command}) error with code ${code}`));
+      }
+    });
+  });
+  return promise;
+};
+
+// main
+const envList = [
+  "GIT_CLONE_URL", "GIT_REF",
+  "_WORKFLOW_GIT_CLONE_URL", "_WORKFLOW_GIT_REF",
+  "BUILD_PATH", "BUILD_PARAMS", "OUT_DIR",
+
+  "HUB_REPO", "ARTIFACT_TAG", "ARTIFACT_PATH",
+  "HUB_USER",
+  "HUB_TOKEN",
+  "_WORKFLOW_HUB_USER",
+  "_WORKFLOW_HUB_TOKEN",
+  "_WORKFLOW_FLAG_CACHE"
+];
+
+let envs = {};
+for (let envName of envList) {
+  envs[envName] = process.env[envName];
+}
+(new Builder(envs)).run();

@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"fmt"
 	"math/rand"
-	"path/filepath"
 	"regexp"
 	"strings"
 	"time"
@@ -24,7 +23,8 @@ func init() {
 var letterRunes = []rune("abcdefghijklmnopqrstuvwxyz")
 
 func StrNow() string {
-	t := time.Now()
+	var cstZone = time.FixedZone("CST", 8*3600)
+	t := time.Now().In(cstZone)
 	year, month, day := t.Date()
 	hour, min, _ := t.Clock()
 	return fmt.Sprintf("%d%02d%02d%02d%02d", year, month, day, hour, min)
@@ -146,13 +146,14 @@ func ParseSimpleArg(s string) (string, string) {
 	return s[:index], s[index+1:]
 }
 
-func GetDockerfileFromUrl(baseDir, url string) error {
-	var dockerfilePath = filepath.Join(baseDir, "Dockerfile")
-	var command = []string{"wget", "-P", baseDir, "-O", dockerfilePath, url}
-	if _, err := (CMD{Command: command}).Run(); err != nil {
-		fmt.Println("wget Dockerfile failed:", err)
-		return err
-	}
-	fmt.Println("wget Dockerfile succ.")
-	return nil
-}
+// insert new hub into /etc/containers/registries.conf
+// func SetHubConf(hub string) error {
+// 	insert := fmt.Sprintf("12s/docker.io/%s/", hub)
+// 	var command = []string{"sed", "-i", insert, "/etc/containers/registries.conf"}
+// 	if _, err := (CMD{Command: command}).Run(); err != nil {
+// 		fmt.Println("insert registry failed:", err)
+// 		return err
+// 	}
+// 	fmt.Println("insert registry succeed.")
+// 	return nil
+// }

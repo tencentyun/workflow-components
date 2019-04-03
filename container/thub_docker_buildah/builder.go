@@ -11,8 +11,12 @@ import (
 	"time"
 )
 
-const baseSpace = "/root/src"
-const cacheSpace = "/workflow-cache"
+const (
+	baseSpace  = "/root/src"
+	cacheSpace = "/workflow-cache"
+)
+
+const DOCKER_HUB = "docker.io"
 
 // Builder is
 type Builder struct {
@@ -29,8 +33,6 @@ type Builder struct {
 	BuildArgs      string
 	NoCache        bool
 
-	WorkflowCache bool
-
 	HubUser  string
 	HubToken string
 
@@ -41,13 +43,23 @@ type Builder struct {
 	projectName   string
 	envs          map[string]string
 
-	workDir string
-	gitDir  string
+	WorkflowCache bool
+	workDir       string
+	gitDir        string
 }
 
 // NewBuilder is
 func NewBuilder(envs map[string]string) (*Builder, error) {
 	b := &Builder{}
+
+	if envs["_WORKFLOW_FLOW_URL"] == "" {
+		return nil, fmt.Errorf("envionment variable _WORKFLOW_FLOW_URL is required")
+	}
+	paths := strings.Split(envs["_WORKFLOW_FLOW_URL"], "/")
+	b.Image = strings.Join(paths[:len(paths)-1], "/")
+	if b.Image == "" {
+		return nil, fmt.Errorf("envionment variable _WORKFLOW_FLOW_URL is invalid")
+	}
 
 	if envs["GIT_CLONE_URL"] != "" {
 		b.GitCloneURL = envs["GIT_CLONE_URL"]
@@ -66,10 +78,6 @@ func NewBuilder(envs map[string]string) (*Builder, error) {
 		b.GitType = "branch"
 	}
 
-	if envs["IMAGE"] == "" {
-		return nil, fmt.Errorf("envionment variable IMAGE is required")
-	}
-
 	b.HubUser = envs["HUB_USER"]
 	b.HubToken = envs["HUB_TOKEN"]
 
@@ -82,17 +90,12 @@ func NewBuilder(envs map[string]string) (*Builder, error) {
 		return nil, fmt.Errorf("envionment variable HUB_USER, HUB_TOKEN are required")
 	}
 
-	if strings.Index(envs["IMAGE"], ":") > -1 {
-		imageAndTag := strings.Split(envs["IMAGE"], ":")
-		b.Image, b.ImageTag = imageAndTag[0], imageAndTag[1]
-	} else {
-		b.Image = envs["IMAGE"]
-	}
-
 	if strings.Index(b.Image, ".") > -1 {
-		b.hub = b.Image
+		part := strings.SplitN(b.Image, "/", 2)
+		b.hub = part[0]
 	} else {
-		b.hub = "docker.io" // default server
+		b.hub = "index.docker.io" // default server
+		b.Image = b.hub + "/" + b.Image
 	}
 
 	if envs["IMAGE_TAG"] != "" { // 高优先级
@@ -121,7 +124,6 @@ func NewBuilder(envs map[string]string) (*Builder, error) {
 	if envs["_WORKFLOW_BUILD_TYPE"] != "manually" { // 手动构建不看这个参数
 		b.ExtraImageTag = envs["EXTRA_IMAGE_TAG"]
 	}
-
 	b.BuildWorkdir = envs["BUILD_WORKDIR"]
 	b.DockerFilePath = envs["DOCKERFILE_PATH"]
 	b.BuildArgs = envs["BUILD_ARGS"]
@@ -200,7 +202,7 @@ func (b *Builder) run() error {
 
 func (b *Builder) gitPull() error {
 	var command = []string{"git", "clone", "--recurse-submodules", b.GitCloneURL, b.projectName}
-	if _, err := (CMD{command, b.workDir}).Run(); err != nil {
+	if _, err := (CMD{Command: command}).Run(); err != nil {
 		fmt.Println("Clone project failed:", err)
 		return err
 	}
@@ -254,34 +256,33 @@ func (b *Builder) GenImageTag() error {
 }
 
 func (b *Builder) loginRegistry() error {
-	var command = []string{"docker", "login", b.hub, "-u", b.HubUser, "-p", b.HubToken}
+	var command = []string{"podman", "login", b.hub, "-u", b.HubUser, "-p", b.HubToken}
 	if _, err := (CMD{Command: command}).Run(); err != nil {
-		fmt.Println("docker login failed:", err)
+		fmt.Println("podman login failed:", err)
 		return err
 	}
-	fmt.Println("docker login succ.")
+	// if b.hub != DOCKER_HUB {
+	// 	err := SetHubConf(b.hub)
+	// 	if err != nil {
+	// 		fmt.Printf("insert hub into /etc/containers/registries.conf failed")
+	// 		return err
+	// 	}
+	// 	fmt.Println("insert hub into /etc/containers/registries.conf failed succ.")
+	// }
+	fmt.Println("podman login succ.")
 	return nil
 }
 
 func (b *Builder) build(imageURL string) error {
 	var contextDir = filepath.Join(b.gitDir, b.BuildWorkdir)
+
 	var dockerfilePath string
+
+	var command = []string{"buildah", "bud", "--format", "docker"}
+
 	if b.DockerFilePath != "" {
-		if strings.HasPrefix(b.DockerFilePath, "https://") || strings.HasPrefix(b.DockerFilePath, "http://") {
-			if err := GetDockerfileFromUrl(contextDir, b.DockerFilePath); err != nil {
-				return err
-			}
-			dockerfilePath = filepath.Join(contextDir, "Dockerfile")
-		} else {
-			dockerfilePath = filepath.Join(b.gitDir, b.DockerFilePath)
-		}
-	}
-
-	// var command = []string{"docker", "build"}
-	var command = []string{"docker", "build", "--pull"}
-
-	if dockerfilePath != "" {
-		command = append(command, "--file", dockerfilePath)
+		dockerfilePath = filepath.Join(b.gitDir, b.DockerFilePath)
+		command = append(command, "-f", dockerfilePath)
 	}
 
 	if b.NoCache {
@@ -320,30 +321,28 @@ func (b *Builder) build(imageURL string) error {
 }
 
 func (b *Builder) push(imageURL string) error {
-	var command = []string{"docker", "push", imageURL}
+	var command = []string{"podman", "push", imageURL}
 	if _, err := (CMD{Command: command}).Run(); err != nil {
-		fmt.Println("Run docker push failed:", err)
+		fmt.Println("Run podman push failed:", err)
 		return err
 	}
-	fmt.Println("Run docker push succeed.")
+	fmt.Println("Run podman push succeed.")
 	return nil
 }
 
 func (b *Builder) newTag(old, new string) error {
-	var command = []string{"docker", "tag", old, new}
+	var command = []string{"buildah", "tag", old, new}
 	if _, err := (CMD{Command: command}).Run(); err != nil {
-		fmt.Println("Run docker tag failed:", err)
+		fmt.Println("Run buildah tag failed:", err)
 		return err
 	}
-	fmt.Println("Run docker tag succeed.")
+	fmt.Println("Run buildah tag succeed.")
 	return nil
 }
 
 func (b *Builder) pluckImageID(imageURL string) error {
-	// docker inspect hub.cloud.tencent.com/tencenthub/docker_builder:latest --format '{{.Id}}'
-	var command = []string{"docker", "inspect", imageURL, "--format", "{{.Id}}"}
-	// docker images ccr.ccs.tencentyun.com/tencenthub/workflow:latest --format "{{.ID}}"
-	// var command = []string{"docker", "images", b.Image, "--format", "{{.ID}}"}
+	// podman inspect hub.cloud.tencent.com/tencenthub/docker_builder:latest --format '{{.Id}}'
+	var command = []string{"podman", "inspect", "--type", "image", imageURL, "--format", "{{.Id}}"}
 	output, err := (CMD{Command: command}).Run()
 
 	if err != nil {
@@ -361,8 +360,8 @@ func (b *Builder) pluckImageID(imageURL string) error {
 }
 
 func (b *Builder) pluckImageDigest(imageURL string) error {
-	// docker inspect hub.cloud.tencent.com/tencenthub/docker_builder:latest --format '{{index .RepoDigests 0}}'
-	var command = []string{"docker", "inspect", imageURL, "--format", "{{index .RepoDigests 0}}"}
+	// podman inspect hub.cloud.tencent.com/tencenthub/docker_builder:latest --format '{{index .RepoDigests 0}}'
+	var command = []string{"podman", "inspect", "--type", "image", imageURL, "--format", "{{index .RepoDigests 0}}"}
 	output, err := (CMD{Command: command}).Run()
 
 	if err != nil {
@@ -382,7 +381,7 @@ func (b *Builder) pluckImageDigest(imageURL string) error {
 }
 
 func (b *Builder) cleanImage(imageURL string) error {
-	var command = []string{"docker", "rmi", imageURL}
+	var command = []string{"buildah", "rmi", imageURL}
 	if _, err := (CMD{Command: command}).Run(); err != nil {
 		fmt.Println("Run docker rmi", imageURL, "failed:", err)
 		return err
@@ -414,7 +413,8 @@ type CMD struct {
 
 func (c CMD) Run() (string, error) {
 	cmdStr := strings.Join(c.Command, " ")
-	fmt.Printf("[%s] Run CMD: %s\n", time.Now().Format("2006-01-02 15:04:05"), cmdStr)
+	var cstZone = time.FixedZone("CST", 8*3600)
+	fmt.Printf("[%s] Run CMD: %s\n", time.Now().In(cstZone).Format("2006-01-02 15:04:05"), cmdStr)
 
 	cmd := exec.Command(c.Command[0], c.Command[1:]...)
 	if c.WorkDir != "" {

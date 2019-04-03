@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"math/rand"
+	"path/filepath"
 	"regexp"
 	"strings"
 	"time"
@@ -146,7 +147,8 @@ func ParseSimpleArg(s string) (string, string) {
 }
 
 func GetDockerfileFromUrl(baseDir, url string) error {
-	var command = []string{"wget", "-P", baseDir, "-O", "Dockerfile", url}
+	var dockerfilePath = filepath.Join(baseDir, "Dockerfile")
+	var command = []string{"wget", "-P", baseDir, "-O", dockerfilePath, url}
 	if _, err := (CMD{Command: command}).Run(); err != nil {
 		fmt.Println("wget Dockerfile failed:", err)
 		return err

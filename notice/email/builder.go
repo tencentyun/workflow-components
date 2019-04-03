@@ -141,8 +141,8 @@ func (b *Builder) run() error {
 }
 
 func ParseTemplate(data *FlowTaskNew) (string, error) {
-	//var fileName = "/ustemplatemplate.html"
-	var fileName = "template.html"
+	var fileName = "/usr/bin/template.html"
+	// var fileName = "template.html"
 
 	t, err := template.New("template.html").Funcs(template.FuncMap{"myFunc": myFunc, "totalTime": timeConsuming, "pauseInfo": getPauseInfo}).ParseFiles(fileName)
 	if err != nil {

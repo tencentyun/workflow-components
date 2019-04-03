@@ -1,0 +1,22 @@
+package main
+
+import "testing"
+
+func TestRun(t *testing.T) {
+	m := make(map[string]string)
+	m["FROM_USER"] = "1781704348@qq.com"
+	m["TO_USERS"] = "13007525303@163.com, penglei@ybyte.org"
+	m["SECRET"] = "vgcqyxdkzixgdjaj"
+	m["SMTP_SERVER_PORT"] = "smtp.qq.com:465"
+	m["_WORKFLOW_FLAG_PAUSE_NOTICE"] = "true"
+	m["_WORKFLOW_FLOW_PAUSE_HOOK_RESUME_API"] = "https://hub.tencentyun.com/api/flows/workflow_api/pause_hook?id=27346&token=1544418399&pass=true"
+	m["_WORKFLOW_FLOW_PAUSE_HOOK_STOP_API"] = "https://hub.tencentyun.com/api/flows/workflow_api/pause_hook?id=27346&token=1544418399&pass=true"
+	// m["_WORKFLOW_TASK_DETAIL"] = `{"name":"workflow_631579","status":"running","start":"2018-09-25T12:22:41Z","end":"2018-09-25T13:11:41Z","timeout":60,"env":[{"name":"_WORKFLOW_GIT_REF","value":"master","desc":"工作流触发时的git引用, 可以是一个git tag、git branch 或 git commit"},{"name":"_WORKFLOW_GIT_TYPE","value":"branch","desc":"工作流触发时git引用的类型，是字符串 其中一种"},{"name":"_WORKFLOW_BUILD_TYPE","value":"manually"}],"stages":[{"name":"stage_0","status":"success","start":"2018-09-25T12:22:41.191105117Z","end":"2018-09-25T12:22:52.284559265Z","sequencing":"parallel","type":"normal","jobs":[{"name":"job_0_0","status":"success","start":"2018-09-25T12:22:41.192767596Z","end":"2018-09-25T12:22:50.270482816Z","component":"hub.tencentyun.com/tencenthub/alpine_cmd:latest","resources":{"cpu":"1.0","memory":"1024Mi"},"inputs":[{"name":"CMD","value":"ls"}],"input_value":"{\"CMD\":\"ls\",\"_WORKFLOW_BUILD_TYPE\":\"manually\",\"_WORKFLOW_FLOW_TASK_ID\":\"9412\",\"_WORKFLOW_FLOW_UIN\":\"3321337994\",\"_WORKFLOW_FLOW_URL\":\"hub.tencentyun.com/hale/link/workflow_631579\",\"_WORKFLOW_GIT_REF\":\"master\",\"_WORKFLOW_GIT_TYPE\":\"branch\"}","output_value":"{}"},{"name":"job_0_1","status":"success","start":"2018-09-25T12:22:41.19285554Z","end":"2018-09-25T12:22:52.28154334Z","component":"hub.tencentyun.com/tencenthub/alpine_cmd:latest","resources":{"cpu":"1.0","memory":"1024Mi"},"inputs":[{"name":"CMD","value":"ls"}],"input_value":"{\"CMD\":\"ls\",\"_WORKFLOW_BUILD_TYPE\":\"manually\",\"_WORKFLOW_FLOW_TASK_ID\":\"9412\",\"_WORKFLOW_FLOW_UIN\":\"3321337994\",\"_WORKFLOW_FLOW_URL\":\"hub.tencentyun.com/hale/link/workflow_631579\",\"_WORKFLOW_GIT_REF\":\"master\",\"_WORKFLOW_GIT_TYPE\":\"branch\"}","output_value":"{}"}]},{"name":"stage_1","status":"success","start":"2018-09-25T12:22:52.286365835Z","end":"2018-09-25T12:23:10.436901054Z","sequencing":"sequence","type":"normal","jobs":[{"name":"job_1_0","status":"success","start":"2018-09-25T12:22:52.288091822Z","end":"2018-09-25T12:23:01.358998998Z","component":"hub.tencentyun.com/tencenthub/alpine_cmd:latest","resources":{"cpu":"1.0","memory":"1024Mi"},"inputs":[{"name":"CMD","value":"ls"}],"input_value":"{\"CMD\":\"ls\",\"_WORKFLOW_BUILD_TYPE\":\"manually\",\"_WORKFLOW_FLOW_TASK_ID\":\"9412\",\"_WORKFLOW_FLOW_UIN\":\"3321337994\",\"_WORKFLOW_FLOW_URL\":\"hub.tencentyun.com/hale/link/workflow_631579\",\"_WORKFLOW_GIT_REF\":\"master\",\"_WORKFLOW_GIT_TYPE\":\"branch\"}","output_value":"{}"},{"name":"job_1_1","status":"success","start":"2018-09-25T12:23:01.362117837Z","end":"2018-09-25T12:23:10.433572305Z","component":"hub.tencentyun.com/tencenthub/alpine_cmd:latest","resources":{"cpu":"1.0","memory":"1024Mi"},"inputs":[{"name":"CMD","value":"ls"}],"input_value":"{\"CMD\":\"ls\",\"_WORKFLOW_BUILD_TYPE\":\"manually\",\"_WORKFLOW_FLOW_TASK_ID\":\"9412\",\"_WORKFLOW_FLOW_UIN\":\"3321337994\",\"_WORKFLOW_FLOW_URL\":\"hub.tencentyun.com/hale/link/workflow_631579\",\"_WORKFLOW_GIT_REF\":\"master\",\"_WORKFLOW_GIT_TYPE\":\"branch\"}","output_value":"{}"}]},{"name":"stage_2","status":"running","start":"2018-09-25T12:23:10.438624584Z","sequencing":"parallel","type":"normal","jobs":[{"name":"job_2_0","status":"running","start":"2018-09-25T12:23:10.440092837Z","component":"hub.tencentyun.com/hale/link:latest","resources":{"cpu":"1.0","memory":"1024Mi"},"inputs":[{"name":"WEBHOOK","value":"https://oapi.dingtalk.com/robot/send?access_token=2b5fa4883deb4ac287040124925d3be5d665bf3101d368ad36c97a9f750e1a19"},{"name":"AT_MOBILES","value":""},{"name":"IS_AT_ALL","value":""},{"name":"MESSAGE","value":""},{"name":"_WORKFLOW_FLAG_TASK_DETAIL","value":"true"}],"input_value":"","output_value":""}]}],"detail_url":"https://console.cloud.tencent.com/tencenthub/repo/detail/hale/link/workflow/history/workflow_631579/9412","Namespace":"hale","Repo":"link"}`
+
+	m["TEXT"] = "hello world"
+	b, err := NewBuilder(m)
+	if err != nil {
+		t.Fatal(err)
+	}
+	b.run()
+}
